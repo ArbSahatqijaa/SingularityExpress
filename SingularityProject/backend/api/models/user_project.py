@@ -1,7 +1,7 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from .project import Project
 
-from django.contrib.auth import get_user_model
 User = get_user_model()
 
 ROLE_CHOICES = (
@@ -12,14 +12,23 @@ ROLE_CHOICES = (
 )
 
 class UserProject(models.Model):
-    user_project_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projects')
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='project_roles' 
+    )
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    role = models.CharField(max_length=12,
-                            choices=ROLE_CHOICES,
-                            default='COLLABORATOR')
-    
+    role = models.CharField(
+        max_length=12,
+        choices=ROLE_CHOICES,
+        default='OBSERVER'  
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = 'User-Project'
+        verbose_name_plural = 'User-Project'
+        unique_together = ('user', 'project')
+
     def __str__(self):
-        return f"{self.user_id} - {self.project_id} ({self.role})"
+        return f"{self.user.username} - {self.project.title} ({self.role})"
