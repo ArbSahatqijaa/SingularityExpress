@@ -6,6 +6,9 @@ from .models import Paper
 from .models import PaperProject
 from .models import UserPaper
 from .models import Review
+from .models import Tutorial
+from .models import RequiredRoles
+
 
 # Register your models here.
 
@@ -16,3 +19,5 @@ admin.site.register(Paper)
 admin.site.register(PaperProject)
 admin.site.register(UserPaper)
 admin.site.register(Review)
+admin.site.register(Tutorial)
+admin.site.register(RequiredRoles)
