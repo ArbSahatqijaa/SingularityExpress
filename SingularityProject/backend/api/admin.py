@@ -8,6 +8,7 @@ from .models import UserPaper
 from .models import Review
 from .models import Tutorial
 from .models import RequiredRoles
+from .models import Invitation
 
 
 # Register your models here.
@@ -21,3 +22,4 @@ admin.site.register(UserPaper)
 admin.site.register(Review)
 admin.site.register(Tutorial)
 admin.site.register(RequiredRoles)
+admin.site.register(Invitation)
