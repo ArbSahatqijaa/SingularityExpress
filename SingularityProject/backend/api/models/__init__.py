@@ -5,3 +5,5 @@ from .paper import Paper
 from .paper_project import PaperProject
 from .user_paper import UserPaper
 from .review import Review
+from .tutorial import Tutorial
+from .required_roles import RequiredRoles
