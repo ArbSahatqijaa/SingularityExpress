@@ -87,15 +87,20 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default': {  # Primary database (MySQL)
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'singularityexpress',      
         'USER': 'root',              
         'PASSWORD': 'ubtubt123', 
         'HOST': '127.0.0.1',         
         'PORT': '3306',              
+    },
+    'sqlite': {  # Secondary database (SQLite)
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
     }
-}   
+}
+
 
 
 # Password validation
