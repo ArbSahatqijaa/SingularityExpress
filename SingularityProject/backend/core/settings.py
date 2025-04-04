@@ -44,8 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'api.apps.ApiConfig',
-
+    'core',  # Add your core app here
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -91,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'singularityexpress',      
         'USER': 'root',              
-        'PASSWORD': 'ubtubt123', 
+        'PASSWORD': 'nexveh-7siwqi-tapVac', 
         'HOST': '127.0.0.1',         
         'PORT': '3306',              
     },
