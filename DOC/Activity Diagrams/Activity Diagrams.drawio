@@ -1,0 +1,214 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.17 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.17">
+  <diagram name="Page-1" id="IaBGFfTJcJAou513SyiT">
+    <mxGraphModel dx="1295" dy="2958" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="-2120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-3" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="1">
+          <mxGeometry x="40" y="-2160" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="-2120" as="targetPoint" />
+            <mxPoint x="240" y="-2120" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-9" value="Navigohet ne" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="-2140" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450.3333333333335" y="-2000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-11" value="Profile Page(faqja ku i tregon foton e profilit te dhenat portofolion e tije etj)" style="html=1;dropTarget=0;whiteSpace=wrap;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="360" y="-2170" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-12" value="" style="shape=module;jettyWidth=8;jettyHeight=4;" vertex="1" parent="vJpuu7xP0rfcYtgynVEz-11">
+          <mxGeometry x="1" width="20" height="20" relative="1" as="geometry">
+            <mxPoint x="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-13" value="Qaset ne faqe permes log-in" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="120" y="-2150" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fillColor=#a20025;strokeColor=#6F0000;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-15">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="-1840" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-15">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="-1840" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-15" value="&lt;b&gt;Deshiron qe te...&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;gradientColor=#ffd966;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="375" y="-2000" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-18" value="interact me feed" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="-1990" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-19" value="punosh ne projekte tua" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="-1990" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-20" value="Navigohet ne" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="-1900" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-21" value="Navigohet ne" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="-1900" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-24" value="&lt;b&gt;Feed&amp;nbsp;&lt;/b&gt;or&amp;nbsp;&lt;b&gt;FYP&lt;/b&gt;(ku shihet puna e kolegeve/ friends ose personave me profesione te njejta)" style="html=1;dropTarget=0;whiteSpace=wrap;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="540" y="-1840" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-25" value="" style="shape=module;jettyWidth=8;jettyHeight=4;" vertex="1" parent="vJpuu7xP0rfcYtgynVEz-24">
+          <mxGeometry x="1" width="20" height="20" relative="1" as="geometry">
+            <mxPoint x="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-26" value="&lt;b&gt;My Work(&lt;/b&gt;ku shihen projektet e punuara)" style="html=1;dropTarget=0;whiteSpace=wrap;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="150" y="-1840" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-27" value="" style="shape=module;jettyWidth=8;jettyHeight=4;" vertex="1" parent="vJpuu7xP0rfcYtgynVEz-26">
+          <mxGeometry x="1" width="20" height="20" relative="1" as="geometry">
+            <mxPoint x="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-30" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;Find your new colleagues&lt;/font&gt;&lt;div style=&quot;font-size: 20px;&quot;&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;&amp;nbsp;for a project&lt;/font&gt;&lt;/div&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="-1610" width="150" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-31" value="&lt;b&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;User&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="30" y="-2080" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-33" value="&lt;b&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;Find my project/collagues&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="50" y="-1430" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-34" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="220" y="-1390" as="sourcePoint" />
+            <mxPoint x="310" y="-1390" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="270" y="-1390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-35" value="Ni button qe ka&amp;nbsp; me&amp;nbsp;&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;u kon nprofil ose n&#39;feed&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;page per me gjet ti koleg&amp;nbsp;&lt;/span&gt;&lt;div&gt;per projektin tend&amp;nbsp;&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;ose me ju bashkangjit dikujt ne projekt&lt;/span&gt;&lt;/div&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="-1480" width="420" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-36" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="1">
+          <mxGeometry y="-1640" width="850" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-38" target="vJpuu7xP0rfcYtgynVEz-42">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="200" y="-1272.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-38" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="1">
+          <mxGeometry x="60" y="-1312.5" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-39" value="&lt;b&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;User&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="50" y="-1232.5" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-41" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;klikon butonin&lt;/font&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="-1302.5" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" target="vJpuu7xP0rfcYtgynVEz-48">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="485" y="-1156.5" as="targetPoint" />
+            <mxPoint x="425" y="-1276.5" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-42" value="&lt;b&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;Find my project/collagues&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="240" y="-1315" width="180" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-46" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;shfaqet&lt;/font&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="-1302.5" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-48" value="Faqja ku permes filtrimit (requirements) te shfaqen projektet e ngjajshme" style="html=1;dropTarget=0;whiteSpace=wrap;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="590" y="-1320" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-49" value="" style="shape=module;jettyWidth=8;jettyHeight=4;" vertex="1" parent="vJpuu7xP0rfcYtgynVEz-48">
+          <mxGeometry x="1" width="20" height="20" relative="1" as="geometry">
+            <mxPoint x="-20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-50">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="350" y="-930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-50" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="1">
+          <mxGeometry x="330" y="-1060" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-51" value="&lt;b&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;User&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="320" y="-1090" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-56" target="vJpuu7xP0rfcYtgynVEz-62">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="150" y="-770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-56" target="vJpuu7xP0rfcYtgynVEz-61">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="550" y="-780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-56" value="&lt;b&gt;Deshiron qe te...&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;gradientColor=#ffd966;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="275" y="-930" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-58" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;te bashkangjitet ne&amp;nbsp;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;nje projekt&lt;/font&gt;&lt;/div&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="-930" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-59" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;krijoj nje projekt&lt;/font&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="170" y="-920" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-66" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-61" target="vJpuu7xP0rfcYtgynVEz-65">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-61" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;Duhet qe ti pershtatesh requirements qe lideri i ekipes i ka vendos&lt;/b&gt;&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="440" y="-760" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-62">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="165.27272727272725" y="-530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-62" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;Je lider i asaj ekipe&lt;/b&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;dhe i vendos requirements se kush mund te hyj ne ekip te projektit tuaj&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="50" y="-760" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-64" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;Shfaqet chatbox i ekipes ku mund te diskutojne antaret e grupit&amp;nbsp;&lt;/b&gt;&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="50" y="-530" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-67" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#60a917;strokeColor=#2D7600;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-65" target="vJpuu7xP0rfcYtgynVEz-71">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="-420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#a20025;strokeColor=#6F0000;" edge="1" parent="1" source="vJpuu7xP0rfcYtgynVEz-65" target="vJpuu7xP0rfcYtgynVEz-72">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="720" y="-420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-65" value="&lt;b&gt;i permbush kerkesat?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;gradientColor=#ffd966;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="470" y="-580" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-69" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Jo&lt;/font&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="650" y="-556" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-70" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;Po&lt;/font&gt;" style="text;align=center;fontStyle=1;verticalAlign=middle;spacingLeft=3;spacingRight=3;strokeColor=none;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="-556" width="80" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-71" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;Je pjese e ekipes ku shfaqet chatbox dhe mund te komunikoni per punen tuaj&lt;/b&gt;&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="290" y="-410" width="230" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="vJpuu7xP0rfcYtgynVEz-72" value="&lt;span style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;Njoftoheni qe nuk jeni i pershtatshem per ate ekipe&lt;/b&gt;&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" vertex="1" parent="1">
+          <mxGeometry x="590" y="-410" width="230" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
