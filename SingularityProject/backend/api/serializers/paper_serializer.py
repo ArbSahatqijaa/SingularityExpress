@@ -1,32 +1,30 @@
 from rest_framework import serializers
-from models import Project
+from models import Paper
 
-class ProjectSerializer(serializers.ModelSerializer):
+class PaperSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Project
+        model = Paper
         fields = [
-            'project_id',
+            'paper_id',
             'title',
             'description',
             'visibility',
-            'status',
             'file_path',
-            'leader',
             'created_by',
             'created_at',
             'updated_at'
-        ] 
+        ]
         read_only_fields = [
-            'project_id',
+            'paper_id',
             'created_by',
             'created_at',
             'updated_at'
-            ]
-        
+        ]
+
     def create(self, validated_data):
-        return Project.objects.create(**validated_data)
-        
-    def update (self, instance, validated_data):
+        return Paper.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()

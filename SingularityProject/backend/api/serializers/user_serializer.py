@@ -38,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         if password:
             user.set_password(password)
-        user.Save()
+        user.save()
         return user
     
     def update(self, instance, validated_data):
