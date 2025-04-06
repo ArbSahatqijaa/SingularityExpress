@@ -92,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'singularityexpress',      
         'USER': 'root',              
-        'PASSWORD': 'nexveh-7siwqi-tapVac', 
+        'PASSWORD': 'ubtubt123', 
         'HOST': '127.0.0.1',         
         'PORT': '3306',              
     },
