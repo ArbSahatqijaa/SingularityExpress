@@ -7,6 +7,10 @@ VISIBILITY_CHOICES = (
     ('PUBLIC', 'Public'),
     ('PRIVATE', 'Private')
 )
+STATUS_CHOICES = (
+    ('ACTIVE', 'Active'),
+    ('COMPLETED', 'Completed'),
+)
 
 class Paper(models.Model):
     paper_id = models.AutoField(primary_key=True)
@@ -16,6 +20,11 @@ class Paper(models.Model):
         choices=VISIBILITY_CHOICES,
         max_length=7,
         default='PUBLIC')
+    status = models.CharField(
+        max_length=9,
+        choices=STATUS_CHOICES,
+        default='ACTIVE'
+    )
     file_path = models.FileField(
         upload_to='paper_files/'
     )
