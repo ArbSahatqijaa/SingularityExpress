@@ -17,7 +17,9 @@ class UserProject(models.Model):
         on_delete=models.CASCADE, 
         related_name='project_roles' 
     )
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, 
+                                on_delete=models.CASCADE, 
+                                related_name='project_users')
     role = models.CharField(
         max_length=12,
         choices=ROLE_CHOICES,
