@@ -1,26 +1,28 @@
-from rest_framework.response import Response
+from models.paper import Paper
+from serializers.paper_serializer import PaperSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from models.project import Project
-from serializers.project_serializer import ProjectSerializer
+from rest_framework.response import Response
 
-class ProjectViewSet(viewsets.ModelViewSet):
-    
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
+class PaperViewSet(viewsets.ModelViewSet):
+
+    queryset = Paper.objects.all()
+    serializer_class = PaperSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
-        """
-        Optionally filter projects based on query parameters.
-        """
+
+        "filter papers based on query parameters"
+
         queryset = super().get_queryset()
         visibility = self.request.query_params.get('visibility')
         status = self.request.query_params.get('status')
+
         if visibility:
             queryset = queryset.filter(visibility=visibility)
         if status:
             queryset = queryset.filter(status=status)
+
         return queryset
     
     def list(self, request, *args, **kwargs):
@@ -31,32 +33,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['created_by'] = request.user.user_id
         response = super().create(request, *args, **kwargs)
-        response.data['message'] = f"Project '{response.data['title']}' created successfully!"
+        response.data['message'] = f"Paper '{response.data['title']}' created successfully!"
         return response
     
     def retrieve(self, request, *args, **kwargs):
-        """
-        Customize the retrieve action to include additional details.
-        """
         response = super().retrieve(request, *args, **kwargs)
-        response.data['extra_info'] = "This is additional information about the project."
+        response.data['extra_info'] = 'This is additional information about the paper.'
+        return response 
+
+    def update(self, request, *args, **kwargs):
+        if 'created_by' in request.data:
+            request.data.pop('created_by')
+        response = super().update(request, *args, **kwargs)
+        response.data['message'] = f"Paper '{response.data['title']}' updated successfully!"
         return response
     
-    def update(self, request, *args, **kwargs):
-        """
-        Customize the update action to prevent changes to the created_by field.
-        """
-        if 'created_by' in request.data:
-            request.data.pop('created_by')  # Prevent modification of the created_by field
-        response = super().update(request, *args, **kwargs)
-        response.data['message'] = f"Project '{response.data['title']}' updated successfully!"
-        return response
-
     def destroy(self, request, *args, **kwargs):
-        """
-        Customize the destroy action to prevent deletion of completed projects.
-        """
-        instance = self.get_object()
-        if instance.status == 'COMPLETED':
-            return Response({"error": "Cannot delete a completed project."}, status=400)
+        instance=self.get_object()
+        if instane.status == 'COMPLETED':
+            return Response({'error': 'Cannot delete a completed paper.'}, status=400)
         return super().destroy(request, *args, **kwargs)
