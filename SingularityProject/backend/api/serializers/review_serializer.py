@@ -20,6 +20,11 @@ class ReviewSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
 
+    def validate_rating(self, value):
+        if not (1 <= value <=5):
+            raise serializers.ValidationError('Rating must be between 1 and 5')
+        return value
+
     def create(self, validated_data):
         """
         Create and return a new Review instance.
@@ -34,6 +39,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
 """""
     MUJM ME SHTU MA VON VARET SA NA DUHET KJO METODA
     def validate_rating(self, value):
