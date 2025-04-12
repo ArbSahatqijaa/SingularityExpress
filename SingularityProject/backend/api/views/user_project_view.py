@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status 
+from rest_framework import status
 from django.http import Http404
 from api.serializers.user_project_serialzier import UserProjectSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from django.db import IntegrityError
 from api.models.user_project import UserProject
 
 class UserProjectListCreateView(APIView):
@@ -28,16 +28,23 @@ class UserProjectListCreateView(APIView):
         return Response(serializer.data)
     
     def post(self, request, format=None):
-        serializer = UserProjectSerializer(data=request.data)
-        
+        serializer = UserProjectSerializer(data=request.data)  # Properly indented
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
+            try:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
+                    {"detail": "This user is already assigned to this project."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class UserProjectDetailView(APIView):
-    
+    permission_classes = [IsAuthenticated]
+
     def get_object(self, pk):
         try:
             return UserProject.objects.get(pk=pk)

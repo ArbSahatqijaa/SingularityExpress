@@ -31,12 +31,14 @@ class PaperListCreateView(APIView):
         serializer = PaperSerializer(data=request.data)
         
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(created_by=request.user)  # Set the creator explicitly
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         
 class PaperDetailView(APIView):
+    permission_classes = [IsAuthenticated]
     
     def get_object(self, pk):
         try:

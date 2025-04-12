@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models import Paper
+from api.models import Paper
 
 class PaperSerializer(serializers.ModelSerializer):
     class Meta:
