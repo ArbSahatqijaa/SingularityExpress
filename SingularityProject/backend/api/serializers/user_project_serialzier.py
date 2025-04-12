@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from models import UserProject, Project
-from project_serializer import ProjectSerializer
-from user_serializer import UserSerializer
+from api.models import UserProject, Project
+from .project_serializer import ProjectSerializer
+from .user_serializer import UserSerializer
 
 from django.contrib.auth import get_user_model
 User = get_user_model()

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models import Friendship
+from api.models import Friendship
 
 class FriendshipSerializer(serializers.ModelSerializer):
     class Meta:

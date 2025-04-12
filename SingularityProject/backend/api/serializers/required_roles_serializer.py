@@ -1,19 +1,13 @@
 from rest_framework import serializers
-from models import RequiredRoles
+from django.contrib.contenttypes.models import ContentType
+from api.models.required_roles import RequiredRoles
 
 class RequiredRolesSerializer(serializers.ModelSerializer):
+    content_type = serializers.SlugRelatedField(
+        slug_field='model',
+        queryset=ContentType.objects.all()
+    )
+
     class Meta:
         model = RequiredRoles
-        fields =[
-            'required_roles_id',
-            'content_type',
-            'object_id',
-            'content_object',
-            'role',
-            'quantity',
-            'required_profession',
-            'active'
-        ]
-        read_only_fields = ['required_roles_id']
-        
-    
+        fields = '__all__'

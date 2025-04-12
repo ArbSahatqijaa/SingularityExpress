@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from models import Paper, PaperProject, Project
-from project_serializer import ProjectSerializer
-from paper_serializer import PaperSerializer
+from api.models import Paper, PaperProject, Project
+from .project_serializer import ProjectSerializer
+from .paper_serializer import PaperSerializer
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
