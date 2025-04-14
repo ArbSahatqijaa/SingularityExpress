@@ -98,7 +98,22 @@ DATABASES = {
     },
 }
 
-
+# MongoDB configuration used for manual connection via PyMongo (see utils.py).
+# These settings are required for establishing a connection to the MongoDB database.
+# 
+# 🔁 You need to import this in any file where you're calling get_db_handle(), for example:
+#     from django.conf import settings
+#     cfg = settings.MONGO_CONFIG
+#     db_handle, mongo_client = get_db_handle(...)
+#
+# ⚠️ NOTE: For security and flexibility, consider moving these to a .env file in production.
+MONGO_CONFIG = {
+    'DB_NAME': 'mongo_singularity',
+    'HOST': 'localhost',
+    'PORT': 27017,
+    'USERNAME': 'mongouser',
+    'PASSWORD': 'ubtubt123'
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
