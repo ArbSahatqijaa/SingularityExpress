@@ -4,7 +4,6 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -27,7 +26,13 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Friendship',
                 'verbose_name_plural': 'Friendships',
                 'db_table': 'Friends',
-                'constraints': [models.UniqueConstraint(fields=('from_user', 'to_user'), name='unique_friendship'), models.CheckConstraint(condition=models.Q(('from_user', models.F('to_user')), _negated=True), name='prevent_self_friendship')],
+                'constraints': [
+                    models.UniqueConstraint(fields=('from_user', 'to_user'), name='unique_friendship'),
+                    models.CheckConstraint(
+                        check=~models.Q(from_user=models.F('to_user')),  # Corrected line
+                        name='prevent_self_friendship'
+                    ),
+                ],
             },
         ),
     ]

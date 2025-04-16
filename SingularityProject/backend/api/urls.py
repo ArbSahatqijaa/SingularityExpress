@@ -10,6 +10,8 @@ from .views.project_view import ProjectListCreateView, ProjectDetailView
 from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
+from . import views
+
 
 urlpatterns = [
     # User URLs
@@ -55,4 +57,9 @@ urlpatterns = [
     # Invitation URLs
     path('invitations/', InvitationListCreateView.as_view(), name='invitation-list-create'),
     path('invitations/<int:pk>/', InvitationDetailView.as_view(), name='invitation-detail'),
+
+    path('create_message/', views.create_message, name='create_message'),
+    path('get_messages/<str:conversation_id>/', views.get_messages, name='get_messages'),
+    path('update_message/<str:message_id>/', views.update_message, name='update_message'),
+    path('delete_message/<str:message_id>/', views.delete_message, name='delete_message'),
 ]
