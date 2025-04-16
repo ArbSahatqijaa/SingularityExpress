@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'api.apps.ApiConfig',
-    'core',  # Add your core app here
+    'core',  # Add your core app here,
 ]
 
 
