@@ -11,6 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'email',
+            'password',             
             'role',
             'academic_title',
             'profession',
@@ -25,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
             'user_id',
             'created_at',
             'updated_at',
+            'is_active',
             'is_staff',
             'is_superuser'
         ]

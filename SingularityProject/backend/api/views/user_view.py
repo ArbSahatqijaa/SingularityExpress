@@ -3,13 +3,31 @@ from rest_framework.response import Response
 from rest_framework import status 
 from django.http import Http404
 from api.serializers.user_serializer import UserSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    """
+    Overrides DRF's SessionAuthentication to skip CSRF checks.
+    """
+    def enforce_csrf(self, request):
+        return  # no-op: skip CSRF
+
+
 class UserListCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+
+    authentication_classes = (CsrfExemptSessionAuthentication,)
+    permission_classes=()
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
 
     def get(self, request, format=None):
         users = User.objects.all()   #query all User instances
