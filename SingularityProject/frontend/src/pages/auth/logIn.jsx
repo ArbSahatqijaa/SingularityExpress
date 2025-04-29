@@ -1,33 +1,84 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import API from "../../services/axios";
 
 const Login = () => {
+  const [creds, setCreds] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setCreds({
+      ...creds,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const { data: { access } } = await API.post("/token/", creds);
+      localStorage.setItem("jwt", access);
+      API.defaults.headers["Authorization"] = `Bearer ${access}`;
+
+      const { data: user } = await API.get("/whoami/");
+
+      navigate(user.is_staff ? "/admin-dashboard" : "/home");
+    } catch {
+      setError("Login failed. Please check your credentials.");
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="flex items-center justify-center bg-gray-100 py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800">Welcome Back</h2>
-        <form className="space-y-4">
+        <h2 className="text-2xl font-bold text-center text-gray-800">
+          Welcome Back
+        </h2>
+
+        {error && (
+          <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4 text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">Email</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Username
+            </label>
             <input
-              type="email"
+              name="username"
+              type="text"
               required
+              value={creds.username}
+              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-600">Password</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Password
+            </label>
             <input
+              name="password"
               type="password"
               required
+              value={creds.password}
+              onChange={handleChange}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
           <div className="flex justify-between items-center text-sm">
             <Link to="/forgot-password" className="text-blue-600 hover:underline">
               Forgot password?
             </Link>
           </div>
+
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold"
@@ -35,8 +86,9 @@ const Login = () => {
             Sign In
           </button>
         </form>
+
         <p className="text-center text-sm">
-          Don't have an account?{" "}
+          Don't have an account?{' '}
           <Link to="/signup" className="text-blue-600 hover:underline">
             Sign Up
           </Link>

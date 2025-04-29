@@ -1,4 +1,6 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .views.auth import WhoAmI
 from .views.user_view import UserDetailView, UserListCreateView
 from .views.friendship_view import FriendshipListCreateView, FriendshipDetailView
 from .views.user_project_view import UserProjectDetailView, UserProjectListCreateView
@@ -14,6 +16,12 @@ from . import views
 
 
 urlpatterns = [
+
+    #JWT
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    #fetches the logged-in user
+    path('whoami/', WhoAmI.as_view(), name='whoami'),
+
     # User URLs
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
