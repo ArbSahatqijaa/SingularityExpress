@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import API from "../../services/axios";
+import API from "../../services/api";
 
 const Signup = () => {
   const [form, setForm] = useState({

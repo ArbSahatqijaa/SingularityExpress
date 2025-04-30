@@ -5,6 +5,7 @@ from django.http import Http404
 from api.serializers.user_serializer import UserSerializer
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -20,8 +21,10 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 class UserListCreateView(APIView):
 
-    authentication_classes = (CsrfExemptSessionAuthentication,)
-    permission_classes=()
+    authentication_classes = (
+        CsrfExemptSessionAuthentication,
+        JWTAuthentication,
+        )
 
     def get_permissions(self):
         if self.request.method == 'POST':
