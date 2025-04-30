@@ -1,17 +1,24 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import ProfileAvatar from "./profileAvatar";
-import AboutMe from "../aboutMe/aboutMe";
+import API from "../../services/api";
 import ProjectCard from "../projectCard/projectCard";
 
 const Profile = () => {
-  const user = {
-    name: "John Doe",
-    handle: "@johndoe",
-    email: "johndoe@example.com",
-    bio: "Web developer, tech enthusiast, coffee lover.",
-    avatar: "https://via.placeholder.com/150",
-  };
+  const [user, setUser] = useState(undefined);
+
+  useEffect(() => {
+    API.get('/whoami/')
+      .then(({ data }) => {
+        console.log(data); // Log the response data
+        setUser(data);
+      })
+      .catch((error) => {
+        console.error(error.response); // Log the full error response
+        setUser(null);
+      });
+  }, []); // Add the empty dependency array here
+  
 
   const projects = [
     {
@@ -28,6 +35,15 @@ const Profile = () => {
     },
   ];
 
+  // Handle loading and error states
+  if (user === undefined) {
+    return <div className="p-8 text-gray-700">Loading...</div>;
+  }
+
+  if (user === null) {
+    return <div className="p-8 text-red-600">Failed to load user data.</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-8 space-y-6">
       {/* Profile Card */}
@@ -43,8 +59,10 @@ const Profile = () => {
         {/* User Info */}
         <div className="pt-16 px-6 pb-6 flex justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
-            <p className="text-gray-500">{user.handle}</p>
+            <h2 className="text-2xl font-bold text-gray-800">
+              {user.first_name} {user.last_name}
+            </h2>
+            <p className="text-gray-500">{user.username}</p>
           </div>
           <Link
             to="/edit-profile"
@@ -70,11 +88,8 @@ const Profile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">About Me</h3>
-          <p className="text-black-600 mt-4 font bold text-xl">{user.name}</p>
-          <p className="text-gray-600">{user.bio}</p>
+          <p className="text-black-600 mt-4 font-bold text-xl">{user.first_name} {user.last_name}</p>
           <p className="text-gray-600 mt-4">Email: {user.email}</p>
-          <p className="text-gray-600 mt-4">{user.bio}</p>
-
         </div>
 
         {/* Projects (Right Side) */}
@@ -97,4 +112,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

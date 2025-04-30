@@ -13,6 +13,9 @@ from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 
 urlpatterns = [
@@ -70,4 +73,4 @@ urlpatterns = [
     path('get_messages/<str:conversation_id>/', views.get_messages, name='get_messages'),
     path('update_message/<str:message_id>/', views.update_message, name='update_message'),
     path('delete_message/<str:message_id>/', views.delete_message, name='delete_message'),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

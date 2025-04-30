@@ -38,6 +38,11 @@ class User(AbstractUser):
     academic_title = models.CharField(max_length=50, null=True, blank=True)
     profession = models.CharField(max_length=100, null=True, blank=True)
     refresh_token = models.CharField(max_length=255, null=True, blank=True)
+    
+    # Use ImageField for avatar and cover
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    cover = models.ImageField(upload_to='covers/', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
