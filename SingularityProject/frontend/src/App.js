@@ -18,6 +18,8 @@ import Dashboard from './pages/auth/dashboard/Dashboard';
 import RequireStaff from './pages/auth/RequireStaff';
 
 // User profile pages
+import UsersPage from './pages/auth/dashboard/user/UserPage';
+import UserForm from './pages/auth/dashboard/user/UserForm';
 import Profile from './components/userProfile/profile';
 import EditProfile from './components/userProfile/editProfile';
 import AboutMe from './components/aboutMe/aboutMe';
@@ -45,15 +47,19 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* Staff-only dashboard */}
-        <Route
-          path="/dashboard"
-          element={
-            <RequireStaff>
-              <Dashboard />
-            </RequireStaff>
-          }
-        />
+         {/* Staff-only routes */}
+         <Route element={<RequireStaff><Outlet/></RequireStaff>}>
+          {/* Top‐level dashboard overview */}
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Users CRUD */}
+          <Route path="/dashboard/users" element={<UsersPage />} />
+          <Route path="/dashboard/users/new" element={<UserForm />} />
+          <Route path="/dashboard/users/edit/:userId" element={<UserForm />} />
+        
+        </Route>
+
+
 
         {/* All other routes that need the NavigationBar */}
         <Route element={<LayoutWithNav />}>

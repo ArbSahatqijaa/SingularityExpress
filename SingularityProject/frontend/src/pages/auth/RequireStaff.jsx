@@ -16,7 +16,7 @@ export default function RequireStaff({ children }) {
   }
 
   if (user === null || !user.is_staff) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/profile" replace />;
   }
 
   return children;

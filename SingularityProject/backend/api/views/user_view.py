@@ -77,7 +77,7 @@ class UserDetailView(APIView):
 
     def put(self, request, pk, format=None):
         user = self.get_object(pk)
-        data = request.data
+        data = request.data.copy()
 
         # If password is provided, hash it
         if 'password' in data:
@@ -91,7 +91,7 @@ class UserDetailView(APIView):
 
     def patch(self, request, pk, format=None):
         user = self.get_object(pk)
-        data = request.data
+        data = request.data.copy()
 
         if 'password' in data:
             data['password'] = make_password(data['password'])

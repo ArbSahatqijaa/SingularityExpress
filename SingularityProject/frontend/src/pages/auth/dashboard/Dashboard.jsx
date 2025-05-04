@@ -1,3 +1,4 @@
+// src/pages/auth/dashboard/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../services/api';
@@ -110,28 +111,52 @@ const Dashboard = () => {
       <h1 className="text-center mb-5 fw-bold text-primary">Dashboard</h1>
 
       <div className="d-flex justify-content-center flex-wrap gap-2 mb-5">
-        <button className="btn btn-outline-primary" onClick={() => navigate('/users')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/users')}
+        >
           Users
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/friendships')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/friendships')}
+        >
           Friendships
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/projects')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/projects')}
+        >
           Projects
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/papers')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/papers')}
+        >
           Papers
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/tutorials')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/tutorials')}
+        >
           Tutorials
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/reviews')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/reviews')}
+        >
           Reviews
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/invitations')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/invitations')}
+        >
           Invitations
         </button>
-        <button className="btn btn-outline-primary" onClick={() => navigate('/required_roles')}>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/dashboard/required_roles')}
+        >
           Roles
         </button>
       </div>
@@ -145,18 +170,37 @@ const Dashboard = () => {
 
           <h3 className="mt-4">Summary</h3>
           <ul className="list-group">
-            <li className="list-group-item">Users: {data.total_users || 0}</li>
-            <li className="list-group-item">Friendships: {data.total_friendships || 0}</li>
-            <li className="list-group-item">Projects: {data.total_projects || 0}</li>
-            <li className="list-group-item">Papers: {data.total_papers || 0}</li>
-            <li className="list-group-item">Tutorials: {data.total_tutorials || 0}</li>
-            <li className="list-group-item">Reviews: {data.total_reviews || 0}</li>
-            <li className="list-group-item">Invitations: {data.total_invitations || 0}</li>
-            <li className="list-group-item">Roles: {data.total_roles || 0}</li>
+            <li className="list-group-item">
+              Users: {data.total_users || 0}
+            </li>
+            <li className="list-group-item">
+              Friendships: {data.total_friendships || 0}
+            </li>
+            <li className="list-group-item">
+              Projects: {data.total_projects || 0}
+            </li>
+            <li className="list-group-item">
+              Papers: {data.total_papers || 0}
+            </li>
+            <li className="list-group-item">
+              Tutorials: {data.total_tutorials || 0}
+            </li>
+            <li className="list-group-item">
+              Reviews: {data.total_reviews || 0}
+            </li>
+            <li className="list-group-item">
+              Invitations: {data.total_invitations || 0}
+            </li>
+            <li className="list-group-item">
+              Roles: {data.total_roles || 0}
+            </li>
           </ul>
 
           <div className="text-center mt-4">
-            <button className="btn btn-link" onClick={() => navigate('/')}>
+            <button
+              className="btn btn-link"
+              onClick={() => navigate('/login')}
+            >
               Return to Homepage
             </button>
           </div>

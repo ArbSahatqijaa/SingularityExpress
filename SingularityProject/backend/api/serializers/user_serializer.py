@@ -34,7 +34,6 @@ class UserSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'is_active',
-            'is_staff',
             'is_superuser'
         ]
         extra_kwargs = {
