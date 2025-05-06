@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',   
     'api.apps.ApiConfig',
     'core',
+    'rest_framework', 
 ]
 
 REST_FRAMEWORK = {

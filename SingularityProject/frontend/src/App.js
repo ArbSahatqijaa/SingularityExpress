@@ -25,6 +25,14 @@ import EditProfile from './components/userProfile/editProfile';
 import AboutMe from './components/aboutMe/aboutMe';
 import ProjectCard from './components/projectCard/projectCard';
 
+// Paper pages
+import PaperPage from './pages/auth/dashboard/paper/PaperPage';
+import PaperForm from './pages/auth/dashboard/paper/PaperForm';
+
+//Project pages
+import ProjectPage from './pages/auth/dashboard/project/ProjectPage';
+import ProjectForm from './pages/auth/dashboard/project/ProjectForm';
+
 // ─── Layout wrapper that shows the NavigationBar on every protected page ──
 function LayoutWithNav() {
   return (
@@ -56,7 +64,16 @@ function App() {
           <Route path="/dashboard/users" element={<UsersPage />} />
           <Route path="/dashboard/users/new" element={<UserForm />} />
           <Route path="/dashboard/users/edit/:userId" element={<UserForm />} />
-        
+
+          {/* Paper CRUD */}
+          <Route path="/dashboard/papers" element={<PaperPage />} />
+          <Route path="/dashboard/papers/new" element={<PaperForm />} />
+          <Route path="/dashboard/papers/edit/:paperId" element={<PaperForm />} />
+
+          {/* Project CRUD */}
+          <Route path="/dashboard/projects" element={<ProjectPage />} />
+          <Route path="/dashboard/projects/new" element={<ProjectForm />} />
+          <Route path="/dashboard/projects/edit/:projectID" element={<ProjectForm />} />        
         </Route>
 
 

@@ -13,6 +13,7 @@ class ProjectListCreateView(APIView):
     def get(self, request, format=None):
         projects = Project.objects.all()
         
+        # Filter projects by query parameters
         title = request.GET.get('title')
         visibility = request.GET.get('visibility')
         status_filter = request.GET.get('status')
@@ -31,6 +32,7 @@ class ProjectListCreateView(APIView):
         return Response(serializer.data)
     
     def post(self, request, format=None):
+        # Handle file uploads correctly with `request.FILES`
         serializer = ProjectSerializer(data=request.data)
         
         if serializer.is_valid():

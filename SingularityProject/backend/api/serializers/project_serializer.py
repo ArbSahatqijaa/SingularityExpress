@@ -1,7 +1,11 @@
 from rest_framework import serializers
+from api.models import User
 from api.models import Project
 
 class ProjectSerializer(serializers.ModelSerializer):
+    leader = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+
     class Meta:
         model = Project
         fields = [
@@ -22,5 +26,3 @@ class ProjectSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at'
             ]
-        
-   

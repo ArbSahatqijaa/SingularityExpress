@@ -110,56 +110,48 @@ const Dashboard = () => {
     <div className="container py-5">
       <h1 className="text-center mb-5 fw-bold text-primary">Dashboard</h1>
 
-      <div className="d-flex justify-content-center flex-wrap gap-2 mb-5">
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/users')}
-        >
-          Users
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/friendships')}
-        >
-          Friendships
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/projects')}
-        >
-          Projects
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/papers')}
-        >
-          Papers
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/tutorials')}
-        >
-          Tutorials
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/reviews')}
-        >
-          Reviews
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/invitations')}
-        >
-          Invitations
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/dashboard/required_roles')}
-        >
-          Roles
-        </button>
-      </div>
+      <ul className="nav nav-pills justify-content-center mb-5 flex-wrap gap-2">
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/users')}>
+      Users
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/friendships')}>
+      Friendships
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/projects')}>
+      Projects
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/papers')}>
+      Papers
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/tutorials')}>
+      Tutorials
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/reviews')}>
+      Reviews
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/invitations')}>
+      Invitations
+    </button>
+  </li>
+  <li className="nav-item">
+    <button className="nav-link" onClick={() => navigate('/dashboard/required_roles')}>
+      Roles
+    </button>
+  </li>
+</ul>
 
       <div className="card shadow mb-5">
         <div className="card-body">
