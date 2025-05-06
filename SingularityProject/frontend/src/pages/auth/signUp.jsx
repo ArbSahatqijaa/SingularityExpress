@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 
-const Signup = () => {
+export default function Signup() {
   const [form, setForm] = useState({
     username: "",
     first_name: "",
@@ -24,7 +24,16 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    if (form.password !== form.confirmPassword) {
+    const pw = form.password;
+    const pwValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(pw);
+    if (!pwValid) {
+      setError(
+        "Password must be at least 8 characters and include both letters and numbers."
+      );
+      return;
+    }
+
+    if (pw !== form.confirmPassword) {
       setError("Passwords don’t match");
       return;
     }
@@ -37,7 +46,7 @@ const Signup = () => {
         email: form.email,
         academic_title: form.academic_title,
         profession: form.profession,
-        password: form.password,
+        password: pw,
       });
       navigate("/login");
     } catch (err) {
@@ -52,15 +61,12 @@ const Signup = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800">
           Create an Account
         </h2>
-
         {error && (
           <div className="bg-red-100 text-red-800 p-3 rounded mb-4 text-center">
             {error}
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Username
@@ -74,8 +80,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* First Name */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               First Name
@@ -89,8 +93,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Last Name */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Last Name
@@ -104,8 +106,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Email
@@ -119,8 +119,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Academic Title */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Academic Title
@@ -138,8 +136,6 @@ const Signup = () => {
               <option value="PhD">PhD</option>
             </select>
           </div>
-
-          {/* Profession */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Profession
@@ -153,8 +149,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Password
@@ -168,8 +162,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Confirm Password */}
           <div>
             <label className="block text-sm font-medium text-gray-600">
               Confirm Password
@@ -183,8 +175,6 @@ const Signup = () => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold"
@@ -192,7 +182,6 @@ const Signup = () => {
             Sign Up
           </button>
         </form>
-
         <p className="text-center text-sm">
           Already have an account?{" "}
           <Link to="/login" className="text-blue-600 hover:underline">
@@ -202,6 +191,4 @@ const Signup = () => {
       </div>
     </div>
   );
-};
-
-export default Signup;
+}

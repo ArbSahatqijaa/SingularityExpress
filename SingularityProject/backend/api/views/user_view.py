@@ -8,6 +8,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 User = get_user_model()
 
@@ -25,6 +26,13 @@ class UserListCreateView(APIView):
         CsrfExemptSessionAuthentication,
         JWTAuthentication,
     )
+
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def get_authenticators(self):
+        if self.request.method == 'POST':
+            return [CsrfExemptSessionAuthentication()]
+        return super().get_authenticators()
 
     def get_permissions(self):
         if self.request.method == 'POST':
