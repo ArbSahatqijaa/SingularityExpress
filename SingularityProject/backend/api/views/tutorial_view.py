@@ -22,16 +22,10 @@ class TutorialListCreateView(APIView):
         return Response(serializer.data)
     
     def post(self, request, format=None):
-        # Proper indentation here
-        data = request.data.copy()
-        data['created_by'] = request.user.id  # override with current user
-
-        serializer = TutorialSerializer(data=data)
-        
+        serializer = TutorialSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class TutorialDetailView(APIView):

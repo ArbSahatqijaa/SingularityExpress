@@ -31,7 +31,7 @@ class ReviewListCreateView(APIView):
         serializer = ReviewSerializer(data=request.data)
         
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(reviewer=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -55,7 +55,7 @@ class ReviewDetailView(APIView):
         serializer = ReviewSerializer(review, data=request.data)
         
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(reviewer=request.user)
             return Response(serializer.data)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -65,7 +65,7 @@ class ReviewDetailView(APIView):
         serializer = ReviewSerializer(review, data=request.data, partial=True)
         
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(reviewer=request.user)
             return Response(serializer.data)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

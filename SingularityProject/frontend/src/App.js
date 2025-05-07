@@ -33,6 +33,14 @@ import PaperForm from './pages/auth/dashboard/paper/PaperForm';
 import ProjectPage from './pages/auth/dashboard/project/ProjectPage';
 import ProjectForm from './pages/auth/dashboard/project/ProjectForm';
 
+//Tutorial Pages
+import TutorialPage from './pages/auth/dashboard/tutorial/TutorialPage';
+import TutorialForm from './pages/auth/dashboard/tutorial/TutorialForm';
+
+//Review Pages
+import ReviewPage from './pages/auth/dashboard/review/ReviewPage';
+import ReviewForm from './pages/auth/dashboard/review/ReviewForm';
+
 // ─── Layout wrapper that shows the NavigationBar on every protected page ──
 function LayoutWithNav() {
   return (
@@ -73,7 +81,17 @@ function App() {
           {/* Project CRUD */}
           <Route path="/dashboard/projects" element={<ProjectPage />} />
           <Route path="/dashboard/projects/new" element={<ProjectForm />} />
-          <Route path="/dashboard/projects/edit/:projectID" element={<ProjectForm />} />        
+          <Route path="/dashboard/projects/edit/:projectID" element={<ProjectForm />} />   
+
+          {/* Tutorial CRUD */}
+          <Route path="/dashboard/tutorials" element={<TutorialPage />} />
+         <Route path="/dashboard/tutorials/new" element={<TutorialForm />} />
+          <Route path="/dashboard/tutorials/edit/:TutorialID" element={<TutorialForm />} /> 
+
+          {/* Review CRUD */}
+          <Route path="/dashboard/reviews" element={<ReviewPage />} />
+         <Route path="/dashboard/reviews/new" element={<ReviewForm />} />
+          <Route path="/dashboard/reviews/edit/:ReviewID" element={<ReviewForm />} /> 
         </Route>
 
 

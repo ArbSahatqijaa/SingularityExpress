@@ -73,11 +73,13 @@ export default function ProjectsPage() {
         <thead className="table-dark">
           <tr>
             <th>ID</th>
+            <th>Title</th>
             <th>Description</th>
             <th>Visibility</th>
             <th>Status</th>
             <th>File Path</th>
             <th>Leader</th>
+            <th>Created_by</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -85,6 +87,7 @@ export default function ProjectsPage() {
           {projects.map(u => (
             <tr key={u.project_id}>
               <td>{u.project_id}</td>
+              <td>{u.title}</td>
               <td>{u.description}</td>
               <td>{u.visibility}</td>
               <td>
@@ -98,6 +101,7 @@ export default function ProjectsPage() {
               </td>
               <td>{u.file_path}</td>
               <td>{u.leader}</td>
+              <td>{u.created_by}</td>
               <td>
                 {canManage(u) ? (
                   <>

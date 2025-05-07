@@ -51,6 +51,8 @@ export default function PaperPage() {
                 <th>Description</th>
                 <th>Status</th>
                 <th>Visibility</th>
+                <th>File Path</th>
+                <th>created_by</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -62,6 +64,8 @@ export default function PaperPage() {
                   <td>{p.description}</td>
                   <td>{p.status}</td>
                   <td>{p.visibility}</td>
+                  <td>{p.file_path}</td>
+                  <td>{p.created_by}</td>
                   <td>
                     <button className="btn btn-warning btn-sm me-1" onClick={() => handleEdit(p.paper_id)}>
                       Edit
