@@ -41,6 +41,14 @@ import TutorialForm from './pages/auth/dashboard/tutorial/TutorialForm';
 import ReviewPage from './pages/auth/dashboard/review/ReviewPage';
 import ReviewForm from './pages/auth/dashboard/review/ReviewForm';
 
+//Friendship Pages
+import FriendshipPage from './pages/auth/dashboard/friendship/FriendshipPage';
+import FriendshipForm from './pages/auth/dashboard/friendship/FriendshipForm';
+
+//Invitation Pages
+import InvitationPage from './pages/auth/dashboard/invitation/InvitationPage';
+import InvitationForm from './pages/auth/dashboard/invitation/InvitationForm';
+
 // ─── Layout wrapper that shows the NavigationBar on every protected page ──
 function LayoutWithNav() {
   return (
@@ -91,7 +99,17 @@ function App() {
           {/* Review CRUD */}
           <Route path="/dashboard/reviews" element={<ReviewPage />} />
          <Route path="/dashboard/reviews/new" element={<ReviewForm />} />
-          <Route path="/dashboard/reviews/edit/:ReviewID" element={<ReviewForm />} /> 
+          <Route path="/dashboard/reviews/edit/:ReviewID" element={<ReviewForm />} />
+          
+          {/* Friendship CRUD */}
+          <Route path="/dashboard/friendships" element={<FriendshipPage />} />
+          <Route path="/dashboard/friendships/new" element={<FriendshipForm />} />
+          <Route path="/dashboard/friendships/edit/:friendshipId" element={<FriendshipForm />} />
+          
+          {/* Invitation CRUD */}
+          <Route path="/dashboard/invitations" element={<InvitationPage />} />
+          <Route path="/dashboard/invitations/new" element={<InvitationForm />} />
+          <Route path="/dashboard/invitations/edit/:invitationId" element={<InvitationForm />} />
         </Route>
 
 
