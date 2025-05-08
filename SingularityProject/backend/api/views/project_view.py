@@ -4,11 +4,13 @@ from rest_framework import status
 from django.http import Http404
 from api.serializers.project_serializer import ProjectSerializer
 from rest_framework.permissions import IsAuthenticated
-
 from api.models.project import Project
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class ProjectListCreateView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
+
     
     def get(self, request, format=None):
         projects = Project.objects.all()
@@ -36,14 +38,16 @@ class ProjectListCreateView(APIView):
         serializer = ProjectSerializer(data=request.data)
         
         if serializer.is_valid():
-            serializer.save(created_by=request.user)  # <-- Required
+            serializer.save(created_by=request.user, leader=request.user)  # <-- Required
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class ProjectDetailView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
-    
+
+
     def get_object(self, pk):
         try:
             return Project.objects.get(pk=pk)
@@ -57,6 +61,20 @@ class ProjectDetailView(APIView):
             
     def put(self, request, pk, format=None):
         project = self.get_object(pk)
+        
+        new_leader = request.data.get('leader', None)
+
+        if new_leader is not None:
+            if not (
+                request.user == project.leader
+                or request.user.is_staff
+                or request.user.is_superuser
+            ):
+                return Response(
+                    {"detail": "Only the current leader, staff, or superuser may reassign leadership."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
         serializer = ProjectSerializer(project, data=request.data)
         
         if serializer.is_valid():

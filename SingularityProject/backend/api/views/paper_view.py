@@ -4,10 +4,13 @@ from rest_framework import status
 from django.http import Http404
 from api.serializers.paper_serializer import PaperSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from api.models.user_paper import UserPaper
 from api.models.paper import Paper
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 class PaperListCreateView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
     
     def get(self, request, format=None):
@@ -29,15 +32,22 @@ class PaperListCreateView(APIView):
     
     def post(self, request, format=None):
         serializer = PaperSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save(created_by=request.user)  # Set the creator explicitly
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        paper = serializer.save(created_by = request.user)
+
+        return Response (
+            PaperSerializer(paper).data,
+            status=status.HTTP_201_CREATED
+        )
+        
+        
+        
 class PaperDetailView(APIView):
+    parser_classes = [FormParser, MultiPartParser]
     permission_classes = [IsAuthenticated]
     
     def get_object(self, pk):
@@ -51,18 +61,39 @@ class PaperDetailView(APIView):
         serializer = PaperSerializer(paper)
         return Response(serializer.data)
             
+    
     def put(self, request, pk, format=None):
         paper = self.get_object(pk)
-        serializer = PaperSerializer(paper, data=request.data)
+
+        if not (
+            request.user == paper.created_by 
+            or request.user.is_staff 
+            or request.user.is_superuser
+        ):
+            return Response(
+                {'detail': 'Permission denied.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
+        serializer = PaperSerializer(paper, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         
     def patch(self, request, pk, format=None):
         paper = self.get_object(pk)
+
+        if not (request.user == paper.created_by
+                or request.user.is_staff
+                or request.user.is_superuser):
+            return Response(
+                {'detail': 'Permission denied.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+
         serializer = PaperSerializer(paper, data=request.data, partial=True)
         
         if serializer.is_valid():
@@ -73,5 +104,17 @@ class PaperDetailView(APIView):
         
     def delete(self, request, pk, format=None):
         paper = self.get_object(pk)
+
+        if not (
+            request.user == paper.created_by
+            or request.user.is_staff
+            or request.user.is_superuser
+        ):
+            return Response(
+                {"detail": "Permission denied."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+
         paper.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
