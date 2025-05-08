@@ -7,6 +7,7 @@ export default function FriendshipForm() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    id: null,          // ← hold the Friendship PK
     from_user: '',
     to_user: '',
     status: 'PENDING',
@@ -17,16 +18,15 @@ export default function FriendshipForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // 1) load current user & all users
   useEffect(() => {
-    // Fetch user info and all users for selection
     API.get('/whoami/')
       .then(({ data }) => {
         setMe(data);
         setForm(f => ({
           ...f,
-          from_user: data.id, // Set from_user to current user by default
+          from_user: data.user_id,  // your CustomUser PK field
         }));
-
         return API.get('/users/');
       })
       .then(({ data }) => setUsers(data))
@@ -36,19 +36,25 @@ export default function FriendshipForm() {
       });
   }, []);
 
+  // 2) if editing, load the friendship
   useEffect(() => {
     if (!friendshipId) return;
     setLoading(true);
+
     API.get(`/friendships/${friendshipId}/`)
       .then(({ data }) => {
         setForm({
-          ...data,
+          id:         data.id,         // ← pick up the Friendship id
+          from_user:  data.from_user,
+          to_user:    data.to_user,
+          status:     data.status,
         });
       })
       .catch(() => setError('Failed to load friendship'))
       .finally(() => setLoading(false));
   }, [friendshipId]);
 
+  // form inputs
   const handleChange = e => {
     const { name, value } = e.target;
     setForm({
@@ -57,25 +63,27 @@ export default function FriendshipForm() {
     });
   };
 
+  // submit new or patched
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    // build payload
+    const payload = {
+      from_user: parseInt(form.from_user, 10),
+      to_user:   parseInt(form.to_user,   10),
+      status:    form.status,
+    };
+
     try {
-      // Make sure from_user and to_user are integers
-      const updatedForm = {
-        ...form,
-        from_user: parseInt(form.from_user),
-        to_user: parseInt(form.to_user),
-      };
-
-      if (friendshipId) {
-        await API.patch(`/friendships/${friendshipId}/`, updatedForm);
+      if (form.id) {
+        // EDIT existing
+        await API.patch(`/friendships/${form.id}/`, payload);
       } else {
-        await API.post('/friendships/', updatedForm);
+        // CREATE new
+        await API.post('/friendships/', payload);
       }
-
       navigate('/dashboard/friendships');
     } catch (err) {
       console.error('Submit error:', err.response?.data);
@@ -85,16 +93,23 @@ export default function FriendshipForm() {
     }
   };
 
+  const isEditing = Boolean(form.id);
+
   return (
     <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
       <div className="container">
-        <h1 className="mb-4">{friendshipId ? 'Edit Friendship' : 'Send Friend Request'}</h1>
+        <h1 className="mb-4">
+          {isEditing ? 'Edit Friendship' : 'Send Friend Request'}
+        </h1>
+
         {error && <div className="alert alert-danger">{error}</div>}
+
         <div className="card shadow-sm">
           <div className="card-body">
             <form onSubmit={handleSubmit}>
               <h5 className="text-secondary mb-3">Friendship Details</h5>
 
+              {/* FROM USER */}
               <div className="mb-4">
                 <label className="form-label">From User</label>
                 <select
@@ -103,18 +118,23 @@ export default function FriendshipForm() {
                   value={form.from_user}
                   onChange={handleChange}
                   required
-                  disabled={friendshipId !== undefined}
+                  disabled={isEditing}
                 >
                   <option value="">Select a user</option>
                   {users.map(user => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.user_id} value={user.user_id}>
                       {user.username}
                     </option>
                   ))}
                 </select>
-                {friendshipId && <p className="text-muted small mt-1">From user cannot be changed for existing friendships</p>}
+                {isEditing && (
+                  <p className="text-muted small mt-1">
+                    From user cannot be changed on edit
+                  </p>
+                )}
               </div>
 
+              {/* TO USER */}
               <div className="mb-4">
                 <label className="form-label">To User</label>
                 <select
@@ -123,18 +143,25 @@ export default function FriendshipForm() {
                   value={form.to_user}
                   onChange={handleChange}
                   required
-                  disabled={friendshipId !== undefined}
+                  disabled={isEditing}
                 >
                   <option value="">Select a user</option>
-                  {users.filter(user => user.id !== parseInt(form.from_user)).map(user => (
-                    <option key={user.id} value={user.id}>
-                      {user.username}
-                    </option>
-                  ))}
+                  {users
+                    .filter(u => u.user_id !== parseInt(form.from_user, 10))
+                    .map(user => (
+                      <option key={user.user_id} value={user.user_id}>
+                        {user.username}
+                      </option>
+                    ))}
                 </select>
-                {friendshipId && <p className="text-muted small mt-1">To user cannot be changed for existing friendships</p>}
+                {isEditing && (
+                  <p className="text-muted small mt-1">
+                    To user cannot be changed on edit
+                  </p>
+                )}
               </div>
 
+              {/* STATUS */}
               <div className="mb-4">
                 <label className="form-label">Status</label>
                 <select
@@ -151,9 +178,14 @@ export default function FriendshipForm() {
                 </select>
               </div>
 
+              {/* ACTIONS */}
               <div className="d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {friendshipId ? 'Save Changes' : 'Send Friend Request'}
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {isEditing ? 'Save Changes' : 'Send Friend Request'}
                 </button>
                 <button
                   type="button"
@@ -169,4 +201,4 @@ export default function FriendshipForm() {
       </div>
     </div>
   );
-} 
+}

@@ -9,6 +9,7 @@ export default function FriendshipPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // load current user
   useEffect(() => {
     API.get('/whoami/')
       .then(({ data }) => setMe(data))
@@ -21,7 +22,7 @@ export default function FriendshipPage() {
       try {
         const { data } = await API.get('/friendships/');
         setFriendships(data);
-      } catch (err) {
+      } catch {
         setError('Failed to load friendships');
       } finally {
         setLoading(false);
@@ -30,11 +31,16 @@ export default function FriendshipPage() {
     fetchFriendships();
   }, []);
 
-  const canManage = target =>
-    me?.is_superuser || me?.id === target.from_user || me?.id === target.to_user;
+  // allow superuser, staff, or participants to manage
+  const canManage = f =>
+    me?.is_superuser ||
+    me?.is_staff ||
+    me?.user_id === f.from_user ||
+    me?.user_id === f.to_user;
 
   const handleDelete = async id => {
-    if (!canManage(friendships.find(f => f.id === id))) {
+    const friendship = friendships.find(f => f.id === id);
+    if (!canManage(friendship)) {
       return alert("You don't have permission to delete this friendship");
     }
     if (!window.confirm('Delete this friendship?')) return;
@@ -43,7 +49,8 @@ export default function FriendshipPage() {
   };
 
   const handleEdit = id => {
-    if (!canManage(friendships.find(f => f.id === id))) {
+    const friendship = friendships.find(f => f.id === id);
+    if (!canManage(friendship)) {
       return alert("You don't have permission to edit this friendship");
     }
     navigate(`/dashboard/friendships/edit/${id}`);
@@ -56,7 +63,7 @@ export default function FriendshipPage() {
     <div className="container py-4">
       <h1 className="mb-4 text-primary">Manage Friendships</h1>
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="mb-3">
         <button
           className="btn btn-success"
           onClick={() => navigate('/dashboard/friendships/new')}
@@ -89,9 +96,10 @@ export default function FriendshipPage() {
                   <td>
                     <span
                       className={`badge ${
-                        f.status === 'ACCEPTED' ? 'bg-success' : 
-                        f.status === 'PENDING' ? 'bg-warning' : 
-                        f.status === 'REJECTED' ? 'bg-danger' : 'bg-secondary'
+                        f.status === 'ACCEPTED' ? 'bg-success' :
+                        f.status === 'PENDING'  ? 'bg-warning' :
+                        f.status === 'REJECTED' ? 'bg-danger'  :
+                                                   'bg-secondary'
                       }`}
                     >
                       {f.status}
@@ -99,7 +107,11 @@ export default function FriendshipPage() {
                   </td>
                   <td>{new Date(f.created_at).toLocaleString()}</td>
                   <td>{new Date(f.updated_at).toLocaleString()}</td>
-                  <td>{f.responded_at ? new Date(f.responded_at).toLocaleString() : '-'}</td>
+                  <td>
+                    {f.responded_at
+                      ? new Date(f.responded_at).toLocaleString()
+                      : '-'}
+                  </td>
                   <td>
                     {canManage(f) ? (
                       <>
@@ -130,4 +142,4 @@ export default function FriendshipPage() {
       )}
     </div>
   );
-} 
+}

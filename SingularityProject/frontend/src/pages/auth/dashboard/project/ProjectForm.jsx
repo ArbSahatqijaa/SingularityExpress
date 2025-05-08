@@ -1,40 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import API from '../../../../services/api';
+import { useNavigate, useParams }     from 'react-router-dom';
+import API                             from '../../../../services/api';
 
 export default function ProjectForm() {
   const { projectID } = useParams();
-  const navigate = useNavigate();
+  const navigate      = useNavigate();
 
   const [form, setForm] = useState({
-    title: '',
+    title:       '',
     description: '',
-    visibility: 'PUBLIC',
-    status: 'ACTIVE',
-    file_path: null,
-    leader: '',
-    created_by: '',
-    supervisor: '',
-    start_date: '',
-    end_date: '',
+    visibility:  'PUBLIC',
+    status:      'ACTIVE',
+    file_path:   null,
+    leader:      '',    // will default to me.user_id
   });
-
-  const [me, setMe] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [me,      setMe]      = useState(null);
+  const [users,   setUsers]   = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error,   setError]   = useState('');
 
+  // 1️⃣ Fetch current user and list of all users (for leader dropdown)
   useEffect(() => {
-    // Fetch user info and all users for leader selection
     API.get('/whoami/')
       .then(({ data }) => {
         setMe(data);
-        setForm(f => ({
-          ...f,
-          leader: data.id, // Set leader to current user by default
-          created_by: data.id, // Set created_by to current user
-        }));
-
+        // default leader on creation
+        if (!projectID) {
+          setForm(f => ({ ...f, leader: data.user_id }));
+        }
         return API.get('/users/');
       })
       .then(({ data }) => setUsers(data))
@@ -42,72 +35,86 @@ export default function ProjectForm() {
         setMe(null);
         setUsers([]);
       });
-  }, []);
+  }, [projectID]);
 
+  // 2️⃣ If editing, load existing project
   useEffect(() => {
     if (!projectID) return;
     setLoading(true);
+
     API.get(`/projects/${projectID}/`)
       .then(({ data }) => {
         setForm({
-          ...data,
-          file_path: null, // Keep this empty so the file does not get replaced unintentionally
+          title:       data.title,
+          description: data.description,
+          visibility:  data.visibility,
+          status:      data.status,
+          file_path:   null,          // leave blank so file isn’t overwritten
+          leader:      data.leader,   // existing leader
         });
       })
       .catch(() => setError('Failed to load project'))
       .finally(() => setLoading(false));
   }, [projectID]);
 
+  // 3️⃣ Handle form inputs
   const handleChange = e => {
-    const { name, value, type, checked, files } = e.target;
-    setForm({
-      ...form,
-      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value,
-    });
+    const { name, value, type, files } = e.target;
+    setForm(f => ({
+      ...f,
+      [name]: type === 'file' ? files[0] : value
+    }));
   };
 
+  // 4️⃣ Only leader/staff/superuser may reassign leadership
+  const canReassignLeader = () =>
+    me && (
+      me.is_superuser ||
+      me.is_staff ||
+      (projectID && me.user_id === parseInt(form.leader))
+    );
+
+  // 5️⃣ Submit (create or update)
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setLoading(true);
-  
+
     try {
-      // Sigurohuni që lideri dhe created_by janë integer para se t'i dërgoni
-      const updatedForm = {
-        ...form,
-        leader: parseInt(form.leader), 
-        created_by: me?.user_id, 
+      // Ensure integers where needed
+      const payload = {
+        title:       form.title,
+        description: form.description,
+        visibility:  form.visibility,
+        status:      form.status,
+        leader:      parseInt(form.leader),
       };
-  
-      const isFileUpload = form.file_path !== null;
-  
-      if (isFileUpload) {
+
+      const isFile = !!form.file_path;
+      if (isFile) {
         const fd = new FormData();
-  
-        Object.entries(updatedForm).forEach(([key, value]) => {
-          if (value !== null && value !== '') {
-            fd.append(key, value);
-          }
+        Object.entries(payload).forEach(([k, v]) => {
+          if (v != null) fd.append(k, v);
         });
-  
+        fd.append('file_path', form.file_path);
+
         if (projectID) {
           await API.patch(`/projects/${projectID}/`, fd, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: { 'Content-Type': 'multipart/form-data' }
           });
         } else {
           await API.post('/projects/', fd, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: { 'Content-Type': 'multipart/form-data' }
           });
         }
       } else {
-       
         if (projectID) {
-          await API.patch(`/projects/${projectID}/`, updatedForm);
+          await API.patch(`/projects/${projectID}/`, payload);
         } else {
-          await API.post('/projects/', updatedForm);
+          await API.post('/projects/', payload);
         }
       }
-  
+
       navigate('/dashboard/projects');
     } catch (err) {
       console.error('Submit error:', err.response?.data);
@@ -116,6 +123,11 @@ export default function ProjectForm() {
       setLoading(false);
     }
   };
+
+  if (loading && projectID) {
+    return <div className="text-center py-5">Loading…</div>;
+  }
+
   return (
     <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
       <div className="container">
@@ -124,92 +136,59 @@ export default function ProjectForm() {
         <div className="card shadow-sm">
           <div className="card-body">
             <form onSubmit={handleSubmit}>
-              <h5 className="text-secondary mb-3">Project Details</h5>
-
-              <div className="row mb-4">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Project Name</label>
-                  <input
-                    name="title"
-                    type="text"
-                    required
-                    className="form-control"
-                    value={form.title}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Supervisor</label>
-                  <input
-                    name="supervisor"
-                    type="text"
-                    className="form-control"
-                    value={form.supervisor}
-                    onChange={handleChange}
-                  />
-                </div>
+              {/* Title & Description */}
+              <div className="mb-3">
+                <label className="form-label">Project Name</label>
+                <input
+                  name="title"
+                  type="text"
+                  required
+                  className="form-control"
+                  value={form.title}
+                  onChange={handleChange}
+                />
               </div>
-
               <div className="mb-4">
                 <label className="form-label">Description</label>
                 <textarea
                   name="description"
-                  rows="4"
+                  rows="3"
+                  required
                   className="form-control"
                   value={form.description}
                   onChange={handleChange}
                 />
               </div>
 
+              {/* Visibility & Status */}
               <div className="row mb-4">
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">Start Date</label>
-                  <input
-                    name="start_date"
-                    type="date"
-                    className="form-control"
-                    value={form.start_date}
+                <div className="col">
+                  <label className="form-label">Visibility</label>
+                  <select
+                    name="visibility"
+                    className="form-select"
+                    value={form.visibility}
                     onChange={handleChange}
-                  />
+                  >
+                    <option value="PUBLIC">Public</option>
+                    <option value="PRIVATE">Private</option>
+                  </select>
                 </div>
-                <div className="col-md-6 mb-3">
-                  <label className="form-label">End Date</label>
-                  <input
-                    name="end_date"
-                    type="date"
-                    className="form-control"
-                    value={form.end_date}
+                <div className="col">
+                  <label className="form-label">Status</label>
+                  <select
+                    name="status"
+                    className="form-select"
+                    value={form.status}
                     onChange={handleChange}
-                  />
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="COMPLETED">Completed</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="mb-4">
-                <label className="form-label">Visibility</label>
-                <select
-                  name="visibility"
-                  className="form-select"
-                  value={form.visibility}
-                  onChange={handleChange}
-                >
-                  <option value="PUBLIC">Public</option>
-                  <option value="PRIVATE">Private</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label">Status</label>
-                <select
-                  name="status"
-                  className="form-select"
-                  value={form.status}
-                  onChange={handleChange}
-                >
-                  <option value="ACTIVE">Active</option>
-                  <option value="COMPLETED">Completed</option>
-                </select>
-              </div>
-
+              {/* Leader */}
               <div className="mb-4">
                 <label className="form-label">Leader</label>
                 <select
@@ -217,17 +196,24 @@ export default function ProjectForm() {
                   className="form-select"
                   value={form.leader}
                   onChange={handleChange}
+                  disabled={!canReassignLeader()}
                   required
                 >
-                  <option value="">Select a leader</option>
-                  {users.map(user => (
-                    <option key={user.user_id} value={user.user_id}>
-                      {user.username}
+                  <option value="">Select leader</option>
+                  {users.map(u => (
+                    <option key={u.user_id} value={u.user_id}>
+                      {u.username}
                     </option>
                   ))}
                 </select>
+                {!canReassignLeader() && (
+                  <div className="form-text text-muted">
+                    Only the current leader, staff or superuser can reassign.
+                  </div>
+                )}
               </div>
 
+              {/* File Upload */}
               <div className="mb-4">
                 <label className="form-label">Project File</label>
                 <input
@@ -238,8 +224,13 @@ export default function ProjectForm() {
                 />
               </div>
 
+              {/* Actions */}
               <div className="d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
                   {projectID ? 'Save Changes' : 'Create Project'}
                 </button>
                 <button

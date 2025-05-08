@@ -126,7 +126,7 @@ export default function InvitationForm() {
                 >
                   <option value="">Select a sender</option>
                   {users.map(user => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.user_id} value={user.user_id}>
                       {user.username}
                     </option>
                   ))}
@@ -144,8 +144,8 @@ export default function InvitationForm() {
                   required
                 >
                   <option value="">Select a receiver</option>
-                  {users.filter(user => user.id !== parseInt(form.sender)).map(user => (
-                    <option key={user.id} value={user.id}>
+                  {users.filter(user => user.user_id !== parseInt(form.sender)).map(user => (
+                    <option key={user.user_id} value={user.user_id}>
                       {user.username}
                     </option>
                   ))}

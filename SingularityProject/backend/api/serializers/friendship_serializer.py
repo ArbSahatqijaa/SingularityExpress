@@ -5,6 +5,7 @@ class FriendshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friendship
         fields = [
+            'id',
             'from_user',
             'to_user',
             'status',
@@ -12,5 +13,11 @@ class FriendshipSerializer(serializers.ModelSerializer):
             'updated_at',
             'responded_at',
         ]
+        read_only_fields = [
+            'id',
+            'created_by',
+            'created_at',
+            'updated_at'
+            ]
 
    
