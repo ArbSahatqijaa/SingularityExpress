@@ -49,6 +49,9 @@ import FriendshipForm from './pages/auth/dashboard/friendship/FriendshipForm';
 import InvitationPage from './pages/auth/dashboard/invitation/InvitationPage';
 import InvitationForm from './pages/auth/dashboard/invitation/InvitationForm';
 
+//User Pages
+import UserPaperForm from './pages/auth/dashboard/user_paper/UserPaperForm';
+import UserPaperPage from './pages/auth/dashboard/user_paper/UserPaperPage';
 // ─── Layout wrapper that shows the NavigationBar on every protected page ──
 function LayoutWithNav() {
   return (
@@ -110,6 +113,11 @@ function App() {
           <Route path="/dashboard/invitations" element={<InvitationPage />} />
           <Route path="/dashboard/invitations/new" element={<InvitationForm />} />
           <Route path="/dashboard/invitations/edit/:invitationId" element={<InvitationForm />} />
+
+          {/* === USER PAPERS === */}
+          <Route path="/dashboard/user_papers"               element={<UserPaperPage />} />
+          <Route path="/dashboard/user_papers/new"           element={<UserPaperForm />} />
+          <Route path="/dashboard/user_papers/edit/:id"      element={<UserPaperForm />} />
         </Route>
 
 

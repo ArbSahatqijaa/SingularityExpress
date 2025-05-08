@@ -28,7 +28,7 @@ class PaperProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PaperProject
-        fields = ['paper', 'project','paper_id', 'project_id', 'added_by', 'added_at', 'notes' ]
+        fields = ['id,paper', 'project','paper_id', 'project_id', 'added_by', 'added_at', 'notes' ]
 
-        read_only_fields = ['added_at']
+        read_only_fields = ['id,added_at']
 

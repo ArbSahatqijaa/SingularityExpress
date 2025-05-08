@@ -25,6 +25,6 @@ class UserProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProject
-        fields = ['user', 'project','user_id', 'project_id','role', 'joined_at']
-        read_only_fields = ['joined_at']
+        fields = ['id','user', 'project','user_id', 'project_id','role', 'joined_at']
+        read_only_fields = ['id','joined_at']
 
