@@ -55,6 +55,14 @@ import InvitationForm from './pages/auth/dashboard/invitation/InvitationForm';
 //User Pages
 import UserPaperForm from './pages/auth/dashboard/user_paper/UserPaperForm';
 import UserPaperPage from './pages/auth/dashboard/user_paper/UserPaperPage';
+
+//Roles Pages
+import RequiredrolesPage from './pages/auth/dashboard/requirement_roles/RequiredrolesPage';
+import RequiredrolesForm from './pages/auth/dashboard/requirement_roles/RequiredrolesForm';
+
+
+
+
 // ─── Layout wrapper that shows the NavigationBar on every protected page ──
 function LayoutWithNav() {
   return (
@@ -126,6 +134,11 @@ function App() {
           <Route path="/dashboard/user_papers"               element={<UserPaperPage />} />
           <Route path="/dashboard/user_papers/new"           element={<UserPaperForm />} />
           <Route path="/dashboard/user_papers/edit/:id"      element={<UserPaperForm />} />
+
+          {/* === Required roles === */}
+          <Route path="/dashboard/required_roles"               element={<RequiredrolesPage />} />
+          <Route path="/dashboard/required_roles/new"           element={<RequiredrolesForm />} />
+          <Route path="/dashboard/required_roles/edit/:RequiredrolesID"      element={<RequiredrolesForm />} />
         </Route>
 
 

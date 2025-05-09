@@ -7,7 +7,7 @@ from .views.user_project_view import UserProjectDetailView, UserProjectListCreat
 from .views.user_paper_view import UserPaperListCreateView, UserPaperDetailView
 from .views.tutorial_view import TutorialListCreateView, TutorialDetailView
 from .views.review_view import ReviewListCreateView, ReviewDetailView
-from .views.required_roles_view import RequiredRolesListCreateView, RequiredRolesDetailView
+from .views.required_roles_view import RequiredRolesListCreateView, RequiredRolesDetailView, RoleChoicesView, AllowedContentTypesView
 from .views.project_view import ProjectListCreateView, ProjectDetailView
 from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
@@ -52,6 +52,8 @@ urlpatterns = [
     # Required Roles URLs
     path('required_roles/', RequiredRolesListCreateView.as_view(), name='required-roles-list-create'),
     path('required_roles/<int:pk>/', RequiredRolesDetailView.as_view(), name='required-roles-detail'),
+    path('role_choices/', RoleChoicesView.as_view(), name='role-choices'),
+    path('allowed_content_types/', AllowedContentTypesView.as_view(), name='allowed-content-types'), 
 
     # Project URLs
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),

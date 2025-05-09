@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-
+from api.models.required_roles import ROLE_CHOICES
 from api.models.required_roles import RequiredRoles
 from api.serializers.required_roles_serializer import RequiredRolesSerializer
+from api.models.project import Project
+from api.models.paper import Paper
 
 
 class RequiredRolesListCreateView(APIView):
@@ -76,3 +78,19 @@ class RequiredRolesDetailView(APIView):
         role.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+
+class RoleChoicesView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, format=None):
+        data = [{'value': value, 'label': label} for value, label in ROLE_CHOICES]
+        return Response(data)
+
+class AllowedContentTypesView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request, format=None):
+        return Response({
+            "Project": ContentType.objects.get_for_model(Project).id,
+            "Paper": ContentType.objects.get_for_model(Paper).id
+        })
