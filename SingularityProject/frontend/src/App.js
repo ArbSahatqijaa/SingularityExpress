@@ -28,6 +28,9 @@ import ProjectCard from './components/projectCard/projectCard';
 // Paper pages
 import PaperPage from './pages/auth/dashboard/paper/PaperPage';
 import PaperForm from './pages/auth/dashboard/paper/PaperForm';
+// Paper-Project pages
+import PaperProjectPage from './pages/auth/dashboard/paper/paper_project/PaperProjectPage';
+import PaperProjectForm from './pages/auth/dashboard/paper/paper_project/PaperProjectForm';
 
 //Project pages
 import ProjectPage from './pages/auth/dashboard/project/ProjectPage';
@@ -88,6 +91,11 @@ function App() {
           <Route path="/dashboard/papers" element={<PaperPage />} />
           <Route path="/dashboard/papers/new" element={<PaperForm />} />
           <Route path="/dashboard/papers/edit/:paperId" element={<PaperForm />} />
+
+          {/* Paper-Project CRUD */}
+          <Route path="/dashboard/paper_projects" element={<PaperProjectPage />} />
+          <Route path="/dashboard/paper_projects/new" element={<PaperProjectForm />} />
+          <Route path="/dashboard/paper_projects/edit/:paperProjectId" element={<PaperProjectForm />} />
 
           {/* Project CRUD */}
           <Route path="/dashboard/projects" element={<ProjectPage />} />
