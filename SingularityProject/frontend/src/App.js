@@ -29,8 +29,8 @@ import ProjectCard from './components/projectCard/projectCard';
 import PaperPage from './pages/auth/dashboard/paper/PaperPage';
 import PaperForm from './pages/auth/dashboard/paper/PaperForm';
 // Paper-Project pages
-import PaperProjectPage from './pages/auth/dashboard/paper/paper_project/PaperProjectPage';
-import PaperProjectForm from './pages/auth/dashboard/paper/paper_project/PaperProjectForm';
+import PaperProjectPage from './pages/auth/dashboard/paper_project/PaperProjectPage';
+import PaperProjectForm from './pages/auth/dashboard/paper_project/PaperProjectForm';
 
 //Project pages
 import ProjectPage from './pages/auth/dashboard/project/ProjectPage';
@@ -60,7 +60,9 @@ import UserPaperPage from './pages/auth/dashboard/user_paper/UserPaperPage';
 import RequiredrolesPage from './pages/auth/dashboard/requirement_roles/RequiredrolesPage';
 import RequiredrolesForm from './pages/auth/dashboard/requirement_roles/RequiredrolesForm';
 
-
+//User-Project Pages
+import UserProjectPage from './pages/auth/dashboard/user_project/UserProjectPage';
+import UserProjectForm from './pages/auth/dashboard/user_project/UserProjectForm';
 
 
 // ─── Layout wrapper that shows the NavigationBar on every protected page ──
@@ -85,8 +87,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-         {/* Staff-only routes */}
-         <Route element={<RequireStaff><Outlet/></RequireStaff>}>
+          {/* Staff-only routes */}
+          <Route element={<RequireStaff><Outlet/></RequireStaff>}>
           {/* Top‐level dashboard overview */}
           <Route path="/dashboard" element={<Dashboard />} />
 
@@ -112,12 +114,12 @@ function App() {
 
           {/* Tutorial CRUD */}
           <Route path="/dashboard/tutorials" element={<TutorialPage />} />
-         <Route path="/dashboard/tutorials/new" element={<TutorialForm />} />
+          <Route path="/dashboard/tutorials/new" element={<TutorialForm />} />
           <Route path="/dashboard/tutorials/edit/:TutorialID" element={<TutorialForm />} /> 
 
           {/* Review CRUD */}
           <Route path="/dashboard/reviews" element={<ReviewPage />} />
-         <Route path="/dashboard/reviews/new" element={<ReviewForm />} />
+          <Route path="/dashboard/reviews/new" element={<ReviewForm />} />
           <Route path="/dashboard/reviews/edit/:ReviewID" element={<ReviewForm />} />
           
           {/* Friendship CRUD */}
@@ -133,12 +135,19 @@ function App() {
           {/* === USER PAPERS === */}
           <Route path="/dashboard/user_papers"               element={<UserPaperPage />} />
           <Route path="/dashboard/user_papers/new"           element={<UserPaperForm />} />
-          <Route path="/dashboard/user_papers/edit/:id"      element={<UserPaperForm />} />
+          <Route path="/dashboard/user_papers/edit/:userPaperId"      element={<UserPaperForm />} />
 
           {/* === Required roles === */}
           <Route path="/dashboard/required_roles"               element={<RequiredrolesPage />} />
           <Route path="/dashboard/required_roles/new"           element={<RequiredrolesForm />} />
           <Route path="/dashboard/required_roles/edit/:RequiredrolesID"      element={<RequiredrolesForm />} />
+        
+          {/* === USER Projects === */}
+          <Route path="/dashboard/user_projects"    element={<UserProjectPage />} />
+          <Route path="/dashboard/user_projects/new"   element={<UserProjectForm />} />
+          <Route path="/dashboard/user_projects/edit/:userProjectId" element={<UserProjectForm />} />
+
+        
         </Route>
 
 
