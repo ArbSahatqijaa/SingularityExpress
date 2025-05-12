@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'core',
     'rest_framework', 
+    'channels',
+    'chat.apps.ChatConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -100,6 +102,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+ASGI_APPLICATION = 'core.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -125,7 +134,7 @@ DATABASES = {
 #
 # ⚠️ NOTE: For security and flexibility, consider moving these to a .env file in production.
 MONGO_CONFIG = {
-    'DB_NAME': 'mongo_singularity',
+    'DB_NAME': 'singularityexpressCommunication',
     'HOST': 'localhost',
     'PORT': 27017,
     'USERNAME': 'mongouser',

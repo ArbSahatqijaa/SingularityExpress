@@ -24,6 +24,7 @@ import Profile from './components/userProfile/profile';
 import EditProfile from './components/userProfile/editProfile';
 import AboutMe from './components/aboutMe/aboutMe';
 import ProjectCard from './components/projectCard/projectCard';
+import CommunicationHub from './pages/CommunicationHub';
 
 // Paper pages
 import PaperPage from './pages/auth/dashboard/paper/PaperPage';
@@ -158,6 +159,7 @@ function App() {
           <Route path="edit-profile" element={<EditProfile />} />
           <Route path="about" element={<AboutMe />} />
           <Route path="card" element={<ProjectCard />} />
+          <Route path="communication" element={<CommunicationHub />} />
         </Route>
       </Routes>
     </Router>

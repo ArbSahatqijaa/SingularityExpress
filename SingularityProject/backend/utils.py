@@ -12,6 +12,8 @@ def get_db_handle(db_name=None, host=None, port=None, username=None, password=No
     host = host or mongo_config['HOST']  
     port = port or mongo_config['PORT']
     
+    logger.info(f"Connecting to MongoDB: {host}:{port}, database: {db_name}")
+    
     try:
         # Try connecting without authentication first
         logger.info(f"Attempting to connect to MongoDB at {host}:{port} without auth")
@@ -40,4 +42,9 @@ def get_db_handle(db_name=None, host=None, port=None, username=None, password=No
             raise
     
     db_handle = client[db_name]
+    # Create collections if they don't exist
+    if 'video_calls' not in db_handle.list_collection_names():
+        logger.info(f"Creating 'video_calls' collection in '{db_name}'")
+        db_handle.create_collection('video_calls')
+    
     return db_handle, client
