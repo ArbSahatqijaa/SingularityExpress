@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import SearchBar from './searchBar';
-import Notifications from './notifications';
+import NotificationBell from '../NotificationBell';
 
 export default function NavigationBar() {
   const [user, setUser] = useState(undefined);
@@ -36,12 +36,13 @@ export default function NavigationBar() {
           <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium transition">Home</Link>
           <Link to="/projects" className="text-gray-700 hover:text-blue-600 font-medium transition">Projects</Link>
           <Link to="/posts" className="text-gray-700 hover:text-blue-600 font-medium transition">Posts</Link>
+          <Link to="/communication" className="text-gray-700 hover:text-blue-600 font-medium transition">Communication</Link>
         </div>
       )}
 
       <div className="flex items-center gap-6 relative">
         <SearchBar />
-        <Notifications />
+        <NotificationBell />
 
         {user ? (
           <div className="relative">

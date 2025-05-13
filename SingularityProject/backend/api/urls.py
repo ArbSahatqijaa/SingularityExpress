@@ -7,11 +7,12 @@ from .views.user_project_view import UserProjectDetailView, UserProjectListCreat
 from .views.user_paper_view import UserPaperListCreateView, UserPaperDetailView
 from .views.tutorial_view import TutorialListCreateView, TutorialDetailView
 from .views.review_view import ReviewListCreateView, ReviewDetailView
-from .views.required_roles_view import RequiredRolesListCreateView, RequiredRolesDetailView
+from .views.required_roles_view import RequiredRolesListCreateView, RequiredRolesDetailView, RoleChoicesView, AllowedContentTypesView
 from .views.project_view import ProjectListCreateView, ProjectDetailView
 from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
+from .views.message import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -52,6 +53,8 @@ urlpatterns = [
     # Required Roles URLs
     path('required_roles/', RequiredRolesListCreateView.as_view(), name='required-roles-list-create'),
     path('required_roles/<int:pk>/', RequiredRolesDetailView.as_view(), name='required-roles-detail'),
+    path('role_choices/', RoleChoicesView.as_view(), name='role-choices'),
+    path('allowed_content_types/', AllowedContentTypesView.as_view(), name='allowed-content-types'), 
 
     # Project URLs
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
@@ -73,4 +76,6 @@ urlpatterns = [
     path('get_messages/<str:conversation_id>/', views.get_messages, name='get_messages'),
     path('update_message/<str:message_id>/', views.update_message, name='update_message'),
     path('delete_message/<str:message_id>/', views.delete_message, name='delete_message'),
+    path('chat/upload_file/', upload_chat_file, name='upload_chat_file'),
+    path('chat/download/<str:filename>/', download_chat_file, name='download_chat_file'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

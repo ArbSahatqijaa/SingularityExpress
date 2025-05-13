@@ -1,6 +1,11 @@
+"""
+Utils package for database and other utility functions.
+"""
+
 from pymongo import MongoClient
 from django.conf import settings
 import logging
+from .mongodb_schemas import setup_collections
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +16,8 @@ def get_db_handle(db_name=None, host=None, port=None, username=None, password=No
     db_name = db_name or mongo_config['DB_NAME']
     host = host or mongo_config['HOST']  
     port = port or mongo_config['PORT']
+    
+    logger.info(f"Connecting to MongoDB: {host}:{port}, database: {db_name}")
     
     try:
         # Try connecting without authentication first
@@ -40,4 +47,8 @@ def get_db_handle(db_name=None, host=None, port=None, username=None, password=No
             raise
     
     db_handle = client[db_name]
-    return db_handle, client
+    
+    # Set up collections with schema validation
+    setup_collections(db_handle)
+    
+    return db_handle, client 

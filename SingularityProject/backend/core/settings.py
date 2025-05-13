@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-6+33g#&*++uxyj_r!_&_5*9-&th%-j_2#4_=kagy1bgm8^$jem
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'core',
     'rest_framework', 
+    'channels',
+    'chat.apps.ChatConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -77,8 +79,29 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'content-disposition',
+]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -100,6 +123,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+ASGI_APPLICATION = 'core.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -125,7 +155,7 @@ DATABASES = {
 #
 # ⚠️ NOTE: For security and flexibility, consider moving these to a .env file in production.
 MONGO_CONFIG = {
-    'DB_NAME': 'mongo_singularity',
+    'DB_NAME': 'singularityexpressCommunication',
     'HOST': 'localhost',
     'PORT': 27017,
     'USERNAME': 'mongouser',
