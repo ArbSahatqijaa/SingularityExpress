@@ -33,7 +33,7 @@ export default function NavigationBar() {
 
       {user && (
         <div className="flex items-center gap-8">
-          <Link to="/profile" className="text-gray-700 hover:text-blue-600 font-medium transition">Home</Link>
+          <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium transition">Home</Link>
           <Link to="/projects" className="text-gray-700 hover:text-blue-600 font-medium transition">Projects</Link>
           <Link to="/posts" className="text-gray-700 hover:text-blue-600 font-medium transition">Posts</Link>
         </div>
@@ -54,6 +54,9 @@ export default function NavigationBar() {
 
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                 <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition">
+                  Profile
+                </Link>
                 <Link to="/edit-profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition">
                   Edit Profile
                 </Link>

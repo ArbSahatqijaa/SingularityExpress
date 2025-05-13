@@ -1,0 +1,117 @@
+import React, { useState } from 'react';
+import { ChevronDown, Users, ImagePlus } from 'lucide-react';
+
+const CreateProjectPost = ({ onCreate }) => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [image, setImage] = useState(null);
+  const [maxTeams, setMaxTeams] = useState('');
+  const [category, setCategory] = useState('');
+  const [expanded, setExpanded] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title || !description) return;
+
+    const newProject = {
+      id: Date.now(),
+      title,
+      description,
+      category,
+      imageUrl: image ? URL.createObjectURL(image) : 'https://via.placeholder.com/500x300',
+      teams: 0,
+      maxTeams: parseInt(maxTeams) || 0,
+    };
+
+    onCreate(newProject);
+    setTitle('');
+    setDescription('');
+    setImage(null);
+    setMaxTeams('');
+    setCategory('');
+    setExpanded(false);
+  };
+
+  return (
+    <div className="bg-white p-3 rounded-xl shadow-md mb-4 border border-gray-200">
+      <h2 className="text-base font-semibold mb-2 text-gray-800 flex items-center gap-2">
+        <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
+        </svg>
+        Start a Project
+      </h2>
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Project Title"
+          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Project Description"
+          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={2}
+        />
+
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
+        >
+          More options <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+
+        {expanded && (
+          <div className="space-y-2 animate-fade-in">
+            <div className="flex gap-2 items-center">
+              <Users className="w-4 h-4 text-gray-500" />
+              <input
+                type="number"
+                value={maxTeams}
+                onChange={(e) => setMaxTeams(e.target.value)}
+                placeholder="Team Capacity"
+                min={1}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex gap-2 items-center">
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Category</option>
+                <option value="Tech">Tech</option>
+                <option value="Design">Design</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <ImagePlus className="w-4 h-4 text-gray-500" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImage(e.target.files[0])}
+                className="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md file:bg-gray-50 file:text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-1.5 rounded-lg text-sm font-medium hover:opacity-90 transition"
+        >
+          Post Project
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default CreateProjectPost;
