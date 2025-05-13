@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import SearchBar from './searchBar';
-import Notifications from './notifications';
+import NotificationBell from '../NotificationBell';
 
 export default function NavigationBar() {
   const [user, setUser] = useState(undefined);
@@ -42,7 +42,7 @@ export default function NavigationBar() {
 
       <div className="flex items-center gap-6 relative">
         <SearchBar />
-        <Notifications />
+        <NotificationBell />
 
         {user ? (
           <div className="relative">

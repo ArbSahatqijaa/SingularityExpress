@@ -1,6 +1,11 @@
+"""
+Utils package for database and other utility functions.
+"""
+
 from pymongo import MongoClient
 from django.conf import settings
 import logging
+from .mongodb_schemas import setup_collections
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +47,8 @@ def get_db_handle(db_name=None, host=None, port=None, username=None, password=No
             raise
     
     db_handle = client[db_name]
-    # Create collections if they don't exist
-    if 'video_calls' not in db_handle.list_collection_names():
-        logger.info(f"Creating 'video_calls' collection in '{db_name}'")
-        db_handle.create_collection('video_calls')
     
-    return db_handle, client
+    # Set up collections with schema validation
+    setup_collections(db_handle)
+    
+    return db_handle, client 

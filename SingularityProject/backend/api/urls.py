@@ -12,6 +12,7 @@ from .views.project_view import ProjectListCreateView, ProjectDetailView
 from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
+from .views.message import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -75,4 +76,6 @@ urlpatterns = [
     path('get_messages/<str:conversation_id>/', views.get_messages, name='get_messages'),
     path('update_message/<str:message_id>/', views.update_message, name='update_message'),
     path('delete_message/<str:message_id>/', views.delete_message, name='delete_message'),
+    path('chat/upload_file/', upload_chat_file, name='upload_chat_file'),
+    path('chat/download/<str:filename>/', download_chat_file, name='download_chat_file'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
