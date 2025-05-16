@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout'; 
 
 export default function UserForm() {
   const { userId } = useParams();
@@ -101,6 +102,7 @@ export default function UserForm() {
   if (loading && userId) return <div className="text-center py-5">Loading…</div>;
 
   return (
+      <DashboardLayout>
     <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
       <div className="container">
         <h1 className="mb-4">{userId ? 'Edit User' : 'New User'}</h1>
@@ -256,5 +258,7 @@ export default function UserForm() {
         </div>
       </div>
     </div>
+    </DashboardLayout>
+    
   );
 }

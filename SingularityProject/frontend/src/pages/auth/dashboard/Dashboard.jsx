@@ -1,4 +1,3 @@
-// src/pages/auth/dashboard/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../services/api';
@@ -59,17 +58,17 @@ export default function Dashboard() {
         ]);
 
         setData({
-          total_users:         usersRes.data.length,
-          total_friendships:   friendshipsRes.data.length,
-          total_projects:      projectsRes.data.length,
-          total_papers:        papersRes.data.length,
-          total_tutorials:     tutorialsRes.data.length,
-          total_reviews:       reviewsRes.data.length,
-          total_invitations:   invitationsRes.data.length,
-          total_roles:         rolesRes.data.length,
-          total_user_papers:   userPapersRes.data.length,
+          total_users: usersRes.data.length,
+          total_friendships: friendshipsRes.data.length,
+          total_projects: projectsRes.data.length,
+          total_papers: papersRes.data.length,
+          total_tutorials: tutorialsRes.data.length,
+          total_reviews: reviewsRes.data.length,
+          total_invitations: invitationsRes.data.length,
+          total_roles: rolesRes.data.length,
+          total_user_papers: userPapersRes.data.length,
           total_user_projects: userProjectsRes.data.length,
-          total_paper_projects:paperProjectsRes.data.length,
+          total_paper_projects: paperProjectsRes.data.length,
         });
       } catch (err) {
         console.error('Dashboard fetch error:', err);
@@ -100,9 +99,8 @@ export default function Dashboard() {
           data.total_user_projects || 0,
           data.total_paper_projects || 0,
         ],
-        backgroundColor: Array(11).fill('#007bff'),
-        borderColor: '#fff',
-        borderWidth: 1,
+        backgroundColor: '#6366f1',
+        borderRadius: 6,
       },
     ],
   };
@@ -114,99 +112,82 @@ export default function Dashboard() {
       title: {
         display: true,
         text: 'Singularity Express Dashboard Overview',
+        color: '#1f2937',
+        font: { size: 18 },
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          beginAtZero: true,
+          color: '#6b7280',
+        },
+        grid: {
+          color: '#e5e7eb',
+        },
+      },
+      x: {
+        ticks: {
+          color: '#6b7280',
+        },
+        grid: {
+          display: false,
+        },
       },
     },
   };
 
   return (
-    <div className="container py-5">
-      <h1 className="text-center mb-5 fw-bold text-primary">Dashboard</h1>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-3xl font-bold text-center text-indigo-700 mb-8">
+        Admin Dashboard
+      </h1>
 
-      <ul className="nav nav-pills justify-content-center mb-5 flex-wrap gap-2">
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/users')}>
-            Users
+      <div className="flex flex-wrap justify-center gap-4 mb-6">
+        {[
+          { label: 'Users', path: '/dashboard/users' },
+          { label: 'Friendships', path: '/dashboard/friendships' },
+          { label: 'Projects', path: '/dashboard/projects' },
+          { label: 'Papers', path: '/dashboard/papers' },
+          { label: 'Tutorials', path: '/dashboard/tutorials' },
+          { label: 'Reviews', path: '/dashboard/reviews' },
+          { label: 'Invitations', path: '/dashboard/invitations' },
+          { label: 'Roles', path: '/dashboard/required_roles' },
+          { label: 'User-Papers', path: '/dashboard/user_papers' },
+          { label: 'User-Projects', path: '/dashboard/user_projects' },
+          { label: 'Paper-Projects', path: '/dashboard/paper_projects' },
+        ].map(({ label, path }) => (
+          <button
+            key={label}
+            className="bg-white px-4 py-2 rounded shadow hover:bg-indigo-100 text-indigo-700 font-medium"
+            onClick={() => navigate(path)}
+          >
+            {label}
           </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/friendships')}>
-            Friendships
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/projects')}>
-            Projects
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/papers')}>
-            Papers
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/tutorials')}>
-            Tutorials
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/reviews')}>
-            Reviews
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/invitations')}>
-            Invitations
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/required_roles')}>
-            Roles
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/user_papers')}>
-            User-Papers
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/user_projects')}>
-            User-Projects
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" onClick={() => navigate('/dashboard/paper_projects')}>
-            Paper-Projects
-          </button>
-        </li>
-      </ul>
+        ))}
+      </div>
 
-      <div className="card shadow mb-5">
-        <div className="card-body">
-          <h2 className="mb-4 fw-bold text-danger">Overview Chart</h2>
-          <div className="chart-container mb-4">
-            <Bar data={chartData} options={chartOptions} />
-          </div>
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Overview Chart</h2>
+        <Bar data={chartData} options={chartOptions} />
 
-          <h3 className="mt-4">Summary</h3>
-          <ul className="list-group">
-            <li className="list-group-item">Users: {data.total_users || 0}</li>
-            <li className="list-group-item">Friendships: {data.total_friendships || 0}</li>
-            <li className="list-group-item">Projects: {data.total_projects || 0}</li>
-            <li className="list-group-item">Papers: {data.total_papers || 0}</li>
-            <li className="list-group-item">Tutorials: {data.total_tutorials || 0}</li>
-            <li className="list-group-item">Reviews: {data.total_reviews || 0}</li>
-            <li className="list-group-item">Invitations: {data.total_invitations || 0}</li>
-            <li className="list-group-item">Roles: {data.total_roles || 0}</li>
-            <li className="list-group-item">User-Papers: {data.total_user_papers || 0}</li>
-            <li className="list-group-item">User-Projects: {data.total_user_projects || 0}</li>
-            <li className="list-group-item">Paper-Projects: {data.total_paper_projects || 0}</li>
-          </ul>
+        <h3 className="text-lg font-semibold text-gray-600 mt-6 mb-2">Summary</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {Object.entries(data).map(([key, value]) => (
+            <div key={key} className="bg-gray-50 p-4 rounded shadow">
+              <p className="text-sm text-gray-500">{key.replace(/_/g, ' ')}</p>
+              <p className="text-xl font-bold text-indigo-600">{value}</p>
+            </div>
+          ))}
+        </div>
 
-          <div className="text-center mt-4">
-            <button className="btn btn-link" onClick={() => navigate('/')}>
-              Return to Homepage
-            </button>
-          </div>
+        <div className="text-center mt-6">
+          <button
+            className="text-indigo-600 hover:underline"
+            onClick={() => navigate('/')}
+          >
+            Return to Homepage
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout';
 
 export default function UsersPage() {
   const [users, setUsers]     = useState([]);
@@ -57,53 +58,85 @@ export default function UsersPage() {
   if (error)   return <div className="text-danger">{error}</div>;
 
   return (
-    <div className="container py-4">
-      <h1 className="mb-4 text-danger">Manage Users</h1>
-      <button className="btn btn-primary mb-3" onClick={() => navigate('/dashboard/users/new')}>
-        Create New User
-      </button>
-      {users.length>0 ? (
-        <div className="table-responsive">
-          <table className="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th>ID</th><th>Username</th><th>Email</th>
-                <th>First Name</th><th>Last Name</th><th>Is Staff</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.user_id}>
-                  <td>{u.user_id}</td>
-                  <td>{u.username}</td>
-                  <td>{u.email}</td>
-                  <td>{u.first_name}</td>
-                  <td>{u.last_name}</td>
-                  <td>{u.is_staff ? 'Yes' : 'No'}</td>
-                  <td>
-                    {canManage(u) ? (
-                      <>
-                        <button className="btn btn-warning btn-sm me-1"
-                                onClick={() => handleEdit(u.user_id)}>
-                          Edit
-                        </button>
-                        <button className="btn btn-danger btn-sm"
-                                onClick={() => handleDelete(u.user_id)}>
-                          Delete
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-muted">–</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p>No users available</p>
-      )}
+    <DashboardLayout>
+  <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+  <div className="flex items-center justify-between mb-6">
+    <h1 className="text-3xl font-bold text-gray-800">Manage Users</h1>
+    <button
+      onClick={() => navigate('/dashboard/users/new')}
+      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-all duration-150 shadow-sm"
+    >
+      + Create New User
+    </button>
+  </div>
+
+  {users.length > 0 ? (
+    <div className="overflow-x-auto rounded-xl border border-gray-100">
+      <table className="min-w-full text-sm text-left text-gray-700">
+        <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <tr>
+            <th className="px-6 py-4">ID</th>
+            <th className="px-6 py-4">Username</th>
+            <th className="px-6 py-4">Email</th>
+            <th className="px-6 py-4">First Name</th>
+            <th className="px-6 py-4">Last Name</th>
+            <th className="px-6 py-4">Staff</th>
+            <th className="px-6 py-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {users.map((u) => (
+            <tr
+              key={u.user_id}
+              className="hover:bg-gray-50 transition-colors duration-100"
+            >
+              <td className="px-6 py-4 font-medium">{u.user_id}</td>
+              <td className="px-6 py-4">{u.username}</td>
+              <td className="px-6 py-4">{u.email}</td>
+              <td className="px-6 py-4">{u.first_name}</td>
+              <td className="px-6 py-4">{u.last_name}</td>
+              <td className="px-6 py-4">
+                <span
+                  className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                    u.is_staff
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-100 text-gray-500'
+                  }`}
+                >
+                  {u.is_staff ? 'Yes' : 'No'}
+                </span>
+              </td>
+              <td className="px-6 py-4 text-center space-x-2">
+                {canManage(u) ? (
+                  <>
+                    <button
+                      onClick={() => handleEdit(u.user_id)}
+                      className="inline-flex items-center px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md text-xs font-medium shadow-sm transition"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(u.user_id)}
+                      className="inline-flex items-center px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-xs font-medium shadow-sm transition"
+                    >
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-gray-400 text-sm">–</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
+  ) : (
+    <p className="text-gray-500">No users available</p>
+  )}
+</div>
+  
+</DashboardLayout>
+
   );
 }

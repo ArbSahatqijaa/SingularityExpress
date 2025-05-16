@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout';
+import DataTable from '../DashboardTable';  
 
 export default function FriendshipForm() {
   const { friendshipId } = useParams();
@@ -96,109 +98,112 @@ export default function FriendshipForm() {
   const isEditing = Boolean(form.id);
 
   return (
-    <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
-      <div className="container">
-        <h1 className="mb-4">
-          {isEditing ? 'Edit Friendship' : 'Send Friend Request'}
-        </h1>
+    <DashboardLayout>
+     <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
+  <div className="container">
+    <h1 className="mb-4 text-primary">
+      {isEditing ? 'Edit Friendship' : 'Send Friend Request'}
+    </h1>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+    {error && <div className="alert alert-danger">{error}</div>}
 
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <h5 className="text-secondary mb-3">Friendship Details</h5>
+    <div className="card shadow-sm border-0">
+      <div className="card-body">
+        <form onSubmit={handleSubmit}>
+          <h5 className="text-secondary mb-3">Friendship Details</h5>
 
-              {/* FROM USER */}
-              <div className="mb-4">
-                <label className="form-label">From User</label>
-                <select
-                  name="from_user"
-                  className="form-select"
-                  value={form.from_user}
-                  onChange={handleChange}
-                  required
-                  disabled={isEditing}
-                >
-                  <option value="">Select a user</option>
-                  {users.map(user => (
-                    <option key={user.user_id} value={user.user_id}>
-                      {user.username}
-                    </option>
-                  ))}
-                </select>
-                {isEditing && (
-                  <p className="text-muted small mt-1">
-                    From user cannot be changed on edit
-                  </p>
-                )}
-              </div>
-
-              {/* TO USER */}
-              <div className="mb-4">
-                <label className="form-label">To User</label>
-                <select
-                  name="to_user"
-                  className="form-select"
-                  value={form.to_user}
-                  onChange={handleChange}
-                  required
-                  disabled={isEditing}
-                >
-                  <option value="">Select a user</option>
-                  {users
-                    .filter(u => u.user_id !== parseInt(form.from_user, 10))
-                    .map(user => (
-                      <option key={user.user_id} value={user.user_id}>
-                        {user.username}
-                      </option>
-                    ))}
-                </select>
-                {isEditing && (
-                  <p className="text-muted small mt-1">
-                    To user cannot be changed on edit
-                  </p>
-                )}
-              </div>
-
-              {/* STATUS */}
-              <div className="mb-4">
-                <label className="form-label">Status</label>
-                <select
-                  name="status"
-                  className="form-select"
-                  value={form.status}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="ACCEPTED">Accepted</option>
-                  <option value="REJECTED">Rejected</option>
-                  <option value="BLOCKED">Blocked</option>
-                </select>
-              </div>
-
-              {/* ACTIONS */}
-              <div className="d-flex gap-2">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={loading}
-                >
-                  {isEditing ? 'Save Changes' : 'Send Friend Request'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => navigate('/dashboard/friendships')}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+          {/* FROM USER */}
+          <div className="mb-4">
+            <label className="form-label fw-semibold">From User</label>
+            <select
+              name="from_user"
+              className="form-select"
+              value={form.from_user}
+              onChange={handleChange}
+              required
+              disabled={isEditing}
+            >
+              <option value="">Select a user</option>
+              {users.map(user => (
+                <option key={user.user_id} value={user.user_id}>
+                  {user.username}
+                </option>
+              ))}
+            </select>
+            {isEditing && (
+              <small className="text-muted d-block mt-1">
+                From user cannot be changed when editing.
+              </small>
+            )}
           </div>
-        </div>
+
+          {/* TO USER */}
+          <div className="mb-4">
+            <label className="form-label fw-semibold">To User</label>
+            <select
+              name="to_user"
+              className="form-select"
+              value={form.to_user}
+              onChange={handleChange}
+              required
+              disabled={isEditing}
+            >
+              <option value="">Select a user</option>
+              {users
+                .filter(u => u.user_id !== parseInt(form.from_user, 10))
+                .map(user => (
+                  <option key={user.user_id} value={user.user_id}>
+                    {user.username}
+                  </option>
+                ))}
+            </select>
+            {isEditing && (
+              <small className="text-muted d-block mt-1">
+                To user cannot be changed when editing.
+              </small>
+            )}
+          </div>
+
+          {/* STATUS */}
+          <div className="mb-4">
+            <label className="form-label fw-semibold">Status</label>
+            <select
+              name="status"
+              className="form-select"
+              value={form.status}
+              onChange={handleChange}
+              required
+            >
+              <option value="PENDING">Pending</option>
+              <option value="ACCEPTED">Accepted</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="BLOCKED">Blocked</option>
+            </select>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="d-flex gap-2">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {isEditing ? 'Save Changes' : 'Send Friend Request'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => navigate('/dashboard/friendships')}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
+</div>
+
+    </DashboardLayout>
   );
 }

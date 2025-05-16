@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout'; 
+import DataTable from '../DashboardTable';  
 
 export default function FriendshipPage() {
   const [friendships, setFriendships] = useState([]);
@@ -60,86 +62,68 @@ export default function FriendshipPage() {
   if (error) return <div className="text-danger">{error}</div>;
 
   return (
-    <div className="container py-4">
-      <h1 className="mb-4 text-primary">Manage Friendships</h1>
-
-      <div className="mb-3">
-        <button
-          className="btn btn-success"
-          onClick={() => navigate('/dashboard/friendships/new')}
+    <DashboardLayout>
+     <DataTable
+  title="Manage Friendships"
+  onCreate={() => navigate('/dashboard/friendships/new')}
+  data={friendships}
+  columns={[
+    { header: 'ID', accessor: 'id' },
+    { header: 'From User', accessor: 'from_user' },
+    { header: 'To User', accessor: 'to_user' },
+    {
+      header: 'Status',
+      accessor: row => (
+        <span
+          className={`inline-block text-xs font-medium px-2 py-1 rounded-full ${
+            row.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+            row.status === 'PENDING'  ? 'bg-yellow-100 text-yellow-800' :
+            row.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                        'bg-gray-100 text-gray-600'
+          }`}
         >
-          Send Friend Request
+          {row.status}
+        </span>
+      )
+    },
+    {
+      header: 'Created At',
+      accessor: row => new Date(row.created_at).toLocaleString()
+    },
+    {
+      header: 'Updated At',
+      accessor: row => new Date(row.updated_at).toLocaleString()
+    },
+    {
+      header: 'Responded At',
+      accessor: row =>
+        row.responded_at
+          ? new Date(row.responded_at).toLocaleString()
+          : <span className="text-gray-400">–</span>
+    }
+  ]}
+  renderActions={(f) =>
+    canManage(f) ? (
+      <>
+        <button
+          onClick={() => handleEdit(f.id)}
+          className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded-md text-xs font-medium"
+        >
+          Edit
         </button>
-      </div>
+        <button
+          onClick={() => handleDelete(f.id)}
+          className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md text-xs font-medium"
+        >
+          Delete
+        </button>
+      </>
+    ) : (
+      <span className="text-gray-400 text-sm">–</span>
+    )
+  }
+    />
 
-      {friendships.length > 0 ? (
-        <div className="table-responsive">
-          <table className="table table-hover table-bordered align-middle shadow-sm">
-            <thead className="table-dark">
-              <tr>
-                <th>ID</th>
-                <th>From User</th>
-                <th>To User</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Responded At</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {friendships.map(f => (
-                <tr key={f.id}>
-                  <td>{f.id}</td>
-                  <td>{f.from_user}</td>
-                  <td>{f.to_user}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        f.status === 'ACCEPTED' ? 'bg-success' :
-                        f.status === 'PENDING'  ? 'bg-warning' :
-                        f.status === 'REJECTED' ? 'bg-danger'  :
-                                                   'bg-secondary'
-                      }`}
-                    >
-                      {f.status}
-                    </span>
-                  </td>
-                  <td>{new Date(f.created_at).toLocaleString()}</td>
-                  <td>{new Date(f.updated_at).toLocaleString()}</td>
-                  <td>
-                    {f.responded_at
-                      ? new Date(f.responded_at).toLocaleString()
-                      : '-'}
-                  </td>
-                  <td>
-                    {canManage(f) ? (
-                      <>
-                        <button
-                          className="btn btn-sm btn-outline-warning me-1"
-                          onClick={() => handleEdit(f.id)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDelete(f.id)}
-                        >
-                          Delete
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-muted">–</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-muted">No friendships available</p>
-      )}
-    </div>
+    </DashboardLayout>
   );
 }
