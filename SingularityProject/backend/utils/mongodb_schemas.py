@@ -7,6 +7,31 @@ logger = logging.getLogger(__name__)
 def setup_collections(db_handle):
     """Set up MongoDB collections with proper indexes and validation."""
     try:
+        # AI Questions and Answers collection schema
+        ai_qa_validator = {
+            '$jsonSchema': {
+                'bsonType': 'object',
+                'required': ['question', 'answer', 'user_id', 'timestamp', 'model_used'],
+                'properties': {
+                    'question': {'bsonType': 'string'},
+                    'answer': {'bsonType': 'string'},
+                    'user_id': {'bsonType': 'string'},
+                    'timestamp': {'bsonType': 'date'},
+                    'model_used': {'bsonType': 'string'},
+                    'conversation_history': {
+                        'bsonType': 'array',
+                        'items': {
+                            'bsonType': 'object',
+                            'properties': {
+                                'user': {'bsonType': 'string'},
+                                'text': {'bsonType': 'string'}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         # Messages collection schema
         messages_validator = {
             '$jsonSchema': {
@@ -73,6 +98,14 @@ def setup_collections(db_handle):
             }
         }
 
+        # Create or update ai_questions_and_answers collection
+        if 'ai_questions_and_answers' not in db_handle.list_collection_names():
+            db_handle.create_collection('ai_questions_and_answers', validator=ai_qa_validator)
+            logger.info("Created ai_questions_and_answers collection with schema validation")
+        else:
+            db_handle.command('collMod', 'ai_questions_and_answers', validator=ai_qa_validator)
+            logger.info("Updated ai_questions_and_answers collection schema validation")
+
         # Create or update messages collection
         if 'messages' not in db_handle.list_collection_names():
             db_handle.create_collection('messages', validator=messages_validator)
@@ -92,6 +125,12 @@ def setup_collections(db_handle):
         # Create indexes
         messages = db_handle['messages']
         video_calls = db_handle['video_calls']
+        ai_qa = db_handle['ai_questions_and_answers']
+
+        # AI Q&A indexes
+        ai_qa.create_index([('user_id', ASCENDING)])
+        ai_qa.create_index([('timestamp', DESCENDING)])
+        ai_qa.create_index([('user_id', ASCENDING), ('timestamp', DESCENDING)])
 
         # Messages indexes
         messages.create_index([('conversation_id', ASCENDING), ('timestamp', ASCENDING)])

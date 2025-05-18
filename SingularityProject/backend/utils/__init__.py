@@ -19,36 +19,43 @@ def get_db_handle(db_name=None, host=None, port=None, username=None, password=No
     
     logger.info(f"Connecting to MongoDB: {host}:{port}, database: {db_name}")
     
+    connection_error = None
+    
+    # First try connecting without authentication
     try:
-        # Try connecting without authentication first
         logger.info(f"Attempting to connect to MongoDB at {host}:{port} without auth")
-        client = MongoClient(host=host, port=port)
-        # Test the connection
+        client = MongoClient(host=host, port=port, serverSelectionTimeoutMS=5000)
+        # Test the connection with timeout to fail fast if server is down
         client.admin.command('ping')
         logger.info("MongoDB connection successful without authentication")
+        db_handle = client[db_name]
+        setup_collections(db_handle)
+        return db_handle, client
     except Exception as e:
+        connection_error = e
         logger.warning(f"Connection without auth failed: {e}, trying with authentication")
-        try:
-            # If that fails, try with authentication
-            username = username or mongo_config['USERNAME']
-            password = password or mongo_config['PASSWORD']
-            
-            client = MongoClient(
-                host=host,
-                port=port,
-                username=username,
-                password=password
-            )
-            # Test the connection
-            client.admin.command('ping')
-            logger.info("MongoDB connection successful with authentication")
-        except Exception as auth_error:
-            logger.error(f"MongoDB connection failed with authentication: {auth_error}")
-            raise
     
-    db_handle = client[db_name]
-    
-    # Set up collections with schema validation
-    setup_collections(db_handle)
-    
-    return db_handle, client 
+    # If no-auth connection fails, try with authentication
+    try:
+        username = username or mongo_config['USERNAME']
+        password = password or mongo_config['PASSWORD']
+        
+        client = MongoClient(
+            host=host,
+            port=port,
+            username=username,
+            password=password,
+            serverSelectionTimeoutMS=5000  # 5 second timeout for faster failure
+        )
+        # Test the connection
+        client.admin.command('ping')
+        logger.info("MongoDB connection successful with authentication")
+        db_handle = client[db_name]
+        setup_collections(db_handle)
+        return db_handle, client
+    except Exception as auth_error:
+        logger.error(f"MongoDB connection failed with authentication: {auth_error}")
+        # If both connection attempts failed, provide more context
+        error_msg = f"Failed to connect to MongoDB: auth error: {auth_error}, no-auth error: {connection_error}"
+        logger.error(error_msg)
+        raise Exception(error_msg) from auth_error 

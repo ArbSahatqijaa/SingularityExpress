@@ -13,6 +13,7 @@ from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
 from .views.message import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
+from .views.ai_chat import get_ai_response, test_mongodb_connection
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -78,4 +79,6 @@ urlpatterns = [
     path('delete_message/<str:message_id>/', views.delete_message, name='delete_message'),
     path('chat/upload_file/', upload_chat_file, name='upload_chat_file'),
     path('chat/download/<str:filename>/', download_chat_file, name='download_chat_file'),
+    path('ai/chat/', get_ai_response, name='ai_chat'),
+    path('ai/test-mongodb/', test_mongodb_connection, name='test_mongodb'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
