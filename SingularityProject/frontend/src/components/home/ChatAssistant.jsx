@@ -3,7 +3,7 @@ import { FaRobot } from 'react-icons/fa';
 import API from '../../services/api';
 
 // OpenRouter API configuration
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY = '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';
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Helper function to clean response text
