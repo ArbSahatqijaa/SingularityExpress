@@ -206,4 +206,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # OpenAI API Key
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', 'aabe95c4bcd344038f5687a96190cb50')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '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')
