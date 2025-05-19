@@ -3,6 +3,17 @@ import { FaRegCommentDots, FaPhone, FaVideo, FaPaperclip, FaTimes } from 'react-
 import API from '../../services/api';
 import { useNotifications } from '../../contexts/NotificationContext';
 
+async function getDefaultStream() {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  const cam = devices.find(d => d.kind === 'videoinput');
+  const mic = devices.find(d => d.kind === 'audioinput');
+  return navigator.mediaDevices.getUserMedia({
+    video: cam ? { deviceId: cam.deviceId } : false,
+    audio: mic ? { deviceId: mic.deviceId } : false,
+  });
+}
+
+
 const ChatSidebar = () => {
   // State for chat UI
   const [isOpen, setIsOpen] = useState(false);
@@ -369,15 +380,10 @@ const ChatSidebar = () => {
       pcRef.current = createPeerConnection();
 
       // 2. Get local media
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
-        audio: true,
-      });
+      const stream = await getDefaultStream();
       setLocalStream(stream);
-      stream.getTracks().forEach((track) => pcRef.current.addTrack(track, stream));
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
+      stream.getTracks().forEach(t => pcRef.current.addTrack(t, stream));
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
       // 3. Create offer
       const offer = await pcRef.current.createOffer({
@@ -433,6 +439,11 @@ const ChatSidebar = () => {
   const filteredUsers = users.filter(user => 
     user.user_id !== currentUser && 
     user.username.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const uniqueUsers = React.useMemo(
+  () => Array.from(new Map(filteredUsers.map(u => [u.user_id, u])).values()),
+  [filteredUsers]
   );
 
   // Handle file selection and upload
@@ -543,10 +554,7 @@ const ChatSidebar = () => {
       pcRef.current = createPeerConnection();
 
       // 2. Get local media
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } },
-        audio: true,
-      });
+      const stream = await getDefaultStream();
       setLocalStream(stream);
       stream.getTracks().forEach((track) => pcRef.current.addTrack(track, stream));
       if (localVideoRef.current) {
@@ -708,7 +716,7 @@ const ChatSidebar = () => {
               />
             </div>
             <div className="flex-1 overflow-y-auto">
-              {filteredUsers.map((user) => (
+              {uniqueUsers.map(user => (
                 <div
                   key={user.user_id}
                   onClick={() => openChat(user)}
@@ -781,7 +789,7 @@ const ChatSidebar = () => {
                     >
                       {typeof msg.content === 'string' ? (
                         msg.content
-                      ) : msg.message_type === 'image' ? (
+                      ) : msg.message_type === 'image' && msg.content.url ? (
                         <img
                           src={msg.content.url}
                           alt="Shared image"
