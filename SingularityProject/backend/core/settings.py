@@ -11,29 +11,26 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6+33g#&*++uxyj_r!_&_5*9-&th%-j_2#4_=kagy1bgm8^$jem'
+# Use env variables or fallback to defaults
+SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key-if-not-set')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-
 
 # Application definition
 
@@ -64,7 +61,6 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id'
 }
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',           # ← here
@@ -75,7 +71,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -137,29 +132,21 @@ CHANNEL_LAYERS = {
 DATABASES = {
     'default': {  # Primary database (MySQL)
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'singularityexpress',      
-        'USER': 'root',              
-        'PASSWORD': 'ubtubt123',
-        'HOST': '127.0.0.1',         
-        'PORT': '3306',              
+        'NAME': 'singularityexpress',
+        'USER': 'root',
+        'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     },
 }
 
 # MongoDB configuration used for manual connection via PyMongo (see utils.py).
-# These settings are required for establishing a connection to the MongoDB database.
-# 
-# 🔁 You need to import this in any file where you're calling get_db_handle(), for example:
-#     from django.conf import settings
-#     cfg = settings.MONGO_CONFIG
-#     db_handle, mongo_client = get_db_handle(...)
-#
-# ⚠️ NOTE: For security and flexibility, consider moving these to a .env file in production.
 MONGO_CONFIG = {
     'DB_NAME': 'singularityexpressCommunication',
     'HOST': 'localhost',
     'PORT': 27017,
     'USERNAME': 'mongouser',
-    'PASSWORD': 'ubtubt123'
+    'PASSWORD': os.getenv('MONGO_PASSWORD', ''),
 }
 
 # Password validation
@@ -182,7 +169,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -193,7 +179,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -206,4 +191,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # OpenAI API Key
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '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')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

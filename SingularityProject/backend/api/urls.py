@@ -17,6 +17,7 @@ from .views.ai_chat import get_ai_response, test_mongodb_connection
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from .views.chat_with_api import chat_with_api
 
 
 
@@ -81,4 +82,6 @@ urlpatterns = [
     path('chat/download/<str:filename>/', download_chat_file, name='download_chat_file'),
     path('ai/chat/', get_ai_response, name='ai_chat'),
     path('ai/test-mongodb/', test_mongodb_connection, name='test_mongodb'),
+
+    path('chat/', chat_with_api, name='chat_with_api'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -68,6 +68,8 @@ import RequiredrolesForm from './pages/auth/dashboard/requirement_roles/Required
 import UserProjectPage from './pages/auth/dashboard/user_project/UserProjectPage';
 import UserProjectForm from './pages/auth/dashboard/user_project/UserProjectForm';
 
+import Chatbot from './components/home/Chatboxtest'
+
 function LayoutWithNav() {
   return (
     <>
@@ -89,6 +91,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/chatbot" element={<Chatbot />} />
 
           {/* Staff-only routes */}
           <Route element={<RequireStaff><Outlet /></RequireStaff>}>

@@ -2,9 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FaRobot } from 'react-icons/fa';
 import API from '../../services/api';
 
-// OpenRouter API configuration
-const OPENROUTER_API_KEY = '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';
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Helper function to clean response text
 const cleanResponseText = (text) => {
@@ -61,103 +58,41 @@ const ChatAssistant = () => {
     setError(null);
   };
 
-  const getAIResponse = async (userMessage) => {
-    try {
-      setIsTyping(true);
-      setError(null);
+  async function getAIResponse(userMessage) {
+  try {
+    // Append user message to chat
+    const newMessages = [...messages, { user: 'You', text: userMessage }];
+    setMessages(newMessages);
 
-      // Call OpenRouter API for AI response
-      const response = await fetch(OPENROUTER_API_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'SingularityExpress'
+    // Call your backend AI API via your axios instance
+    const res = await API.post('/chat/', {
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful AI assistant for SingularityExpress, a platform for research collaboration and project management. Provide concise and relevant answers. Do not use LaTeX formatting, special characters, or boxed text in your responses. Use plain text only.'
         },
-        body: JSON.stringify({
-          model: 'deepseek/deepseek-r1-zero:free',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful AI assistant for SingularityExpress, a platform for research collaboration and project management. Provide concise and relevant answers. Do not use LaTeX formatting, special characters, or boxed text in your responses. Use plain text only.'
-            },
-            ...messages.slice(1).map(msg => ({
-              role: msg.user === 'You' ? 'user' : 'assistant',
-              content: msg.text
-            })),
-            {
-              role: 'user',
-              content: userMessage
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      if (data.choices && data.choices[0]?.message?.content) {
-        const cleanedResponse = cleanResponseText(data.choices[0].message.content);
-        setMessages(prev => [
-          ...prev,
-          { id: prev.length, user: 'Assistant', text: cleanedResponse }
-        ]);
-        
-        // After getting a successful response, log the conversation to MongoDB
-        try {
-          // Prepare conversation history for logging
-          const conversationHistory = messages.slice(1).map(msg => ({
-            user: msg.user,
-            text: msg.text
-          }));
-          
-          // Save the Q&A to the backend MongoDB with retry logic
-          const logConversation = async (retries = 3) => {
-            try {
-              await API.post('/ai/chat/', {
-                message: userMessage,
-                answer: cleanedResponse,
-                conversation_history: conversationHistory,
-                model_used: 'deepseek/deepseek-r1-zero:free'
-              });
-              console.log('Conversation logged to MongoDB successfully');
-            } catch (logError) {
-              console.error('Failed to log conversation to MongoDB:', logError);
-              
-              // Retry with exponential backoff if we have retries left
-              if (retries > 0) {
-                const delay = 1000 * Math.pow(2, 3 - retries); // Exponential backoff
-                console.log(`Retrying MongoDB logging in ${delay}ms. Attempts left: ${retries}`);
-                setTimeout(() => logConversation(retries - 1), delay);
-              }
-            }
-          };
-          
-          // Start logging with retries
-          logConversation();
-          
-        } catch (logError) {
-          // Just log the error but don't disrupt the user experience
-          console.error('Failed to log conversation to MongoDB:', logError);
+        ...newMessages.slice(1).map(msg => ({
+          role: msg.user === 'You' ? 'user' : 'assistant',
+          content: msg.text
+        })),
+        {
+          role: 'user',
+          content: userMessage
         }
-      } else {
-        throw new Error('Invalid response format from AI service');
-      }
-    } catch (err) {
-      console.error('Error getting AI response:', err);
-      setError(err.message || 'Sorry, I encountered an error. Please try again.');
-      setMessages(prev => [
-        ...prev,
-        { id: prev.length, user: 'Assistant', text: 'I apologize, but I encountered an error. Please try again.' }
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
+      ]
+    });
+
+    // Get AI reply text from response data
+    const aiReply = res.data.choices?.[0]?.message?.content || "Sorry, I didn't get a response.";
+
+    // Append AI reply to chat
+    setMessages([...newMessages, { user: 'AI', text: aiReply }]);
+  } catch (error) {
+    console.error('Error fetching AI response:', error);
+    setMessages([...messages, { user: 'AI', text: 'Oops! Something went wrong. Try again later.' }]);
+  }
+}
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
