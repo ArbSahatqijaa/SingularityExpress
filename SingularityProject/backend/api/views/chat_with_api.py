@@ -7,9 +7,13 @@ from datetime import datetime
 import logging
 import traceback
 from utils import get_db_handle
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 logger = logging.getLogger(__name__)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 @csrf_exempt
 def chat_with_api(request):
     if request.method == 'POST':
@@ -30,7 +34,7 @@ def chat_with_api(request):
             headers = {
                 "Content-Type": "application/json",
                 "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
-                "x-rapidapi-key": os.getenv('RAPIDAPI_KEY')  # <-- Use env var here
+                "x-rapidapi-key": os.getenv('RAPIDAPI_KEY')
             }
             payload = {
                 "messages": messages,
@@ -51,27 +55,31 @@ def chat_with_api(request):
                 ai_response = str(response_data)
 
             # Save to MongoDB only if user is authenticated
+            logger.info(f"User authentication status - is_authenticated: {hasattr(request, 'user') and request.user.is_authenticated}")
             if hasattr(request, 'user') and request.user.is_authenticated:
                 try:
+                    logger.info("Attempting to connect to MongoDB...")
                     db_handle, mongo_client = get_db_handle()
                     mongo_client.admin.command('ping')  # verify connection
+                    logger.info("MongoDB connection successful")
                     ai_qa_collection = db_handle["ai_questions_and_answers"]
 
                     qa_document = {
                         "question": user_message,
                         "answer": ai_response,
-                        "user_id": str(request.user.id),
+                        "user_id": str(request.user.user_id),  # Using user_id instead of id
                         "timestamp": datetime.utcnow(),
                         "model_used": model,
                         "conversation_history": messages
                     }
 
+                    logger.info(f"Attempting to store document: {qa_document}")
                     insert_result = ai_qa_collection.insert_one(qa_document)
-                    logger.info(f"Stored conversation with ID {insert_result.inserted_id}")
+                    logger.info(f"Successfully stored conversation with ID {insert_result.inserted_id}")
 
                 except Exception as mongo_err:
                     logger.error(f"Error storing to MongoDB: {mongo_err}")
-                    logger.error(traceback.format_exc())
+                    logger.error(f"Full traceback: {traceback.format_exc()}")
 
             return JsonResponse(response_data, status=response.status_code)
 
