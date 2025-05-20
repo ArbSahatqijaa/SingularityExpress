@@ -15,7 +15,6 @@ class FriendshipSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id',
-            'created_by',
             'created_at',
             'updated_at'
             ]

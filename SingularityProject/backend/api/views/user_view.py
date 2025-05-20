@@ -10,6 +10,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
+from django.db.models import Q  
+
 User = get_user_model()
 
 

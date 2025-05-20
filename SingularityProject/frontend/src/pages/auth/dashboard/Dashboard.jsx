@@ -184,7 +184,7 @@ export default function Dashboard() {
         <div className="text-center mt-6">
           <button
             className="text-indigo-600 hover:underline"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
           >
             Return to Homepage
           </button>
