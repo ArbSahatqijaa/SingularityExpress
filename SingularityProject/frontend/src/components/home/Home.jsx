@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ProfileCard from '../../components/home/ProfileCard';  
 import FeaturedProjects from '../../components/home/FeaturedProjects';  
 import ChatSidebar from '../../components/home/ChatSidebar';  
@@ -11,14 +11,18 @@ import FriendSuggestionCard from './FriendList';
 import ProfileDashboard from './ProfileDashboard';  
 import Activitiy from './RecentActivityFeed';
 import ChatAssistant from './ChatAssistant';  
+import ProjectFilter from './ProjectFilter';  
+import Research from './ResearchPaper'; 
 
 const Home = () => {
+  const [selectedCategory, setSelectedCategory] = useState('Project');
+
   return (
     <div className="bg-gray-100 min-h-screen p-4 relative">
       {/* Main grid layout */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
-        
-        {/* Left Column: Profile */}
+
+        {/* Left Column */}
         <div className="lg:col-span-3 space-y-4">
           <ProfileCard />
           <ProfileDashboard />
@@ -26,10 +30,17 @@ const Home = () => {
           <TodoTasks />
         </div>
 
-        {/* Center Column: Featured Projects */}
+        {/* Center Column */}
         <div className="lg:col-span-6 space-y-4">
+          {/* Filter - pass state and setter */}
+          <ProjectFilter selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+
           <CreateProjectPost />
-          <FeaturedProjects />
+          
+          {/* Render content based on selected category */}
+          {selectedCategory === 'Project' && <FeaturedProjects />}
+          {selectedCategory === 'Research' && <Research />}
+          
         </div>
 
         {/* Right Column */}
@@ -41,12 +52,10 @@ const Home = () => {
         </div>
       </div>
 
-      
-         {/* Chat Sidebar */}
-        <div className="hidden md:block lg:block">
-          <ChatSidebar />
-        </div>
-      
+      {/* Chat Sidebar */}
+      <div className="hidden md:block lg:block">
+        <ChatSidebar />
+      </div>
 
       {/* ChatAssistant */}
       <div className="fixed bottom-6 left-6 z-50">
