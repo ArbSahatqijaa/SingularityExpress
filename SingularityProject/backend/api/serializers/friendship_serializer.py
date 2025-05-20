@@ -1,4 +1,4 @@
-from backend.api.models.friendship import Friendship
+from ..models.friendship import Friendship
 from rest_framework import serializers
 class FriendshipSerializer(serializers.ModelSerializer):
     class Meta:

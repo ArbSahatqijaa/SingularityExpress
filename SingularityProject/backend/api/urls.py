@@ -32,10 +32,11 @@ urlpatterns = [
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 
     # Friendship URLs
-    urlpatterns = [
     path('friendships/', FriendshipListCreateView.as_view(), name='friendship-list-create'),
     path('friendships/status/<int:user_id>/', FriendshipStatusView.as_view(), name='friendship-status'),
-    path('friendships/<int:pk>/', FriendshipDetailView.as_view(), name='friendship-detail'),]   # User Project URLs
+    path('friendships/<int:pk>/', FriendshipDetailView.as_view(), name='friendship-detail'),
+
+    # User Project URLs
     path('user_projects/', UserProjectListCreateView.as_view(), name='user-project-list-create'),
     path('user_projects/<int:pk>/', UserProjectDetailView.as_view(), name='user-project-detail'),
 
