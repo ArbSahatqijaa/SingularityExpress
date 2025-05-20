@@ -68,7 +68,11 @@ import RequiredrolesForm from './pages/auth/dashboard/requirement_roles/Required
 import UserProjectPage from './pages/auth/dashboard/user_project/UserProjectPage';
 import UserProjectForm from './pages/auth/dashboard/user_project/UserProjectForm';
 
+//ChatBot
 import Chatbot from './components/home/Chatboxtest'
+
+// User Profile
+import UserProfile from './components/userProfile/friendsList/UserProfile';
 
 function LayoutWithNav() {
   return (
@@ -139,8 +143,8 @@ function App() {
             <Route path="/dashboard/user_projects" element={<UserProjectPage />} />
             <Route path="/dashboard/user_projects/new" element={<UserProjectForm />} />
             <Route path="/dashboard/user_projects/edit/:userProjectId" element={<UserProjectForm />} />
-          </Route>
 
+          </Route>
           {/* All other routes with navbar */}
           <Route element={<LayoutWithNav />}>
             <Route path="profile" element={<Profile />} />
@@ -149,6 +153,9 @@ function App() {
             <Route path="card" element={<ProjectCard />} />
             <Route path="home" element={<Home />} />
             <Route path="communication" element={<CommunicationHub />} />
+
+            <Route path="/users/:id" element={<UserProfile />} />
+
           </Route>
         </Routes>
       </Router>

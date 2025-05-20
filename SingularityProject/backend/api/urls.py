@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .views.auth import WhoAmI
 from .views.user_view import UserDetailView, UserListCreateView
-from .views.friendship_view import FriendshipListCreateView, FriendshipDetailView
+from .views.friendship_view import FriendshipListCreateView, FriendshipDetailView, FriendshipStatusView
 from .views.user_project_view import UserProjectDetailView, UserProjectListCreateView
 from .views.user_paper_view import UserPaperListCreateView, UserPaperDetailView
 from .views.tutorial_view import TutorialListCreateView, TutorialDetailView
@@ -12,7 +12,7 @@ from .views.project_view import ProjectListCreateView, ProjectDetailView
 from .views.paper_view import PaperListCreateView, PaperDetailView
 from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDetailView
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
-from .views.message import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
+from .views.message_view import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
 from .views.chat_with_api import chat_with_api, test_mongodb_connection
 from . import views
 from django.conf import settings
@@ -32,10 +32,10 @@ urlpatterns = [
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 
     # Friendship URLs
+    urlpatterns = [
     path('friendships/', FriendshipListCreateView.as_view(), name='friendship-list-create'),
-    path('friendships/<int:pk>/', FriendshipDetailView.as_view(), name='friendship-detail'),
-
-    # User Project URLs
+    path('friendships/status/<int:user_id>/', FriendshipStatusView.as_view(), name='friendship-status'),
+    path('friendships/<int:pk>/', FriendshipDetailView.as_view(), name='friendship-detail'),]   # User Project URLs
     path('user_projects/', UserProjectListCreateView.as_view(), name='user-project-list-create'),
     path('user_projects/<int:pk>/', UserProjectDetailView.as_view(), name='user-project-detail'),
 
