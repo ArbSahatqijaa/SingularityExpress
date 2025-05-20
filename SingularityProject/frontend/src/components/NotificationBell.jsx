@@ -52,6 +52,8 @@ const NotificationBell = () => {
         return '❌';
       case 'file':
         return '📎';
+      case 'friendship':
+        return '👋';
       default:
         return '🔔';
     }

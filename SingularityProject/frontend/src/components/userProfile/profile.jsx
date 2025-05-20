@@ -27,12 +27,14 @@ const Profile = () => {
 
   const projects = [
     {
+      id: 1,
       title: "Portfolio Website",
       description: "Creating a personal portfolio to showcase my skills.",
       status: "Completed",
       imageUrl: "https://images.unsplash.com/photo-1506765515384-028b60a970df",
     },
     {
+      id: 2,
       title: "E-commerce App",
       description: "Building a full-stack online store with Stripe integration.",
       status: "In Progress",
@@ -79,9 +81,9 @@ const Profile = () => {
         {/* Tabs */}
         <div className="border-t border-gray-200 px-6">
           <ul className="flex space-x-6 text-sm font-medium text-gray-600">
-            {['Overview', 'Project', 'Files', 'Teams', 'Friends', 'Activity'].map((tab) => (
+            {['Overview', 'Project', 'Files', 'Teams', 'Friends', 'Activity'].map((tab, index) => (
               <li
-                key={tab}
+                key={`${tab}-${index}`}
                 onClick={() => handleTabClick(tab)}
                 className={`cursor-pointer pb-3 border-b-2 transition ${
                   selectedTab === tab
@@ -110,9 +112,9 @@ const Profile = () => {
             <>
               <h2 className="text-xl font-bold text-gray-800 mb-4">Projects I'm Working On</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.map((project, index) => (
+                {projects.map((project) => (
                   <ProjectCard
-                    key={index}
+                    key={project.id}
                     title={project.title}
                     description={project.description}
                     status={project.status}

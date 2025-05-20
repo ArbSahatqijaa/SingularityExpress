@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .views.auth import WhoAmI
 from .views.user_view import UserDetailView, UserListCreateView
-from .views.friendship_view import FriendshipListCreateView, FriendshipDetailView, FriendshipStatusView
+from .views.friendship_view import FriendshipListCreateView, FriendshipDetailView, FriendshipStatusView, PendingFriendRequestsView
 from .views.user_project_view import UserProjectDetailView, UserProjectListCreateView
 from .views.user_paper_view import UserPaperListCreateView, UserPaperDetailView
 from .views.tutorial_view import TutorialListCreateView, TutorialDetailView
@@ -35,6 +35,7 @@ urlpatterns = [
     path('friendships/', FriendshipListCreateView.as_view(), name='friendship-list-create'),
     path('friendships/status/<int:user_id>/', FriendshipStatusView.as_view(), name='friendship-status'),
     path('friendships/<int:pk>/', FriendshipDetailView.as_view(), name='friendship-detail'),
+    path('friendships/pending/', PendingFriendRequestsView.as_view(), name='pending-friend-requests'),
 
     # User Project URLs
     path('user_projects/', UserProjectListCreateView.as_view(), name='user-project-list-create'),

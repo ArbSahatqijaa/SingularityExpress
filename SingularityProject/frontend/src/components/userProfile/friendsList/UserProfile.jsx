@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import API from '../../../services/api';
 import ProfileAvatar from '../profileAvatar';
+import { useNotifications } from '../../../contexts/NotificationContext';
 
 const UserProfile = () => {
   const { id } = useParams();  
@@ -9,27 +10,92 @@ const UserProfile = () => {
   const [friendshipStatus, setFriendshipStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('Overview');
+  const [friendshipId, setFriendshipId] = useState(null);
+  const [requestDirection, setRequestDirection] = useState(null); // 'sent' or 'received'
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
-  setLoading(true);
+    setLoading(true);
 
-  // Get user data
-  API.get(`/users/${id}/`)
-    .then(res => setUser(res.data))
-    .catch(err => console.error(err));
+    // Get user data
+    API.get(`/users/${id}/`)
+      .then(res => setUser(res.data))
+      .catch(err => console.error(err));
 
-  // Get friendship status
-  API.get(`/friendships/status/${id}/`)  // Use the new endpoint
-    .then(res => setFriendshipStatus(res.data.status))
-    .catch(() => setFriendshipStatus('NONE'))
-    .finally(() => setLoading(false));
-}, [id]);
+    // Get friendship status
+    API.get(`/friendships/status/${id}/`)
+      .then(res => {
+        setFriendshipStatus(res.data.status);
+        if (res.data.id) {
+          setFriendshipId(res.data.id);
+          // Determine request direction based on is_self flag
+          if (res.data.status === 'PENDING') {
+            // If from_user is myself, then I sent the request
+            if (res.data.from_user && res.data.from_user.hasOwnProperty('is_self')) {
+              setRequestDirection(res.data.from_user.is_self ? 'sent' : 'received');
+            } else {
+              // Fallback to checking user IDs if is_self is not available
+              setRequestDirection(res.data.from_user?.user_id !== parseInt(id) ? 'sent' : 'received');
+            }
+          }
+        }
+      })
+      .catch(() => {
+        setFriendshipStatus('NONE');
+        setFriendshipId(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
   const handleRequestAdd = () => {
-  API.post(`/friendships/`, { to_user: id })  
-    .then(() => setFriendshipStatus('PENDING'))
-    .catch(err => console.error(err));
-};
+    API.post(`/friendships/`, { to_user: id })  
+      .then((response) => {
+        setFriendshipStatus('PENDING');
+        setFriendshipId(response.data.id);
+        setRequestDirection('sent');
+        addNotification({
+          type: 'friendship',
+          title: 'Friend Request Sent',
+          message: `You sent a friend request to ${user.first_name} ${user.last_name}`,
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(err => console.error(err));
+  };
+
+  // Handle accepting friend request
+  const handleAccept = () => {
+    if (!friendshipId) return;
+    
+    API.patch(`/friendships/${friendshipId}/`, { status: 'ACCEPTED' })
+      .then(() => {
+        setFriendshipStatus('ACCEPTED');
+        addNotification({
+          type: 'friendship',
+          title: 'Friend Request Accepted',
+          message: `You are now friends with ${user.first_name} ${user.last_name}`,
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(err => console.error(err));
+  };
+
+  // Handle rejecting friend request
+  const handleReject = () => {
+    if (!friendshipId) return;
+    
+    API.patch(`/friendships/${friendshipId}/`, { status: 'REJECTED' })
+      .then(() => {
+        setFriendshipStatus('REJECTED');
+        addNotification({
+          type: 'friendship',
+          title: 'Friend Request Rejected',
+          message: `You rejected the friend request from ${user.first_name} ${user.last_name}`,
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(err => console.error(err));
+  };
 
   const handleTabClick = (tab) => setSelectedTab(tab);
 
@@ -53,7 +119,7 @@ const UserProfile = () => {
             <h2 className="text-2xl font-bold text-gray-800">{user.first_name} {user.last_name}</h2>
             <p className="text-gray-500">{user.username}</p>
           </div>
-          {/* Friend Request Button */}
+          {/* Friend Request Buttons */}
           {friendshipStatus === 'NONE' && (
             <button
               onClick={handleRequestAdd}
@@ -62,8 +128,24 @@ const UserProfile = () => {
               Request to Add
             </button>
           )}
-          {friendshipStatus === 'PENDING' && (
+          {friendshipStatus === 'PENDING' && requestDirection === 'sent' && (
             <p className="text-yellow-600 font-semibold">Request Pending</p>
+          )}
+          {friendshipStatus === 'PENDING' && requestDirection === 'received' && (
+            <div className="flex space-x-2">
+              <button
+                onClick={handleAccept}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition"
+              >
+                Accept
+              </button>
+              <button
+                onClick={handleReject}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+              >
+                Decline
+              </button>
+            </div>
           )}
           {friendshipStatus === 'ACCEPTED' && (
             <p className="text-green-600 font-semibold">You are friends</p>
@@ -79,9 +161,9 @@ const UserProfile = () => {
         {/* Tabs */}
         <div className="border-t border-gray-200 px-6">
           <ul className="flex space-x-6 text-sm font-medium text-gray-600">
-            {['Overview', 'Projects', 'Friends', 'Activity'].map(tab => (
+            {['Overview', 'Projects', 'Friends', 'Activity'].map((tab, index) => (
               <li
-                key={tab}
+                key={`${tab}-${index}`}
                 onClick={() => handleTabClick(tab)}
                 className={`cursor-pointer pb-3 border-b-2 transition ${
                   selectedTab === tab

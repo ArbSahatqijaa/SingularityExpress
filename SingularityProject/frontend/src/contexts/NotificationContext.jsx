@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import API from '../services/api';
 
 const NotificationContext = createContext();
 
@@ -20,11 +21,7 @@ export const NotificationProvider = ({ children }) => {
   // Derive unreadCount from notifications array instead of separate state
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Save notifications to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-  }, [notifications]);
-
+  // Define addNotification before using it in useEffect
   const addNotification = useCallback((notification) => {
     setNotifications(prev => {
       // Check for duplicate notifications based on type and senderId
@@ -57,6 +54,51 @@ export const NotificationProvider = ({ children }) => {
       return [newNotification, ...prev].slice(0, 100); // Keep up to 100 notifications
     });
   }, []);
+
+  // Save notifications to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
+  // Check for pending friend requests
+  useEffect(() => {
+    const fetchPendingFriendRequests = async () => {
+      try {
+        // Only run if we're authenticated
+        if (!API.defaults.headers.Authorization) return;
+        
+        const response = await API.get('/friendships/pending/');
+        const { count, requests } = response.data;
+        
+        if (count > 0) {
+          // Add notifications for pending requests
+          requests.forEach(request => {
+            const fromUser = request.from_user;
+            addNotification({
+              type: 'friendship',
+              senderId: fromUser.user_id,
+              title: 'New Friend Request',
+              message: `${fromUser.first_name} ${fromUser.last_name} wants to connect with you`,
+              timestamp: request.created_at,
+              // When clicked, navigate to the friends page
+              onClick: () => {
+                window.location.href = '/profile';
+              }
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching pending friend requests:', error);
+      }
+    };
+
+    fetchPendingFriendRequests();
+    
+    // Set up interval to check regularly
+    const interval = setInterval(fetchPendingFriendRequests, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, [addNotification]);
 
   const markAsRead = useCallback((notificationId) => {
     setNotifications(prev => 
