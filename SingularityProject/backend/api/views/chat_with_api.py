@@ -9,6 +9,8 @@ import traceback
 from utils import get_db_handle
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from bson import ObjectId
 
 logger = logging.getLogger(__name__)
 
@@ -92,3 +94,59 @@ def chat_with_api(request):
             return JsonResponse({"error": "Internal Server Error"}, status=500)
 
     return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_mongodb_connection(request):
+    """
+    Test endpoint to verify MongoDB connection and collection access
+    """
+    try:
+        logger.info("Testing MongoDB connection...")
+        db_handle, mongo_client = get_db_handle()
+        logger.info(f"MongoDB connection successful. Database: {db_handle.name}")
+        
+        # Test collection access
+        ai_qa_collection = db_handle["ai_questions_and_answers"]
+        
+        # Try to insert a test document
+        test_doc = {
+            "question": "Test question",
+            "answer": "Test answer",
+            "user_id": str(request.user.user_id),
+            "timestamp": datetime.utcnow(),
+            "model_used": "test",
+            "conversation_history": []
+        }
+        
+        insert_result = ai_qa_collection.insert_one(test_doc)
+        logger.info(f"Test document inserted with ID: {insert_result.inserted_id}")
+        
+        # Try to read it back
+        stored_doc = ai_qa_collection.find_one({"_id": insert_result.inserted_id})
+        if stored_doc:
+            # Convert ObjectId to string for JSON serialization
+            stored_doc['_id'] = str(stored_doc['_id'])
+            stored_doc['timestamp'] = stored_doc['timestamp'].isoformat()
+            
+            # Clean up test document
+            ai_qa_collection.delete_one({"_id": insert_result.inserted_id})
+            
+            return Response({
+                'status': 'success',
+                'message': 'MongoDB connection and collection access working correctly',
+                'test_document': stored_doc
+            })
+        else:
+            return Response({
+                'status': 'error',
+                'message': 'Could not retrieve test document after insertion'
+            }, status=500)
+            
+    except Exception as e:
+        logger.error(f"MongoDB test failed: {str(e)}")
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        return Response({
+            'status': 'error',
+            'message': f'MongoDB test failed: {str(e)}'
+        }, status=500)
