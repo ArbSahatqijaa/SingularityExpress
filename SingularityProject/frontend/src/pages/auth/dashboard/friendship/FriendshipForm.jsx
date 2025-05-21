@@ -43,14 +43,14 @@ export default function FriendshipForm() {
     if (!friendshipId) return;
     setLoading(true);
 
-    API.get(`/friendships/${friendshipId}/`)
+        API.get(`/friendships/${friendshipId}/`)
       .then(({ data }) => {
-        setForm({
-          id:         data.id,         // ← pick up the Friendship id
-          from_user:  data.from_user,
-          to_user:    data.to_user,
-          status:     data.status,
-        });
+        setForm(f => ({
+          ...f,                        // keep your existing from_user (i.e. me.user_id)
+          id:      data.id,           
+          to_user: data.to_user_details.user_id,
+          status:  data.status,
+        }));
       })
       .catch(() => setError('Failed to load friendship'))
       .finally(() => setLoading(false));
@@ -73,7 +73,6 @@ export default function FriendshipForm() {
 
     // build payload
     const payload = {
-      from_user: parseInt(form.from_user, 10),
       to_user:   parseInt(form.to_user,   10),
       status:    form.status,
     };
@@ -113,29 +112,19 @@ export default function FriendshipForm() {
           <h5 className="text-secondary mb-3">Friendship Details</h5>
 
           {/* FROM USER */}
-          <div className="mb-4">
-            <label className="form-label fw-semibold">From User</label>
-            <select
-              name="from_user"
-              className="form-select"
-              value={form.from_user}
-              onChange={handleChange}
-              required
-              disabled={isEditing}
-            >
-              <option value="">Select a user</option>
-              {users.map(user => (
-                <option key={user.user_id} value={user.user_id}>
-                  {user.username}
-                </option>
-              ))}
-            </select>
-            {isEditing && (
-              <small className="text-muted d-block mt-1">
-                From user cannot be changed when editing.
-              </small>
-            )}
-          </div>
+      <div className="mb-4">
+        <label className="form-label fw-semibold">From User</label>
+        <input
+          type="text"
+          className="form-control"
+          value={me?.username || ''}
+          disabled
+        />
+        <small className="text-muted d-block mt-1">
+        You (always the requester)
+        </small>
+      </div>
+
 
           {/* TO USER */}
           <div className="mb-4">

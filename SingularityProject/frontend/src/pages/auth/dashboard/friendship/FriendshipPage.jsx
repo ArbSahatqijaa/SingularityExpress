@@ -37,8 +37,9 @@ export default function FriendshipPage() {
   const canManage = f =>
     me?.is_superuser ||
     me?.is_staff ||
-    me?.user_id === f.from_user ||
-    me?.user_id === f.to_user;
+    me?.user_id === f.from_user.user_id ||
+    me?.user_id === f.to_user_details.user_id;
+
 
   const handleDelete = async id => {
     const friendship = friendships.find(f => f.id === id);
@@ -69,8 +70,8 @@ export default function FriendshipPage() {
   data={friendships}
   columns={[
     { header: 'ID', accessor: 'id' },
-    { header: 'From User', accessor: 'from_user' },
-    { header: 'To User', accessor: 'to_user' },
+    { header: 'From User', accessor: row => row.from_user.username },
+    { header: 'To User', accessor: row => row.to_user_details.username },
     {
       header: 'Status',
       accessor: row => (
