@@ -1,4 +1,3 @@
-from requests import request
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -57,8 +56,10 @@ class FriendshipListCreateView(APIView):
             if serializer.is_valid():
                 # Set initial status to PENDING
                 friendship = serializer.save(status='PENDING')
+                
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+            
+            print("FRIENDSHIP ERRORS:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response(
@@ -89,17 +90,24 @@ class FriendshipDetailView(APIView):
             serializer.save()
             return Response(serializer.data)
 
+        print("FRIENDSHIP ERRORS:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
         friendship = self.get_object(pk)
-        serializer = FriendshipSerializer(friendship, data=request.data, partial=True)
+        new_status = request.data.get('status')
 
+        if new_status == 'REJECTED':
+            friendship.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        serializer = FriendshipSerializer(friendship, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request, pk, format=None):
         friendship = self.get_object(pk)

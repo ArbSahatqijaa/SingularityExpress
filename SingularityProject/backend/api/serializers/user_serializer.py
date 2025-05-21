@@ -5,6 +5,8 @@ from rest_framework.fields import ImageField
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    is_self = serializers.SerializerMethodField()
+   
     avatar = serializers.ImageField(required=False, allow_null=True)
     cover = serializers.ImageField(required=False, allow_null=True)
 
@@ -23,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
             'refresh_token',
             'avatar',
             'cover',
+            'is_self',
             'created_at',
             'updated_at',
             'is_active',
@@ -34,7 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'is_active',
-            'is_superuser'
+            'is_superuser',
+            'is_self'
         ]
         extra_kwargs = {
             'password': {'write_only': True},
@@ -73,3 +77,10 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+    def get_is_self(self, obj):
+        req = self.context.get('request', None)
+        
+        if not req or not hasattr(req, 'user'):
+            return False
+        return req.user.user_id == obj.user_id

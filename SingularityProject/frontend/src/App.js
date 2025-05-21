@@ -7,7 +7,9 @@ import {
   Navigate,
   Outlet,
 } from 'react-router-dom';
+
 import { NotificationProvider } from './contexts/NotificationContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 import NavigationBar from './components/navigationBar/navigationbar';
 
@@ -68,8 +70,8 @@ import RequiredrolesForm from './pages/auth/dashboard/requirement_roles/Required
 import UserProjectPage from './pages/auth/dashboard/user_project/UserProjectPage';
 import UserProjectForm from './pages/auth/dashboard/user_project/UserProjectForm';
 
-//ChatBot
-import Chatbot from './components/home/Chatboxtest'
+// ChatBot
+import Chatbot from './components/home/Chatboxtest';
 
 // User Profile
 import UserProfile from './components/userProfile/friendsList/UserProfile';
@@ -88,77 +90,77 @@ function LayoutWithNav() {
 function App() {
   return (
     <NotificationProvider>
-      <Router>
-        <Routes>
-          {/* Public auth routes */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/chatbot" element={<Chatbot />} />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Public auth routes */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/chatbot" element={<Chatbot />} />
 
-          {/* Staff-only routes */}
-          <Route element={<RequireStaff><Outlet /></RequireStaff>}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/users" element={<UsersPage />} />
-            <Route path="/dashboard/users/new" element={<UserForm />} />
-            <Route path="/dashboard/users/edit/:userId" element={<UserForm />} />
+            {/* Staff-only routes */}
+            <Route element={<RequireStaff><Outlet /></RequireStaff>}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/users" element={<UsersPage />} />
+              <Route path="/dashboard/users/new" element={<UserForm />} />
+              <Route path="/dashboard/users/edit/:userId" element={<UserForm />} />
 
-            <Route path="/dashboard/papers" element={<PaperPage />} />
-            <Route path="/dashboard/papers/new" element={<PaperForm />} />
-            <Route path="/dashboard/papers/edit/:paperId" element={<PaperForm />} />
+              <Route path="/dashboard/papers" element={<PaperPage />} />
+              <Route path="/dashboard/papers/new" element={<PaperForm />} />
+              <Route path="/dashboard/papers/edit/:paperId" element={<PaperForm />} />
 
-            <Route path="/dashboard/paper_projects" element={<PaperProjectPage />} />
-            <Route path="/dashboard/paper_projects/new" element={<PaperProjectForm />} />
-            <Route path="/dashboard/paper_projects/edit/:paperProjectId" element={<PaperProjectForm />} />
+              <Route path="/dashboard/paper_projects" element={<PaperProjectPage />} />
+              <Route path="/dashboard/paper_projects/new" element={<PaperProjectForm />} />
+              <Route path="/dashboard/paper_projects/edit/:paperProjectId" element={<PaperProjectForm />} />
 
-            <Route path="/dashboard/projects" element={<ProjectPage />} />
-            <Route path="/dashboard/projects/new" element={<ProjectForm />} />
-            <Route path="/dashboard/projects/edit/:projectID" element={<ProjectForm />} />
+              <Route path="/dashboard/projects" element={<ProjectPage />} />
+              <Route path="/dashboard/projects/new" element={<ProjectForm />} />
+              <Route path="/dashboard/projects/edit/:projectID" element={<ProjectForm />} />
 
-            <Route path="/dashboard/tutorials" element={<TutorialPage />} />
-            <Route path="/dashboard/tutorials/new" element={<TutorialForm />} />
-            <Route path="/dashboard/tutorials/edit/:TutorialID" element={<TutorialForm />} />
+              <Route path="/dashboard/tutorials" element={<TutorialPage />} />
+              <Route path="/dashboard/tutorials/new" element={<TutorialForm />} />
+              <Route path="/dashboard/tutorials/edit/:TutorialID" element={<TutorialForm />} />
 
-            <Route path="/dashboard/reviews" element={<ReviewPage />} />
-            <Route path="/dashboard/reviews/new" element={<ReviewForm />} />
-            <Route path="/dashboard/reviews/edit/:ReviewID" element={<ReviewForm />} />
+              <Route path="/dashboard/reviews" element={<ReviewPage />} />
+              <Route path="/dashboard/reviews/new" element={<ReviewForm />} />
+              <Route path="/dashboard/reviews/edit/:ReviewID" element={<ReviewForm />} />
 
-            <Route path="/dashboard/friendships" element={<FriendshipPage />} />
-            <Route path="/dashboard/friendships/new" element={<FriendshipForm />} />
-            <Route path="/dashboard/friendships/edit/:friendshipId" element={<FriendshipForm />} />
+              <Route path="/dashboard/friendships" element={<FriendshipPage />} />
+              <Route path="/dashboard/friendships/new" element={<FriendshipForm />} />
+              <Route path="/dashboard/friendships/edit/:friendshipId" element={<FriendshipForm />} />
 
-            <Route path="/dashboard/invitations" element={<InvitationPage />} />
-            <Route path="/dashboard/invitations/new" element={<InvitationForm />} />
-            <Route path="/dashboard/invitations/edit/:invitationId" element={<InvitationForm />} />
+              <Route path="/dashboard/invitations" element={<InvitationPage />} />
+              <Route path="/dashboard/invitations/new" element={<InvitationForm />} />
+              <Route path="/dashboard/invitations/edit/:invitationId" element={<InvitationForm />} />
 
-            <Route path="/dashboard/user_papers" element={<UserPaperPage />} />
-            <Route path="/dashboard/user_papers/new" element={<UserPaperForm />} />
-            <Route path="/dashboard/user_papers/edit/:userPaperId" element={<UserPaperForm />} />
+              <Route path="/dashboard/user_papers" element={<UserPaperPage />} />
+              <Route path="/dashboard/user_papers/new" element={<UserPaperForm />} />
+              <Route path="/dashboard/user_papers/edit/:userPaperId" element={<UserPaperForm />} />
 
-            <Route path="/dashboard/required_roles" element={<RequiredrolesPage />} />
-            <Route path="/dashboard/required_roles/new" element={<RequiredrolesForm />} />
-            <Route path="/dashboard/required_roles/edit/:RequiredrolesID" element={<RequiredrolesForm />} />
+              <Route path="/dashboard/required_roles" element={<RequiredrolesPage />} />
+              <Route path="/dashboard/required_roles/new" element={<RequiredrolesForm />} />
+              <Route path="/dashboard/required_roles/edit/:RequiredrolesID" element={<RequiredrolesForm />} />
 
-            <Route path="/dashboard/user_projects" element={<UserProjectPage />} />
-            <Route path="/dashboard/user_projects/new" element={<UserProjectForm />} />
-            <Route path="/dashboard/user_projects/edit/:userProjectId" element={<UserProjectForm />} />
+              <Route path="/dashboard/user_projects" element={<UserProjectPage />} />
+              <Route path="/dashboard/user_projects/new" element={<UserProjectForm />} />
+              <Route path="/dashboard/user_projects/edit/:userProjectId" element={<UserProjectForm />} />
+            </Route>
 
-          </Route>
-          {/* All other routes with navbar */}
-          <Route element={<LayoutWithNav />}>
-            <Route path="profile" element={<Profile />} />
-            <Route path="edit-profile" element={<EditProfile />} />
-            <Route path="about" element={<AboutMe />} />
-            <Route path="card" element={<ProjectCard />} />
-            <Route path="home" element={<Home />} />
-            <Route path="communication" element={<CommunicationHub />} />
-
-            <Route path="/users/:id" element={<UserProfile />} />
-
-          </Route>
-        </Routes>
-      </Router>
+            {/* All other routes with navbar */}
+            <Route element={<LayoutWithNav />}>
+              <Route path="profile" element={<Profile />} />
+              <Route path="edit-profile" element={<EditProfile />} />
+              <Route path="about" element={<AboutMe />} />
+              <Route path="card" element={<ProjectCard />} />
+              <Route path="home" element={<Home />} />
+              <Route path="communication" element={<CommunicationHub />} />
+              <Route path="/users/:id" element={<UserProfile />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
     </NotificationProvider>
   );
 }
