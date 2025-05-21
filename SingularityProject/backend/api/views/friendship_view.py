@@ -121,19 +121,20 @@ class FriendshipStatusView(APIView):
     def get(self, request, user_id, format=None):
         friendship = Friendship.objects.filter(
             Q(from_user=request.user, to_user=user_id) |
-            Q(from_user=user_id, to_user=request.user)).first()
+            Q(from_user=user_id, to_user=request.user)
+        ).first()
 
         if not friendship:
             return Response({'status': 'NONE'}, status=status.HTTP_200_OK)
-            
+        
         serializer = FriendshipSerializer(friendship, context={'request': request})
         friendship_data = serializer.data
         
         return Response({
             'status': friendship_data['status'],
             'id': friendship_data['id'],
-            'from_user': friendship_data['from_user'],
-            'to_user': friendship_data['to_user'],
+            'from_user': friendship_data['from_user'],  
+            'to_user': friendship_data['to_user_details'],  # <-- use to_user_details here
             'created_at': friendship_data['created_at']
         })
 

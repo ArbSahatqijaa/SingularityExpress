@@ -15,37 +15,35 @@ const UserProfile = () => {
   const { addNotification } = useNotifications();
 
   useEffect(() => {
-    setLoading(true);
+  console.log('useEffect fired with id:', id);
 
-    // Get user data
-    API.get(`/users/${id}/`)
-      .then(res => setUser(res.data))
-      .catch(err => console.error(err));
+  setLoading(true);
 
-    // Get friendship status
-    API.get(`/friendships/status/${id}/`)
-      .then(res => {
-        setFriendshipStatus(res.data.status);
-        if (res.data.id) {
-          setFriendshipId(res.data.id);
-          // Determine request direction based on is_self flag
-          if (res.data.status === 'PENDING') {
-            // If from_user is myself, then I sent the request
-            if (res.data.from_user && res.data.from_user.hasOwnProperty('is_self')) {
-              setRequestDirection(res.data.from_user.is_self ? 'sent' : 'received');
-            } else {
-              // Fallback to checking user IDs if is_self is not available
-              setRequestDirection(res.data.from_user?.user_id !== parseInt(id) ? 'sent' : 'received');
-            }
+  API.get(`/users/${id}/`)
+    .then(res => {
+      console.log('User response:', res.data);
+      setUser(res.data);
+    })
+    .catch(err => console.error('User fetch error:', err));
+
+  API.get(`/friendships/status/${id}/`)
+    .then(res => {
+      console.log('Friendship status response:', res.data);
+      setFriendshipStatus(res.data.status);
+      if (res.data.id) {
+        setFriendshipId(res.data.id);
+        if (res.data.status === 'PENDING') {
+          if (res.data.from_user && res.data.from_user.hasOwnProperty('is_self')) {
+            setRequestDirection(res.data.from_user.is_self ? 'sent' : 'received');
+          } else {
+            setRequestDirection(res.data.from_user?.user_id !== parseInt(id) ? 'sent' : 'received');
           }
         }
-      })
-      .catch(() => {
-        setFriendshipStatus('NONE');
-        setFriendshipId(null);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+      }
+    })
+    .catch(err => console.error('Friendship status fetch error:', err))
+    .finally(() => setLoading(false));
+}, [id]);
 
   const handleRequestAdd = () => {
     API.post(`/friendships/`, { to_user: id })  
@@ -91,6 +89,22 @@ const UserProfile = () => {
           type: 'friendship',
           title: 'Friend Request Rejected',
           message: `You rejected the friend request from ${user.first_name} ${user.last_name}`,
+          timestamp: new Date().toISOString()
+        });
+      })
+      .catch(err => console.error(err));
+  };
+
+  const handleRemove = () => {
+    if (!friendshipId) return;
+    
+    API.patch(`/friendships/${friendshipId}/`, { status: 'REJECTED' })
+      .then(() => {
+        setFriendshipStatus('REMOVED');
+        addNotification({
+          type: 'friendship',
+          title: 'Friend Removed',
+          message: `You removed ${user.first_name} ${user.last_name}`,
           timestamp: new Date().toISOString()
         });
       })
@@ -147,14 +161,27 @@ const UserProfile = () => {
               </button>
             </div>
           )}
-          {friendshipStatus === 'ACCEPTED' && (
-            <p className="text-green-600 font-semibold">You are friends</p>
-          )}
+         {friendshipStatus === 'ACCEPTED' && (
+  <>
+    <div className="flex items-center space-x-4">
+      <p className="text-green-600 font-semibold">You are friends</p>
+      <button
+        onClick={handleRemove}
+        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+      >
+        Remove
+      </button>
+    </div>
+  </>
+)}
           {friendshipStatus === 'REJECTED' && (
             <p className="text-red-600 font-semibold">Request Rejected</p>
           )}
           {friendshipStatus === 'BLOCKED' && (
             <p className="text-gray-600 font-semibold">User blocked</p>
+          )}
+          {friendshipStatus === 'REMOVED' && (
+            <p className="text-red-600 font-semibold">Friend Removed</p>
           )}
         </div>
 
