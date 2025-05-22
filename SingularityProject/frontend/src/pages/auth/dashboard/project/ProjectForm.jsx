@@ -11,20 +11,20 @@ export default function ProjectForm() {
     description: '',
     visibility:  'PUBLIC',
     status:      'ACTIVE',
-    file_path:   null,
-    leader:      '',    // will default to me.user_id
+    file_path:   null,   // required on create
+    image:       null,   // optional
+    leader:      '',     
   });
   const [me,      setMe]      = useState(null);
   const [users,   setUsers]   = useState([]);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
-  // 1️⃣ Fetch current user and list of all users (for leader dropdown)
+  // Fetch current user + users
   useEffect(() => {
     API.get('/whoami/')
       .then(({ data }) => {
         setMe(data);
-        // default leader on creation
         if (!projectID) {
           setForm(f => ({ ...f, leader: data.user_id }));
         }
@@ -37,7 +37,7 @@ export default function ProjectForm() {
       });
   }, [projectID]);
 
-  // 2️⃣ If editing, load existing project
+  // Load existing project on edit
   useEffect(() => {
     if (!projectID) return;
     setLoading(true);
@@ -49,15 +49,16 @@ export default function ProjectForm() {
           description: data.description,
           visibility:  data.visibility,
           status:      data.status,
-          file_path:   null,          // leave blank so file isn’t overwritten
-          leader:      data.leader,   // existing leader
+          file_path:   null,         // leave blank so we don’t overwrite
+          image:       null,         // same for image
+          leader:      data.leader,
         });
       })
       .catch(() => setError('Failed to load project'))
       .finally(() => setLoading(false));
   }, [projectID]);
 
-  // 3️⃣ Handle form inputs
+  // Handle inputs, including both files
   const handleChange = e => {
     const { name, value, type, files } = e.target;
     setForm(f => ({
@@ -66,7 +67,6 @@ export default function ProjectForm() {
     }));
   };
 
-  // 4️⃣ Only leader/staff/superuser may reassign leadership
   const canReassignLeader = () =>
     me && (
       me.is_superuser ||
@@ -74,14 +74,13 @@ export default function ProjectForm() {
       (projectID && me.user_id === parseInt(form.leader))
     );
 
-  // 5️⃣ Submit (create or update)
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Ensure integers where needed
+      // Base payload
       const payload = {
         title:       form.title,
         description: form.description,
@@ -90,29 +89,39 @@ export default function ProjectForm() {
         leader:      parseInt(form.leader),
       };
 
-      const isFile = !!form.file_path;
-      if (isFile) {
+      // Always use FormData on create (file_path required),
+      // or if either file is present on edit
+      const useFD = !projectID || form.file_path || form.image;
+      if (useFD) {
         const fd = new FormData();
+        // append non-files
         Object.entries(payload).forEach(([k, v]) => {
           if (v != null) fd.append(k, v);
         });
+        // append files if they exist
         fd.append('file_path', form.file_path);
+        if (form.image) {
+          fd.append('image', form.image);
+        }
 
+        // choose method
         if (projectID) {
-          await API.patch(`/projects/${projectID}/`, fd, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
+          await API.patch(
+            `/projects/${projectID}/`,
+            fd,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
+          );
         } else {
-          await API.post('/projects/', fd, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
+          await API.post(
+            '/projects/',
+            fd,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
+          );
         }
+
       } else {
-        if (projectID) {
-          await API.patch(`/projects/${projectID}/`, payload);
-        } else {
-          await API.post('/projects/', payload);
-        }
+        // simple JSON PATCH
+        await API.patch(`/projects/${projectID}/`, payload);
       }
 
       navigate('/dashboard/projects');
@@ -136,6 +145,7 @@ export default function ProjectForm() {
         <div className="card shadow-sm">
           <div className="card-body">
             <form onSubmit={handleSubmit}>
+
               {/* Title & Description */}
               <div className="mb-3">
                 <label className="form-label">Project Name</label>
@@ -213,11 +223,23 @@ export default function ProjectForm() {
                 )}
               </div>
 
-              {/* File Upload */}
+              {/* Project File (required on create) */}
               <div className="mb-4">
                 <label className="form-label">Project File</label>
                 <input
                   name="file_path"
+                  type="file"
+                  className="form-control"
+                  onChange={handleChange}
+                  required={!projectID}
+                />
+              </div>
+
+              {/* Optional Image */}
+              <div className="mb-4">
+                <label className="form-label">Cover Image (optional)</label>
+                <input
+                  name="image"
                   type="file"
                   className="form-control"
                   onChange={handleChange}
@@ -241,6 +263,7 @@ export default function ProjectForm() {
                   Cancel
                 </button>
               </div>
+
             </form>
           </div>
         </div>

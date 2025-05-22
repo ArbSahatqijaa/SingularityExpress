@@ -6,6 +6,9 @@ class ProjectSerializer(serializers.ModelSerializer):
     leader = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     created_by = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
 
+    file_path = serializers.FileField()
+    image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = Project
         fields = [
@@ -16,6 +19,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'status',
             'file_path',
             'leader',
+            'image',
             'created_by',
             'created_at',
             'updated_at'
