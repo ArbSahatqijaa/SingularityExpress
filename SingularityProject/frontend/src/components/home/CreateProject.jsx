@@ -1,35 +1,43 @@
 import React, { useState } from 'react';
 import { ChevronDown, Users, ImagePlus } from 'lucide-react';
+import API from '../../services/api';
 
 const CreateProjectPost = ({ onCreate }) => {
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [filePath, setFilePath] = useState(null)
   const [image, setImage] = useState(null);
+  const [description, setDescription] = useState('');
   const [maxTeams, setMaxTeams] = useState('');
   const [category, setCategory] = useState('');
   const [expanded, setExpanded] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!title || !description) return;
+    if (!title || !description || !filePath) return;
 
-    const newProject = {
-      id: Date.now(),
-      title,
-      description,
-      category,
-      imageUrl: image ? URL.createObjectURL(image) : 'https://via.placeholder.com/500x300',
-      teams: 0,
-      maxTeams: parseInt(maxTeams) || 0,
-    };
+    const fd = new FormData();
 
-    onCreate(newProject);
+    fd.append('title',      title);
+    fd.append('description', description);
+    fd.append('visibility', 'PUBLIC');
+    fd.append('status', 'ACTIVE');
+    fd.append('file_path', filePath);
+    if (image) fd.append('image', image);
+
+    try {
+      const {data} = await API.post('/projects/', fd, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      });
+    onCreate(data);
     setTitle('');
     setDescription('');
+    setFilePath(null);
     setImage(null);
-    setMaxTeams('');
-    setCategory('');
     setExpanded(false);
+    }
+    catch (err) {
+      console.error('Post failed', err.response?.data)
+    }
   };
 
   return (
@@ -55,6 +63,18 @@ const CreateProjectPost = ({ onCreate }) => {
           className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={2}
         />
+
+        <div className="flex items-center gap-2">
+          <ImagePlus className="w-4 h-4 text-gray-500" />
+          <input
+            type='file'
+            name='file_path'
+            accept='*/*'
+            required
+            onChange={e => setFilePath(e.target.files[0])}
+            className='block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md'
+          />
+        </div>
 
         <button
           type="button"

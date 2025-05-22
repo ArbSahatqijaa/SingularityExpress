@@ -30,18 +30,17 @@ class ProjectListCreateView(APIView):
         if leader:
             projects = projects.filter(leader=leader)
             
-        serializer = ProjectSerializer(projects, many=True)
+        serializer = ProjectSerializer(projects, many=True, context={'request': request})
         return Response(serializer.data)
     
     def post(self, request, format=None):
         # Handle file uploads correctly with `request.FILES`
-        serializer = ProjectSerializer(data=request.data)
+        serializer = ProjectSerializer(data=request.data, context={'request': request})
         
-        if serializer.is_valid():
-            serializer.save(created_by=request.user, leader=request.user)  # <-- Required
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
         
 class ProjectDetailView(APIView):
     parser_classes = [MultiPartParser, FormParser]
@@ -56,11 +55,18 @@ class ProjectDetailView(APIView):
             
     def get(self, request, pk, format=None):
         project = self.get_object(pk)
-        serializer = ProjectSerializer(project)
+        serializer = ProjectSerializer(project, context={'request': request})
         return Response(serializer.data)
             
     def put(self, request, pk, format=None):
         project = self.get_object(pk)
+        
+
+        if not (
+            request.user == project.leader
+            or request.user.is_staff
+        ):
+            return Response(status=status.HTTP_403_FORBIDDEN)
         
         new_leader = request.data.get('leader', None)
 
@@ -75,7 +81,7 @@ class ProjectDetailView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
         
-        serializer = ProjectSerializer(project, data=request.data)
+        serializer = ProjectSerializer(project, data=request.data, partial=True, context={'request': request})
         
         if serializer.is_valid():
             serializer.save()
@@ -85,7 +91,14 @@ class ProjectDetailView(APIView):
         
     def patch(self, request, pk, format=None):
         project = self.get_object(pk)
-        serializer = ProjectSerializer(project, data=request.data, partial=True)
+
+        if not (
+            request.user == project.leader
+            or request.user.is_staff
+        ):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = ProjectSerializer(project, data=request.data, partial=True, context={'request':request})
         
         if serializer.is_valid():
             serializer.save()
@@ -95,5 +108,11 @@ class ProjectDetailView(APIView):
         
     def delete(self, request, pk, format=None):
         project = self.get_object(pk)
+
+        if not (
+            request.user == project.leader
+            or request.user.is_staff
+        ):
+            return Response(status=status.HTTP_403_FORBIDDEN)
         project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
