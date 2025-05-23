@@ -87,7 +87,7 @@ const UserProfile = () => {
         setFriendshipStatus('REJECTED');
         addNotification({
           type: 'friendship',
-          title: 'Friend Request Rejected',
+          title: 'Friend Request Rejected!',
           message: `You rejected the friend request from ${user.first_name} ${user.last_name}`,
           timestamp: new Date().toISOString()
         });
@@ -103,7 +103,7 @@ const UserProfile = () => {
         setFriendshipStatus('REMOVED');
         addNotification({
           type: 'friendship',
-          title: 'Friend Removed',
+          title: 'Friend Removed!',
           message: `You removed ${user.first_name} ${user.last_name}`,
           timestamp: new Date().toISOString()
         });
