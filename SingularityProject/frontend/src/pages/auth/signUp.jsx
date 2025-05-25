@@ -131,6 +131,8 @@ export default function Signup() {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Title</option>
+              <option value="None">None</option>
+              <option value="Student">Student</option>
               <option value="Bachelor">Bachelor</option>
               <option value="Master">Master</option>
               <option value="PhD">PhD</option>
