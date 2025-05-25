@@ -6,7 +6,7 @@ from .paper_project import PaperProject
 from .user_paper import UserPaper
 from .review import Review
 from .tutorial import Tutorial
-from .required_roles import RequiredRoles
 from .invitation import Invitation
 from .friendship import Friendship
 from .conversation import Conversation
+from .application import Application

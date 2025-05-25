@@ -29,6 +29,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'file_path',
             'leader',
             'image',
+            'role_details',
             'created_by',
             'created_at',
             'updated_at'
@@ -41,6 +42,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             ]
         
     def create(self, validated_data):
+        print("VALIDATED DATA IN PROJECT SERIALIZER:", validated_data)
         user = self.context['request'].user
         validated_data.setdefault('leader', user)
         return super().create(validated_data)

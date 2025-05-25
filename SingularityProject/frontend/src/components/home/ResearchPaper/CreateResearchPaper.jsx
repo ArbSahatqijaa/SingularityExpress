@@ -5,6 +5,7 @@ import API from '../../../services/api';
 const CreateResearchPaper = ({ onCreate }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState(''); // Corresponds to backend 'description'
+  const [role_details, setRole_details] = useState('');
   const [file_path, setFile_path] = useState(null); // Corresponds to backend 'file_path'
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -13,8 +14,8 @@ const CreateResearchPaper = ({ onCreate }) => {
     e.preventDefault();
 
     // Basic client-side validation
-    if (!title || !description || !file_path) {
-      alert('Please fill in all required fields (Title, Description) and upload a PDF file.');
+    if (!title || !description || !file_path || !role_details) {
+      alert('Please fill in all required fields (Title, Description, role_details) and upload a PDF file.');
       return;
     }
 
@@ -31,6 +32,7 @@ const CreateResearchPaper = ({ onCreate }) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
+    formData.append('role_details', role_details);
     formData.append('file_path', file_path);
 
     setLoading(true);
@@ -43,6 +45,7 @@ const CreateResearchPaper = ({ onCreate }) => {
 
       setTitle('');
       setDescription('');
+      setRole_details('');
       setFile_path(null);
       setExpanded(false);
       alert('Research paper submitted successfully!');
@@ -99,21 +102,14 @@ const CreateResearchPaper = ({ onCreate }) => {
             className="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md"
           />
         </div>
-
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
-        >
-          More options <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
-
-        {expanded && (
-          <div className="animate-fade-in space-y-2">
-            {/* Future optional fields like keywords, publication date etc. can be added here */}
-            <p className="text-sm text-gray-500 italic">More options coming soon...</p>
-          </div>
-        )}
+        <textarea
+          value={role_details}
+          onChange={(e) => setRole_details(e.target.value)}
+          placeholder="Role Details"
+          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={2}
+        />
+        
 
         <button
           type="submit"

@@ -11,6 +11,7 @@ class PaperSerializer(serializers.ModelSerializer):
             'visibility',
             'status',
             'file_path',
+            'role_details',
             'created_by',
             'created_at',
             'updated_at'

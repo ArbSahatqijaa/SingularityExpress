@@ -14,6 +14,7 @@ from .views.paper_project_view import PaperProjectListCreateView, PaperProjectDe
 from .views.invitation_view import InvitationListCreateView, InvitationDetailView
 from .views.message_view import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
 from .views.chat_with_api import chat_with_api, test_mongodb_connection
+from .views.application_view import ApplicationListCreateView, ApplicationDetailView
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -83,4 +84,8 @@ urlpatterns = [
     path('chat/download/<str:filename>/', download_chat_file, name='download_chat_file'),
     path('chat/', chat_with_api, name='chat_with_api'),
     path('chat/test-mongodb/', test_mongodb_connection, name='test_mongodb'),
+
+    #Application urls
+    path('applications/', ApplicationListCreateView.as_view(), name='application-list-create'),
+    path('applications/<int:pk>/', ApplicationDetailView.as_view(), name='application-detail'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

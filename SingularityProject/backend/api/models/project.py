@@ -35,6 +35,7 @@ class Project(models.Model):
     leader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='led_projects')
     
     image = models.ImageField(upload_to='project-images/', null=True,blank=True)
+    role_details = models.TextField(blank=True)
     
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_projects')
     created_at = models.DateTimeField(auto_now_add=True)

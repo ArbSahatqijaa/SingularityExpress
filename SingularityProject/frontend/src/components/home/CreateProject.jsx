@@ -7,18 +7,18 @@ const CreateProjectPost = ({ onCreate }) => {
   const [filePath, setFilePath] = useState(null)
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState('');
-  const [maxTeams, setMaxTeams] = useState('');
-  const [category, setCategory] = useState('');
+  const [role_details, setRole_details] = useState('');
   const [expanded, setExpanded] = useState(false);
 
   const handleSubmit = async e => {
     e.preventDefault();
-    if (!title || !description || !filePath) return;
+    if (!title || !description || !filePath || !role_details) return;
 
     const fd = new FormData();
 
     fd.append('title',      title);
     fd.append('description', description);
+    fd.append('role_details', role_details);
     fd.append('visibility', 'PUBLIC');
     fd.append('status', 'ACTIVE');
     fd.append('file_path', filePath);
@@ -31,6 +31,7 @@ const CreateProjectPost = ({ onCreate }) => {
     onCreate(data);
     setTitle('');
     setDescription('');
+    setRole_details('');
     setFilePath(null);
     setImage(null);
     setExpanded(false);
@@ -63,65 +64,43 @@ const CreateProjectPost = ({ onCreate }) => {
           className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={2}
         />
+        <textarea
+          value={role_details}
+          onChange={(e) => setRole_details(e.target.value)}
+          placeholder="Role Details"
+          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={2}
+        />
 
-        <div className="flex items-center gap-2">
-          <ImagePlus className="w-4 h-4 text-gray-500" />
-          <input
-            type='file'
-            name='file_path'
-            accept='*/*'
-            required
-            onChange={e => setFilePath(e.target.files[0])}
-            className='block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md'
-          />
-        </div>
+       <div className="flex flex-col gap-1">
+  <label className="text-sm text-gray-600">Choose Project File</label>
+  <div className="flex items-center gap-2">
+    <ImagePlus className="w-4 h-4 text-gray-500" />
+    <input
+      type="file"
+      name="file_path"
+      accept="*/*"
+      required
+      onChange={(e) => setFilePath(e.target.files[0])}
+      className="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md"
+    />
+  </div>
+</div>
 
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
-        >
-          More options <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
+<div className="flex flex-col gap-1">
+  <label className="text-sm text-gray-600">Choose Project Image</label>
+  <div className="flex items-center gap-2">
+    <ImagePlus className="w-4 h-4 text-gray-500" />
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => setImage(e.target.files[0])}
+      className="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md file:bg-gray-50 file:text-sm"
+    />
+  </div>
+</div>
 
-        {expanded && (
-          <div className="space-y-2 animate-fade-in">
-            <div className="flex gap-2 items-center">
-              <Users className="w-4 h-4 text-gray-500" />
-              <input
-                type="number"
-                value={maxTeams}
-                onChange={(e) => setMaxTeams(e.target.value)}
-                placeholder="Team Capacity"
-                min={1}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="flex gap-2 items-center">
-              <ChevronDown className="w-4 h-4 text-gray-500" />
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Category</option>
-                <option value="Tech">Tech</option>
-                <option value="Design">Design</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <ImagePlus className="w-4 h-4 text-gray-500" />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files[0])}
-                className="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md file:bg-gray-50 file:text-sm"
-              />
-            </div>
-          </div>
-        )}
+        
 
         <button
           type="submit"

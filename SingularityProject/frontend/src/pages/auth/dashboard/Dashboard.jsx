@@ -39,7 +39,6 @@ export default function Dashboard() {
           tutorialsRes,
           reviewsRes,
           invitationsRes,
-          rolesRes,
           userPapersRes,
           userProjectsRes,
           paperProjectsRes,
@@ -51,7 +50,6 @@ export default function Dashboard() {
           API.get('/tutorials/'),
           API.get('/reviews/'),
           API.get('/invitations/'),
-          API.get('/required_roles/'),
           API.get('/user_papers/'),
           API.get('/user_projects/'),
           API.get('/paper_projects/'),
@@ -65,7 +63,6 @@ export default function Dashboard() {
           total_tutorials: tutorialsRes.data.length,
           total_reviews: reviewsRes.data.length,
           total_invitations: invitationsRes.data.length,
-          total_roles: rolesRes.data.length,
           total_user_papers: userPapersRes.data.length,
           total_user_projects: userProjectsRes.data.length,
           total_paper_projects: paperProjectsRes.data.length,
@@ -80,7 +77,7 @@ export default function Dashboard() {
   const chartData = {
     labels: [
       'Users', 'Friendships', 'Projects', 'Papers', 'Tutorials',
-      'Reviews', 'Invitations', 'Roles', 'User-Papers', 'User-Projects',
+      'Reviews', 'Invitations','User-Papers', 'User-Projects',
       'Paper-Projects',
     ],
     datasets: [
@@ -94,7 +91,6 @@ export default function Dashboard() {
           data.total_tutorials || 0,
           data.total_reviews || 0,
           data.total_invitations || 0,
-          data.total_roles || 0,
           data.total_user_papers || 0,
           data.total_user_projects || 0,
           data.total_paper_projects || 0,
@@ -152,7 +148,6 @@ export default function Dashboard() {
           { label: 'Tutorials', path: '/dashboard/tutorials' },
           { label: 'Reviews', path: '/dashboard/reviews' },
           { label: 'Invitations', path: '/dashboard/invitations' },
-          { label: 'Roles', path: '/dashboard/required_roles' },
           { label: 'User-Papers', path: '/dashboard/user_papers' },
           { label: 'User-Projects', path: '/dashboard/user_projects' },
           { label: 'Paper-Projects', path: '/dashboard/paper_projects' },

@@ -62,9 +62,6 @@ import InvitationForm from './pages/auth/dashboard/invitation/InvitationForm';
 import UserPaperForm from './pages/auth/dashboard/user_paper/UserPaperForm';
 import UserPaperPage from './pages/auth/dashboard/user_paper/UserPaperPage';
 
-// Required Roles Pages
-import RequiredrolesPage from './pages/auth/dashboard/requirement_roles/RequiredrolesPage';
-import RequiredrolesForm from './pages/auth/dashboard/requirement_roles/RequiredrolesForm';
 
 // User-Project Pages
 import UserProjectPage from './pages/auth/dashboard/user_project/UserProjectPage';
@@ -138,10 +135,6 @@ function App() {
               <Route path="/dashboard/user_papers" element={<UserPaperPage />} />
               <Route path="/dashboard/user_papers/new" element={<UserPaperForm />} />
               <Route path="/dashboard/user_papers/edit/:userPaperId" element={<UserPaperForm />} />
-
-              <Route path="/dashboard/required_roles" element={<RequiredrolesPage />} />
-              <Route path="/dashboard/required_roles/new" element={<RequiredrolesForm />} />
-              <Route path="/dashboard/required_roles/edit/:RequiredrolesID" element={<RequiredrolesForm />} />
 
               <Route path="/dashboard/user_projects" element={<UserProjectPage />} />
               <Route path="/dashboard/user_projects/new" element={<UserProjectForm />} />
