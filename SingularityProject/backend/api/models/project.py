@@ -16,7 +16,7 @@ STATUS_CHOICES = (
 class Project(models.Model):
     project_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
     visibility = models.CharField(
         max_length=7,
         choices=VISIBILITY_CHOICES,
@@ -27,6 +27,8 @@ class Project(models.Model):
         choices=STATUS_CHOICES,
         default='ACTIVE'
     )
+    accepting_applications = models.BooleanField(default=True, help_text="Can people apply right now?")
+
     file_path = models.FileField(
         upload_to='project_files/',
         null=True,

@@ -14,9 +14,13 @@ class ProjectSerializer(serializers.ModelSerializer):
         default=CurrentUserDefault(),
         required=False
     )
+    role_details = serializers.CharField(required=False, allow_blank=True)
+    description = serializers.CharField(required=False, allow_blank=True)
+    accepting_applications = serializers.BooleanField()
 
     file_path = serializers.FileField()
     image = serializers.ImageField(required=False, allow_null=True)
+    
 
     class Meta:
         model = Project
@@ -26,6 +30,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'description',
             'visibility',
             'status',
+            'accepting_applications',
             'file_path',
             'leader',
             'image',
@@ -42,7 +47,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             ]
         
     def create(self, validated_data):
-        print("VALIDATED DATA IN PROJECT SERIALIZER:", validated_data)
         user = self.context['request'].user
         validated_data.setdefault('leader', user)
         return super().create(validated_data)
+    
+    def validate(self, attrs):
+        if attrs.get('accepting_applications') and not attrs.get('role_details', '').strip():
+            raise serializers.ValidationError({
+                'role_details': 'Please describe the role if you are accepting applications.'
+            })
+        return super().validate(attrs)

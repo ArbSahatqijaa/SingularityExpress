@@ -10,6 +10,7 @@ class PaperSerializer(serializers.ModelSerializer):
             'description',
             'visibility',
             'status',
+            'accepting_applications',
             'file_path',
             'role_details',
             'created_by',

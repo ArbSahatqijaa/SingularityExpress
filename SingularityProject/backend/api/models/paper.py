@@ -25,6 +25,7 @@ class Paper(models.Model):
         choices=STATUS_CHOICES,
         default='ACTIVE'
     )
+    accepting_applications = models.BooleanField(default=True, help_text="Can people apply right now?")
     file_path = models.FileField(
         upload_to='paper_files/'
     )
