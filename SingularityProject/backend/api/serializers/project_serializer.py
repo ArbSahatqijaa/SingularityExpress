@@ -4,6 +4,7 @@ from rest_framework.fields import CurrentUserDefault
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
 class ProjectSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=CurrentUserDefault()
@@ -23,7 +24,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     file_path = serializers.FileField()
     image = serializers.ImageField(required=False, allow_null=True)
-    
 
     class Meta:
         model = Project
@@ -42,35 +42,37 @@ class ProjectSerializer(serializers.ModelSerializer):
             'created_by',
             'created_at',
             'updated_at'
-        ] 
+        ]
         read_only_fields = [
             'project_id',
             'created_by',
             'created_at',
             'updated_at'
-            ]
-        
+        ]
+
     def get_leader_name(self, obj):
         user = obj.leader
         if not user:
             return ''
-        parts= []
 
-        if getattr(user, 'academic_title', '').strip():
-            parts.append(user.academic_title.strip())
+        parts = []
+
+        academic_title = getattr(user, 'academic_title', None)
+        if academic_title and academic_title.strip():
+            parts.append(academic_title.strip())
 
         if user.first_name:
             parts.append(user.first_name)
         if user.last_name:
             parts.append(user.last_name)
-        return ' '.join(parts)
 
+        return ' '.join(parts)
 
     def create(self, validated_data):
         user = self.context['request'].user
         validated_data.setdefault('leader', user)
         return super().create(validated_data)
-    
+
     def validate(self, attrs):
         if attrs.get('accepting_applications') and not attrs.get('role_details', '').strip():
             raise serializers.ValidationError({

@@ -22,7 +22,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'applied_at',
             'reviewed_at',
         ]
-        read_only_fields = ['application_id', 'status', 'applied_at', 'reviewed_at']
+        read_only_fields = ['application_id', 'applied_at', 'reviewed_at']
 
     def validate(self, data):
         project = data.get('project')

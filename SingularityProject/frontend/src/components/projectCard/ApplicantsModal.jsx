@@ -20,7 +20,7 @@ export default function ApplicantsModal({ projectId, onClose }) {
   const updateStatus = async (appId, newStatus, role='') => {
     try {
       // 1) patch application status
-      await API.patch(`/applications/${appId}/`, { status:newStatus });
+      await API.patch(`/applications/${appId}/`, { status: newStatus, project: projectId });
 
       // 2) if accepted – immediately add to UserProject table
       if (newStatus === 'ACCEPTED') {

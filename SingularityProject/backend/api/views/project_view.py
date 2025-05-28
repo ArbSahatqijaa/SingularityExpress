@@ -46,7 +46,7 @@ class ProjectDetailView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
 
-    def _is_owner(slef, request, project):
+    def _is_owner(self, request, project):
         u = request.user
         return (
             u == project.leader
