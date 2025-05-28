@@ -136,15 +136,16 @@ const Home = () => {
                   return (
                     <ProjectCard
                       key={p.project_id}
+                      project_id={p.project_id}
                       title={p.title}
                       description={p.description}
                       accepting_applications={p.accepting_applications}
                       role_details={p.role_details}
                       status={p.status}
                       image={imageUrl}
-                      leader={leaderName}
+                      leaderName={leaderName}
 
-                      leaderId = {p.leader}
+                      leaderId = {Number(p.leader)}
                       createdById = {p.created_by}
                       meId = {me?.user_id}
                       onUpdate={handleUpdateProject}

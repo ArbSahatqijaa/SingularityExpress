@@ -46,6 +46,14 @@ class ProjectDetailView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
 
+    def _is_owner(slef, request, project):
+        u = request.user
+        return (
+            u == project.leader
+            or u == project.created_by
+            or u.is_staff
+        )
+
 
     def get_object(self, pk):
         try:
@@ -62,10 +70,7 @@ class ProjectDetailView(APIView):
         project = self.get_object(pk)
         
 
-        if not (
-            request.user == project.leader
-            or request.user.is_staff
-        ):
+        if not self._is_owner(request, project):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
         new_leader = request.data.get('leader', None)
@@ -92,10 +97,7 @@ class ProjectDetailView(APIView):
     def patch(self, request, pk, format=None):
         project = self.get_object(pk)
 
-        if not (
-            request.user == project.leader
-            or request.user.is_staff
-        ):
+        if not self._is_owner(request, project):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
         serializer = ProjectSerializer(project, data=request.data, partial=True, context={'request':request})
@@ -109,10 +111,8 @@ class ProjectDetailView(APIView):
     def delete(self, request, pk, format=None):
         project = self.get_object(pk)
 
-        if not (
-            request.user == project.leader
-            or request.user.is_staff
-        ):
+        if not self._is_owner(request, project):
             return Response(status=status.HTTP_403_FORBIDDEN)
+        
         project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

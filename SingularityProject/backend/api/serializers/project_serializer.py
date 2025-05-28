@@ -14,6 +14,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         default=CurrentUserDefault(),
         required=False
     )
+
+    leader_name = serializers.SerializerMethodField(read_only=True)
+
     role_details = serializers.CharField(required=False, allow_blank=True)
     description = serializers.CharField(required=False, allow_blank=True)
     accepting_applications = serializers.BooleanField()
@@ -33,6 +36,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'accepting_applications',
             'file_path',
             'leader',
+            'leader_name',
             'image',
             'role_details',
             'created_by',
@@ -46,6 +50,22 @@ class ProjectSerializer(serializers.ModelSerializer):
             'updated_at'
             ]
         
+    def get_leader_name(self, obj):
+        user = obj.leader
+        if not user:
+            return ''
+        parts= []
+
+        if getattr(user, 'academic_title', '').strip():
+            parts.append(user.academic_title.strip())
+
+        if user.first_name:
+            parts.append(user.first_name)
+        if user.last_name:
+            parts.append(user.last_name)
+        return ' '.join(parts)
+
+
     def create(self, validated_data):
         user = self.context['request'].user
         validated_data.setdefault('leader', user)
