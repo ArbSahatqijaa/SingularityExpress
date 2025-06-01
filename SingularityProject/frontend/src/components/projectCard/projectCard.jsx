@@ -20,6 +20,7 @@ export default function ProjectCard({
   leaderId,
   createdById,
   meId,
+  fileUrl,                 /* <-- correct prop name */
 
   onUpdate,
   onDelete,
@@ -47,7 +48,7 @@ export default function ProjectCard({
       ? 'bg-blue-100 text-blue-600'
       : 'bg-gray-100 text-gray-600';
 
-  const overlay   = 'fixed inset-0 bg-white z-[999] p-6 sm:p-12 overflow-auto';
+  const overlay = 'fixed inset-0 bg-white z-[999] p-6 sm:p-12 overflow-auto';
 
   /* ───────────── CRUD handlers ───────────── */
   const handleDelete = async () => {
@@ -116,6 +117,17 @@ export default function ProjectCard({
                 View Role Details →
               </button>
             )}
+
+            {fileUrl && (
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-600 hover:underline"
+              >
+                View Project File →
+              </a>
+            )}
           </div>
 
           {/* footer */}
@@ -169,7 +181,10 @@ export default function ProjectCard({
       {/* DESCRIPTION overlay */}
       {showDesc && (
         <div className={overlay}>
-          <button onClick={() => setShowDesc(false)} className="text-gray-500 mb-4">
+          <button
+            onClick={() => setShowDesc(false)}
+            className="text-gray-500 mb-4"
+          >
             ← Back
           </button>
           <h2 className="text-2xl font-bold mb-4">Description</h2>
@@ -180,7 +195,10 @@ export default function ProjectCard({
       {/* ROLE overlay */}
       {showRole && (
         <div className={overlay}>
-          <button onClick={() => setShowRole(false)} className="text-gray-500 mb-4">
+          <button
+            onClick={() => setShowRole(false)}
+            className="text-gray-500 mb-4"
+          >
             ← Back
           </button>
           <h2 className="text-2xl font-bold mb-4">Role Details</h2>
@@ -193,7 +211,10 @@ export default function ProjectCard({
       {/* EDIT overlay */}
       {showEdit && (
         <div className={overlay}>
-          <button onClick={() => setShowEdit(false)} className="text-gray-500 mb-4">
+          <button
+            onClick={() => setShowEdit(false)}
+            className="text-gray-500 mb-4"
+          >
             ← Back
           </button>
           <h2 className="text-2xl font-bold mb-4">Edit Project</h2>

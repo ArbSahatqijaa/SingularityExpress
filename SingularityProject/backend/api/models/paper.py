@@ -15,7 +15,7 @@ STATUS_CHOICES = (
 class Paper(models.Model):
     paper_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
     visibility = models.CharField(
         choices=VISIBILITY_CHOICES,
         max_length=7,

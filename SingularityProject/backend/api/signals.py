@@ -21,6 +21,6 @@ def link_creator(sender, instance, created, **kwargs):
         UserProject.objects.create(
             user=instance.created_by,
             project=instance,
-            role='COLLABORATOR'
+            role='CREATOR'
         )
 

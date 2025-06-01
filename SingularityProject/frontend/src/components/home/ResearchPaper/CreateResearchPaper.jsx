@@ -1,126 +1,162 @@
-import React, { useState } from 'react';
-import { ChevronDown, FileText, FilePlus } from 'lucide-react'; // Removed User icon as 'authors' field is removed
+// src/components/paper/CreateResearchPaper.jsx
+import React, { useState, useEffect, useRef } from 'react';
+import { FilePlus } from 'lucide-react';
 import API from '../../../services/api';
 
-const CreateResearchPaper = ({ onCreate }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState(''); // Corresponds to backend 'description'
-  const [role_details, setRole_details] = useState('');
-  const [file_path, setFile_path] = useState(null); // Corresponds to backend 'file_path'
-  const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
+export default function CreateResearchPaper({ onCreate }) {
+  /* ─────────── state ─────────── */
+  const [title, setTitle]               = useState('');
+  const [description, setDescription]   = useState('');
+  const [roleDetails, setRoleDetails]   = useState('');
+  const [visibility, setVisibility]     = useState('PUBLIC');
+  const [status, setStatus]             = useState('ACTIVE');
+  const [accepting, setAccepting]       = useState(true);
+  const [filePath, setFilePath]         = useState(null);
+  const [busy, setBusy]                 = useState(false);
 
+  const fileInputRef = useRef(null);   // to reset after submit
+
+  /* auto-disable accepting when completed */
+  useEffect(() => {
+    if (status === 'COMPLETED') {
+      setAccepting(false);
+      setRoleDetails('');
+    }
+  }, [status]);
+
+  /* ─────────── submit ─────────── */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!title.trim() || !description.trim() || !filePath)
+      return alert('Title, description and PDF are required.');
+    if (accepting && !roleDetails.trim())
+      return alert('Role details required when accepting applicants.');
 
-    // Basic client-side validation
-    if (!title || !description || !file_path || !role_details) {
-      alert('Please fill in all required fields (Title, Description, role_details) and upload a PDF file.');
-      return;
-    }
+    const fd = new FormData();
+    fd.append('role_details',           roleDetails);
+    fd.append('title',                  title);
+    fd.append('description',            description);
+    fd.append('visibility',             visibility);
+    fd.append('status',                 status);
+    fd.append('accepting_applications', accepting);
+    fd.append('file_path',              filePath);
 
-    // Additional check for the file_path object itself
-    if (!(file_path instanceof File)) {
-        alert('Invalid file selected. Please choose a valid PDF file.');
-        return;
-    }
-    if (file_path.size === 0) {
-        alert('Uploaded file is empty. Please upload a valid file.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('role_details', role_details);
-    formData.append('file_path', file_path);
-
-    setLoading(true);
+    setBusy(true);
     try {
-      const { data } = await API.post('/papers/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const { data } = await API.post('/papers/', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
+      onCreate?.(data);
 
-      if (onCreate) onCreate(data);
-
-      setTitle('');
-      setDescription('');
-      setRole_details('');
-      setFile_path(null);
-      setExpanded(false);
-      alert('Research paper submitted successfully!');
+      /* reset */
+      setTitle(''); setDescription(''); setRoleDetails('');
+      setVisibility('PUBLIC'); setStatus('ACTIVE'); setAccepting(true);
+      setFilePath(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
-      console.error('Failed to submit:', err.response?.data || err.message);
-      if (err.response && err.response.data) {
-          let errorMessages = '';
-          for (const field in err.response.data) {
-              errorMessages += `${field}: ${err.response.data[field].join(', ')}\n`;
-          }
-          alert(`Failed to submit paper:\n${errorMessages}`);
-      } else {
-          alert('Failed to submit paper. Please check the console for details.');
-      }
-    } finally {
-      setLoading(false);
-    }
+      console.error('Paper create failed:', err.response?.data);
+      alert('Could not create paper – see console.');
+    } finally { setBusy(false); }
   };
 
+  /* ─────────── UI ─────────── */
   return (
-    <div className="bg-white p-3 rounded-xl shadow-md mb-4 border border-gray-200">
+    <div className="bg-white p-3 rounded-xl shadow-md mb-4 border border-gray-200 max-w-md mx-auto">
       <h2 className="text-base font-semibold mb-2 text-gray-800 flex items-center gap-2">
-        <FileText className="w-4 h-4 text-blue-500" />
-        Submit Research Paper
+        <svg className="w-4 h-4 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
+        </svg>
+        Post Research Paper
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-3 text-sm">
+        {/* Title */}
         <input
-          type="text"
+          className="w-full px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-blue-500"
+          placeholder="Paper Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Paper Title"
-          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
 
+        {/* Description */}
         <textarea
+          className="w-full px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-blue-500"
+          placeholder="Paper Description (Abstract)"
+          rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description (Abstract)"
-          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows={2}
           required
         />
 
+        {/* Role details */}
+        {accepting && (
+          <textarea
+            className="w-full px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-blue-500"
+            placeholder="Role Details"
+            rows={2}
+            value={roleDetails}
+            onChange={(e) => setRoleDetails(e.target.value)}
+            required
+          />
+        )}
+
+        {/* Visibility */}
+        <select
+          className="w-full px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-blue-500"
+          value={visibility}
+          onChange={(e) => setVisibility(e.target.value)}
+        >
+          <option value="PUBLIC">Public</option>
+          <option value="PRIVATE">Private</option>
+        </select>
+
+        {/* Status */}
+        <select
+          className="w-full px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-blue-500"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <option value="ACTIVE">Active Paper</option>
+          <option value="COMPLETED">Completed Paper</option>
+        </select>
+
+        {/* Accepting toggle */}
+        <select
+          className="w-full px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-blue-500"
+          value={String(accepting)}
+          onChange={(e) => setAccepting(e.target.value === 'true')}
+          disabled={status === 'COMPLETED'}
+        >
+          <option value="true">Allow Applicants</option>
+          <option value="false">No Applicants</option>
+        </select>
+
+        {/* PDF file – visible input */}
         <div className="flex items-center gap-2">
           <FilePlus className="w-4 h-4 text-gray-500" />
           <input
             type="file"
-            name="file_path"
             accept="application/pdf"
             required
-            onChange={(e) => setFile_path(e.target.files[0])}
-            className="block w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-300 file:rounded-md"
+            ref={fileInputRef}
+            onChange={(e) => setFilePath(e.target.files[0])}
+            className="block w-full text-sm text-gray-700 file:mr-3 file:py-1 file:px-3
+                       file:border file:border-gray-300 file:rounded-md
+                       file:bg-gray-50 file:text-gray-700"
           />
         </div>
-        <textarea
-          value={role_details}
-          onChange={(e) => setRole_details(e.target.value)}
-          placeholder="Role Details"
-          className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows={2}
-        />
-        
 
+        {/* Submit */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-1.5 rounded-lg text-sm font-medium hover:opacity-90 transition"
+          disabled={busy}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-1.5 rounded-lg
+                     font-medium hover:opacity-90 transition disabled:opacity-60"
         >
-          {loading ? 'Submitting...' : 'Submit Paper'}
+          {busy ? 'Posting…' : 'Post Paper'}
         </button>
       </form>
     </div>
   );
-};
-
-export default CreateResearchPaper;
+}
