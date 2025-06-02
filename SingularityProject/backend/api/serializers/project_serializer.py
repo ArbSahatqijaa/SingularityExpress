@@ -2,6 +2,7 @@ from rest_framework import serializers
 from api.models import Project
 from rest_framework.fields import CurrentUserDefault
 from django.contrib.auth import get_user_model
+from api.models.user_project import UserProject
 
 User = get_user_model()
 
@@ -17,6 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     )
 
     leader_name = serializers.SerializerMethodField(read_only=True)
+    my_role = serializers.SerializerMethodField(read_only=True)
 
     role_details = serializers.CharField(required=False, allow_blank=True)
     description = serializers.CharField(required=False, allow_blank=True)
@@ -38,6 +40,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'leader',
             'leader_name',
             'image',
+            'my_role',
             'role_details',
             'created_by',
             'created_at',
@@ -67,6 +70,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             parts.append(user.last_name)
 
         return ' '.join(parts)
+    
+    def get_my_role(self, obj):
+        req = self.context.get('request')
+        if not req or req.user.is_anonymous:
+            return ''
+        rel = UserProject.objects.filter(user=req.user, project=obj).first()
+        return rel.role if rel else ''
 
     def create(self, validated_data):
         user = self.context['request'].user

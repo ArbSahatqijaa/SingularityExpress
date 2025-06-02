@@ -5,7 +5,7 @@ import API from '../../services/api';
 /* lazy-load the heavy modals so normal cards stay lightweight */
 const ApplyModal      = lazy(() => import('./ApplyModal'));
 const ApplicantsModal = lazy(() => import('./ApplicantsModal'));
-
+const MembersModal = lazy(() => import('./ProjectMembersModal'))
 export default function ProjectCard({
   /* -------- data props from Home.jsx -------- */
   title,
@@ -21,6 +21,7 @@ export default function ProjectCard({
   createdById,
   meId,
   fileUrl,                 /* <-- correct prop name */
+  myRole = '',
 
   onUpdate,
   onDelete,
@@ -31,6 +32,7 @@ export default function ProjectCard({
   const [showEdit,       setShowEdit]       = useState(false);
   const [showApply,      setShowApply]      = useState(false);
   const [showApplicants, setShowApplicants] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
 
   /* editable copies (Edit modal) */
   const [titleEd,    setTitleEd]    = useState(title);
@@ -43,6 +45,7 @@ export default function ProjectCard({
   const me        = Number(meId);
   const isOwner   = !!me && (me === Number(leaderId) || me === Number(createdById));
   const isActive  = status === 'ACTIVE';
+  const isMember = isOwner || !!myRole;
 
   const badgeCls  = isActive
       ? 'bg-blue-100 text-blue-600'
@@ -139,6 +142,16 @@ export default function ProjectCard({
             </span>
 
             <div className="flex items-center gap-3 text-xs font-medium">
+              
+              {isMember && (
+                <button onClick={() => setShowMembers(true)}
+                className='text-indigo-600 hover:underline'
+              >
+                Members
+              </button>)
+              }
+              
+              
               {!isOwner && accepting && (
                 <button
                   onClick={() => setShowApply(true)}
@@ -171,6 +184,7 @@ export default function ProjectCard({
                   >
                     Delete
                   </button>
+
                 </>
               )}
             </div>
@@ -291,6 +305,17 @@ export default function ProjectCard({
           />
         </Suspense>
       )}
+      {/* MEMBERS modal */}
+      {showMembers && (
+        <Suspense fallback={null}>
+          <MembersModal
+            projectId={project_id}
+            isOwner={isOwner}          /* leader can edit / remove */
+            onClose={() => setShowMembers(false)}
+          />
+        </Suspense>
+      )}
+
     </>
   );
 }

@@ -81,6 +81,7 @@ const Home = () => {
       .finally(() => setLoading(false));
   }, [selectedCategory]);
 
+  
   /* prepend callbacks */
   const handleNewProject  = (p) => setProjects      ((a)=>[p, ...a]);
   const handleNewPaper    = (p) => setResearchPapers((a)=>[p, ...a]);
@@ -128,6 +129,8 @@ const Home = () => {
                   p.leader_full_name || p.leader_username ||
                   p.leader?.full_name || p.leader?.username ||
                   `User #${p.leader}`;
+                
+                const myRole = p.my_role;
 
                 return (
                   <ProjectCard
@@ -137,6 +140,7 @@ const Home = () => {
                     fileUrl={fileUrl}
                     leaderName={leaderName}
                     leaderId={Number(p.leader)}
+                    myRole={myRole}
                     createdById={p.created_by}
                     meId={me?.user_id}
                     onUpdate={handleUpdateProject}
