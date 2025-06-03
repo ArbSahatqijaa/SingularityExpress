@@ -4,13 +4,6 @@ from .paper import Paper
 
 User = get_user_model()
 
-ROLE_CHOICES = (
-    ('AUTHOR', 'Author'),
-    ('CO_AUTHOR', 'Co-Author'),  
-    ('REVIEWER', 'Reviewer'),
-    ('VIEWER', 'Viewer'),
-)
-
 class UserPaper(models.Model):
     user = models.ForeignKey(
         User, 
@@ -23,9 +16,7 @@ class UserPaper(models.Model):
         related_name='paper_users'
     )
     role = models.CharField(
-        max_length=10,  
-        choices=ROLE_CHOICES,
-        default='VIEWER'
+        max_length=50,  
     )
     joined_at = models.DateTimeField(auto_now_add=True)
 

@@ -18,11 +18,11 @@ class TutorialListCreateView(APIView):
         if title:
             tutorials = tutorials.filter(title__icontains=title)
             
-        serializer = TutorialSerializer(tutorials, many=True)
+        serializer = TutorialSerializer(tutorials, many=True, context={'request': request})
         return Response(serializer.data)
     
     def post(self, request, format=None):
-        serializer = TutorialSerializer(data=request.data)
+        serializer = TutorialSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -39,12 +39,12 @@ class TutorialDetailView(APIView):
     
     def get(self, request, pk, format=None):
         tutorial = self.get_object(pk)
-        serializer = TutorialSerializer(tutorial)
+        serializer = TutorialSerializer(tutorial, context={'request': request})
         return Response(serializer.data)
             
     def put(self, request, pk, format=None):
         tutorial = self.get_object(pk)
-        serializer = TutorialSerializer(tutorial, data=request.data)
+        serializer = TutorialSerializer(tutorial, data=request.data, context={'request': request})
         
         if serializer.is_valid():
             serializer.save()
@@ -54,7 +54,7 @@ class TutorialDetailView(APIView):
         
     def patch(self, request, pk, format=None):
         tutorial = self.get_object(pk)
-        serializer = TutorialSerializer(tutorial, data=request.data, partial=True)
+        serializer = TutorialSerializer(tutorial, data=request.data, partial=True, context={'request': request})
         
         if serializer.is_valid():
             serializer.save()

@@ -44,14 +44,25 @@ const CreateTutorial = ({ onCreate }) => {
       alert('Tutorial created successfully!');
     } catch (err) {
       console.error('Failed to submit tutorial:', err.response?.data || err.message);
+
       if (err.response && err.response.data) {
-          let errorMessages = '';
-          for (const field in err.response.data) {
-              errorMessages += `${field}: ${err.response.data[field].join(', ')}\n`;
+        let errorMessages = '';
+        const data = err.response.data;
+
+        for (const field in data) {
+          const value = data[field];
+          if (Array.isArray(value)) {
+            errorMessages += `${field}: ${value.join(', ')}\n`;
+          } else if (typeof value === 'string') {
+            errorMessages += `${field}: ${value}\n`;
+          } else {
+            errorMessages += `${field}: ${JSON.stringify(value)}\n`;
           }
-          alert(`Failed to create tutorial:\n${errorMessages}`);
+        }
+
+        alert(`Failed to create tutorial:\n${errorMessages}`);
       } else {
-          alert('Failed to create tutorial. Please check the console for details.');
+        alert('Failed to create tutorial. Please check the console for details.');
       }
     } finally {
       setLoading(false);

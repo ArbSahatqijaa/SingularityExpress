@@ -27,12 +27,25 @@ export default function PaperApplicantsModal({ paperId, onClose }) {
 
       // 2) if accepted – immediately add to UserPaper table
       if (newStatus === 'ACCEPTED') {
-        await API.post('/user_papers/', {
-          user_id:  apps.find(a=>a.application_id===appId).applicant,
-          paper_id: paperId,
-          role
-        });
-      }
+  const selectedApp = apps.find(a => a.application_id === appId);
+  console.log('Selected application:', selectedApp);
+
+  const payload = {
+    user_id: selectedApp?.applicant,
+    paper_id: paperId,
+    role
+  };
+
+  console.log('Sending payload to /user_papers/:', payload);
+
+  try {
+    await API.post('/user_papers/', payload);
+    console.log('UserPaper successfully created.');
+  } catch (error) {
+    console.error('Failed to create UserPaper:', error);
+  }
+}
+
 
       // 3) refresh list in UI
       setApps(list =>
