@@ -152,7 +152,7 @@ export default function ProjectCard({
               }
               
               
-              {!isOwner && accepting && (
+              {!isOwner && accepting && !isMember && (
                 <button
                   onClick={() => setShowApply(true)}
                   className="text-indigo-600 hover:underline"

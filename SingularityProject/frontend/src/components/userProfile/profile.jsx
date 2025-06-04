@@ -4,6 +4,7 @@ import ProfileAvatar from "./profileAvatar";
 import API from "../../services/api";
 import ProjectCard from "../projectCard/projectCard";
 import FriendsList from './friendsList/FriendsList';
+import ProjectsList from './ProjectPaperTutorialList/ProjectsList';
 
 const Profile = () => {
   const [user, setUser] = useState(undefined);
@@ -25,22 +26,6 @@ const Profile = () => {
     setSelectedTab(tab);
   };
 
-  const projects = [
-    {
-      id: 1,
-      title: "Portfolio Website",
-      description: "Creating a personal portfolio to showcase my skills.",
-      status: "Completed",
-      imageUrl: "https://images.unsplash.com/photo-1506765515384-028b60a970df",
-    },
-    {
-      id: 2,
-      title: "E-commerce App",
-      description: "Building a full-stack online store with Stripe integration.",
-      status: "In Progress",
-      imageUrl: "https://images.unsplash.com/photo-1542744094-24638eff58bb",
-    },
-  ];
 
   if (user === undefined) {
     return <div className="p-8 text-gray-700">Loading...</div>;
@@ -81,7 +66,7 @@ const Profile = () => {
         {/* Tabs */}
         <div className="border-t border-gray-200 px-6">
           <ul className="flex space-x-6 text-sm font-medium text-gray-600">
-            {['Overview', 'Project', 'Files', 'Teams', 'Friends', 'Activity'].map((tab, index) => (
+            {['Overview', 'Project', 'Papers', 'Tutorials', 'Friends'].map((tab, index) => (
               <li
                 key={`${tab}-${index}`}
                 onClick={() => handleTabClick(tab)}
@@ -106,26 +91,11 @@ const Profile = () => {
           <p className="text-gray-600 mt-4">Email: {user.email}</p>
         </div>
 
-        {/* Right Column - Dynamic Tab Content */}
         <div className="lg:col-span-2 space-y-4">
-          {selectedTab === 'Overview' && (
-            <>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Projects I'm Working On</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    title={project.title}
-                    description={project.description}
-                    status={project.status}
-                    imageUrl={project.imageUrl}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          
 
           {selectedTab === 'Friends' && <FriendsList />}
+          {selectedTab === 'Project' && <ProjectsList user={user} />}
         </div>
       </div>
     </div>

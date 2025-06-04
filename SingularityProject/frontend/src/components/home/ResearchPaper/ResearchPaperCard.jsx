@@ -4,6 +4,8 @@ import API from '../../../services/api';
 
 const ApplyModal      = lazy(() => import('./PaperApplyModal'));
 const ApplicantsModal = lazy(() => import('./PaperApplicantsModal'));
+const MembersModal = lazy(() => import('./PaperMembersModal'));
+
 
 export default function ResearchPaperCard({
   /* -------- required props -------- */
@@ -29,6 +31,7 @@ export default function ResearchPaperCard({
   const [showEdit,       setShowEdit]       = useState(false);
   const [showApply,      setShowApply]      = useState(false);
   const [showApplicants, setShowApplicants] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
 
   /* ─────────── editable copies (Edit overlay) ─────────── */
   const [titleEd,    setTitleEd]    = useState(title);
@@ -42,6 +45,7 @@ export default function ResearchPaperCard({
   const ownerId   = Number(created_by);
   const isAuthor  = my_role === 'AUTHOR';
   const isOwner   = isAuthor || (me && me === ownerId);
+  const isMember = isOwner || !!my_role;
 
   const isLive    = status === 'ACTIVE';
   const badgeCls  = isLive ? 'bg-blue-100 text-blue-600'
@@ -123,12 +127,14 @@ export default function ResearchPaperCard({
 
             <div className="flex items-center gap-3 text-xs font-medium">
               {/* Apply only for outsiders, while paper is live & accepting */}
-              {!isOwner && accepting && isLive && (
+              {!isOwner && accepting && isLive && !isMember && (
                 <button className="text-indigo-600 hover:underline"
                         onClick={()=>setShowApply(true)}>
                   Apply
                 </button>
               )}
+
+              
 
               {/* Applicants visible to authors / creator */}
               {isOwner && (
@@ -136,6 +142,15 @@ export default function ResearchPaperCard({
                         onClick={()=>setShowApplicants(true)}>
                   Applicants
                 </button>
+              )}
+
+              {/* Members visible to authors/creator */}
+              {isOwner && isMember &&(
+
+                <button className="text-indigo-600 hover:underline"
+                  onClick={() => setShowMembers(true)}>
+                Members
+            </button>
               )}
 
               {/* Edit / Delete for authors / creator */}
@@ -165,6 +180,19 @@ export default function ResearchPaperCard({
           <p className="whitespace-pre-wrap">{description}</p>
         </div>
       )}
+
+
+      {/*Members overlay*/}
+      {showMembers && (
+  <Suspense fallback={null}>
+    <MembersModal
+      paperId={paper_id}
+      isOwner={isOwner}
+      onClose={() => setShowMembers(false)}
+    />
+  </Suspense>
+)}
+
 
       {/* Role overlay */}
       {showRole && (
