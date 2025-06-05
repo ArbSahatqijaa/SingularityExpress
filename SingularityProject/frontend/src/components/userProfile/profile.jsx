@@ -5,6 +5,9 @@ import API from "../../services/api";
 import ProjectCard from "../projectCard/projectCard";
 import FriendsList from './friendsList/FriendsList';
 import ProjectsList from './ProjectPaperTutorialList/ProjectsList';
+import PaperList from './ProjectPaperTutorialList/PaperList';
+import TutorialList from './ProjectPaperTutorialList/TutorialList';
+import Overview from './ProjectPaperTutorialList/Overview';
 
 const Profile = () => {
   const [user, setUser] = useState(undefined);
@@ -93,9 +96,12 @@ const Profile = () => {
 
         <div className="lg:col-span-2 space-y-4">
           
-
+          {selectedTab === 'Overview' && <Overview user={user} />}
           {selectedTab === 'Friends' && <FriendsList />}
           {selectedTab === 'Project' && <ProjectsList user={user} />}
+          {selectedTab === 'Papers' && <PaperList user={user} />}
+          {selectedTab === 'Tutorials' && <TutorialList user={user} />}
+
         </div>
       </div>
     </div>

@@ -23,7 +23,7 @@ def chat_with_api(request):
             data = json.loads(request.body)
 
             messages = data.get("messages", [{"role": "user", "content": "hi"}])
-            model = data.get("model", "gpt-4o-mini")
+            model = data.get("model", "gpt-4o")
 
             # Get last user message content for easy reference
             user_message = None
@@ -32,7 +32,7 @@ def chat_with_api(request):
                     user_message = m.get("content")
                     break
 
-            url = "https://chatgpt-42.p.rapidapi.com/chat"
+            url = "https://chatgpt-42.p.rapidapi.com/gpt4o"
             headers = {
                 "Content-Type": "application/json",
                 "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
