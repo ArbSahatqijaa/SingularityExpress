@@ -106,7 +106,7 @@ const Home = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* ---------- LEFT SIDEBAR ---------- */}
         <div className="lg:col-span-3 space-y-4">
-          <ProfileCard />
+          <ProfileCard user = {me}/>
           <ProfileDashboard />
           <TeamCollaborationFeed />
           <TodoTasks />

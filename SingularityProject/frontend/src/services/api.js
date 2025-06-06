@@ -12,4 +12,9 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+export async function getUserProfile() {
+  const { data } = await API.get('/whoami/');
+  return data;
+}
+
 export default API;
