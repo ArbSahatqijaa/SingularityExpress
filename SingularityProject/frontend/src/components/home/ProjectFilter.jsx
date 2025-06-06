@@ -1,8 +1,9 @@
+/* src/components/ProjectFilter.jsx */
 import React from 'react';
 
-const categories = ['Project', 'Tutorial', 'Research'];
-
-const ProjectFilter = ({ selectedCategory, setSelectedCategory }) => {
+// Remove the hard-coded array here.
+// We’ll take “categories” in as a prop instead.
+const ProjectFilter = ({ selectedCategory, setSelectedCategory, categories }) => {
   return (
     <div className="flex space-x-4 mb-4">
       {categories.map(category => (
