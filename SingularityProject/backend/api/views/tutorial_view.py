@@ -14,9 +14,13 @@ class TutorialListCreateView(APIView):
         tutorials = Tutorial.objects.all()
         
         title = request.GET.get('title')
+
+        created_by = request.GET.get('created_by')
         
         if title:
             tutorials = tutorials.filter(title__icontains=title)
+        if created_by and created_by.isdigit():
+            tutorials = tutorials.filter(created_by=int(created_by))    
             
         serializer = TutorialSerializer(tutorials, many=True, context={'request': request})
         return Response(serializer.data)

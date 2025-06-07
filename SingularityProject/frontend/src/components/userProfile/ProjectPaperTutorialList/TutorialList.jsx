@@ -13,7 +13,7 @@ const TutorialList = ({ user }) => {
 
     useEffect(() => {
         setLoading(true);
-        API.get(`/tutorials/?user=${user.user_id}`)
+        API.get(`/tutorials/?created_by=${user.user_id}`)
             .then(({ data }) => {
                 console.log('Tutorials:', data);
                 setTutorials(data);
