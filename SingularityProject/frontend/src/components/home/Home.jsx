@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import ProfileCard            from './ProfileCard';
 import ChatSidebar            from './ChatSidebar';
-import TrendingProjects       from './TrendingProjects';
+import TrendingFeed      from './TrendingFeed';
 import TeamCollaborationFeed  from './TeamCollaborationFeed';
 import Skills                 from './SkillHighlights';
-import TodoTasks              from './ToDoTask';
 import CreateProjectPost      from './CreateProject';
 import FriendSuggestionCard   from './FriendList';
 import ProfileDashboard       from './ProfileDashboard';
@@ -109,7 +108,6 @@ const Home = () => {
           <ProfileCard user = {me}/>
           <ProfileDashboard />
           <TeamCollaborationFeed />
-          <TodoTasks />
         </div>
 
         {/* ---------- MAIN COLUMN ---------- */}
@@ -210,7 +208,7 @@ const Home = () => {
         {/* ---------- RIGHT SIDEBAR ---------- */}
         <div className="lg:col-span-3 space-y-4 flex flex-col">
           <Activitiy />
-          <TrendingProjects />
+          <TrendingFeed />
           <Skills />
           <FriendSuggestionCard />
         </div>

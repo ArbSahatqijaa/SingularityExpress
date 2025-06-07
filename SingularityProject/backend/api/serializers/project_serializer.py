@@ -21,6 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     my_role = serializers.SerializerMethodField(read_only=True)
 
     role_details = serializers.CharField(required=False, allow_blank=True)
+    worker_count = serializers.IntegerField(read_only=True)
     description = serializers.CharField(required=False, allow_blank=True)
     accepting_applications = serializers.BooleanField()
 
@@ -42,6 +43,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'image',
             'my_role',
             'role_details',
+            'worker_count',
             'created_by',
             'created_at',
             'updated_at'

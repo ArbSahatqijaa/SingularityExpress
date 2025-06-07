@@ -13,6 +13,7 @@ class PaperSerializer(serializers.ModelSerializer):
     my_role = serializers.SerializerMethodField(read_only=True)
 
     role_details = serializers.CharField(required=False, allow_blank=True)
+    worker_count = serializers.IntegerField(read_only=True)
     description = serializers.CharField(required=False, allow_blank=True)
     accepting_applications = serializers.BooleanField()
     file_path = serializers.FileField()
@@ -28,6 +29,7 @@ class PaperSerializer(serializers.ModelSerializer):
             'accepting_applications',
             'file_path',
             'role_details',
+            'worker_count',
             'authors',
             'my_role',
             'created_by',

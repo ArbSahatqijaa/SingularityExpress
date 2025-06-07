@@ -36,7 +36,6 @@ export default function NavigationBar() {
           <Link to="/home" className="text-gray-700 hover:text-blue-600 font-medium transition">Home</Link>
           <Link to="/projects" className="text-gray-700 hover:text-blue-600 font-medium transition">Projects</Link>
           <Link to="/posts" className="text-gray-700 hover:text-blue-600 font-medium transition">Posts</Link>
-          <Link to="/communication" className="text-gray-700 hover:text-blue-600 font-medium transition">Communication</Link>
         </div>
       )}
 

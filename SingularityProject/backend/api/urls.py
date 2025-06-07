@@ -7,6 +7,8 @@ from .views.user_project_view import UserProjectDetailView, UserProjectListCreat
 from .views.user_paper_view import UserPaperListCreateView, UserPaperDetailView
 from .views.tutorial_view import TutorialListCreateView, TutorialDetailView
 from .views.review_view import ReviewListCreateView, ReviewDetailView
+from .views.project_trending import ProjectTrendingView
+from .views.paper_trending   import PaperTrendingView
 #from .views.required_roles_view import RequiredRolesListCreateView, RequiredRolesDetailView, RoleChoicesView, AllowedContentTypesView
 from .views.project_view import ProjectListCreateView, ProjectDetailView
 from .views.paper_view import PaperListCreateView, PaperDetailView
@@ -15,6 +17,7 @@ from .views.invitation_view import InvitationListCreateView, InvitationDetailVie
 from .views.message_view import create_message, update_message, delete_message, get_messages, upload_chat_file, download_chat_file
 from .views.chat_with_api import chat_with_api, test_mongodb_connection
 from .views.application_view import ApplicationListCreateView, ApplicationDetailView
+
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -61,10 +64,12 @@ urlpatterns = [
     #path('allowed_content_types/', AllowedContentTypesView.as_view(), name='allowed-content-types'), 
 
     # Project URLs
+    path('projects/trending/', ProjectTrendingView.as_view(), name='project-trending'),
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<int:pk>/', ProjectDetailView.as_view(), name='project-detail'),
 
     # Paper URLs
+    path('papers/trending/',   PaperTrendingView.as_view(),   name='paper-trending'),
     path('papers/', PaperListCreateView.as_view(), name='paper-list-create'),
     path('papers/<int:pk>/', PaperDetailView.as_view(), name='paper-detail'),
 
@@ -84,6 +89,7 @@ urlpatterns = [
     path('chat/download/<str:filename>/', download_chat_file, name='download_chat_file'),
     path('chat/', chat_with_api, name='chat_with_api'),
     path('chat/test-mongodb/', test_mongodb_connection, name='test_mongodb'),
+
 
     #Application urls
     path('applications/', ApplicationListCreateView.as_view(), name='application-list-create'),
