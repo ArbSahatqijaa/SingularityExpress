@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import API from '../../../services/api';
 import ProfileAvatar from '../profileAvatar';
 import { useNotifications } from '../../../contexts/NotificationContext';
+import OtherOverview from './OtherOverview';
+import FriendsList from './FriendsList';
 
 const UserProfile = () => {
   const { id } = useParams();  
@@ -188,7 +190,7 @@ const UserProfile = () => {
         {/* Tabs */}
         <div className="border-t border-gray-200 px-6">
           <ul className="flex space-x-6 text-sm font-medium text-gray-600">
-            {['Overview', 'Projects', 'Friends', 'Activity'].map((tab, index) => (
+            {['Overview'].map((tab, index) => (
               <li
                 key={`${tab}-${index}`}
                 onClick={() => handleTabClick(tab)}
@@ -217,37 +219,9 @@ const UserProfile = () => {
 
         {/* Right Column - Dynamic Tab Content */}
         <div className="lg:col-span-2 space-y-4">
-          {selectedTab === 'Overview' && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">User Overview</h2>
-              {/* You can add more user details here */}
-              <p>More details about the user can go here...</p>
-            </div>
-          )}
+          {selectedTab === 'Overview' && <OtherOverview user={user} />}
 
-          {selectedTab === 'Projects' && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Projects</h2>
-              {/* If you have projects API or static projects you can map here */}
-              <p>No projects to show.</p>
-            </div>
-          )}
-
-          {selectedTab === 'Friends' && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Friends List</h2>
-              {/* Import and render your FriendsList component here */}
-              {/* <FriendsList userId={id} /> */}
-              <p>Friends list component goes here.</p>
-            </div>
-          )}
-
-          {selectedTab === 'Activity' && (
-            <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-              <p>No recent activity.</p>
-            </div>
-          )}
+          
         </div>
       </div>
     </div>

@@ -8,7 +8,6 @@ import Skills                 from './SkillHighlights';
 import CreateProjectPost      from './CreateProject';
 import FriendSuggestionCard   from './FriendList';
 import ProfileDashboard       from './ProfileDashboard';
-import Activitiy              from './RecentActivityFeed';
 import ChatAssistant          from './ChatAssistant';
 import ProjectFilter          from './ProjectFilter';
 import PostsFeed              from './Posts/PostsFeed';           // NEW
@@ -207,9 +206,7 @@ const Home = () => {
 
         {/* ---------- RIGHT SIDEBAR ---------- */}
         <div className="lg:col-span-3 space-y-4 flex flex-col">
-          <Activitiy />
           <TrendingFeed />
-          <Skills />
           <FriendSuggestionCard />
         </div>
       </div>
