@@ -4,6 +4,7 @@ import API from '../../services/api';
 
 /* lazy-load the heavy modals so normal cards stay lightweight */
 const ApplyModal      = lazy(() => import('./ApplyModal'));
+const ReviewModal      = lazy(() => import('./ReviewModal'));
 const ApplicantsModal = lazy(() => import('./ApplicantsModal'));
 const MembersModal = lazy(() => import('./ProjectMembersModal'))
 export default function ProjectCard({
@@ -31,6 +32,7 @@ export default function ProjectCard({
   const [showRole,       setShowRole]       = useState(false);
   const [showEdit,       setShowEdit]       = useState(false);
   const [showApply,      setShowApply]      = useState(false);
+  const [showReviews,       setShowReviews]       = useState(false);
   const [showApplicants, setShowApplicants] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
 
@@ -131,6 +133,12 @@ export default function ProjectCard({
                 View Project File →
               </a>
             )}
+            <button
+              onClick={() => setShowReviews(true)}
+              className="text-blue-600 hover:underline"
+            >
+              Review 
+            </button>
           </div>
 
           {/* footer */}
@@ -140,8 +148,7 @@ export default function ProjectCard({
             >
               {isActive ? 'Active' : 'Completed'}
             </span>
-
-            <div className="flex items-center gap-3 text-xs font-medium">
+              <div className="flex items-center gap-1 text-xs font-medium">
               
               {isMember && (
                 <button onClick={() => setShowMembers(true)}
@@ -169,7 +176,6 @@ export default function ProjectCard({
                   Applicants
                 </button>
               )}
-
               {isOwner && (
                 <>
                   <button
@@ -312,6 +318,15 @@ export default function ProjectCard({
             projectId={project_id}
             isOwner={isOwner}          /* leader can edit / remove */
             onClose={() => setShowMembers(false)}
+          />
+        </Suspense>
+      )}
+      {/* Rviews Modal */}
+      {showReviews && (
+        <Suspense fallback={null}>
+          <ReviewModal
+            projectId={project_id}         /* leader can edit / remove */
+            onClose={() => setShowReviews(false)}
           />
         </Suspense>
       )}

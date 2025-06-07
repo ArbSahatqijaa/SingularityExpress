@@ -13,19 +13,21 @@ class ReviewListCreateView(APIView):
     def get(self, request, format=None):
         reviews = Review.objects.all()
 
-        paper = request.GET.get('paper')
-        reviewer = request.GET.get('reviewer')
-        project = request.GET.get('project')  # optional
+        paper_id = request.GET.get('paper_reviewed')
+        project_id = request.GET.get('project_reviewed')
+        reviewer_id = request.GET.get('reviewer')
 
-        if paper:
-            reviews = reviews.filter(paper_reviewed=paper)
-        if project:
-            reviews = reviews.filter(project_reviewed=project)
-        if reviewer:
-            reviews = reviews.filter(reviewer=reviewer)
+        if paper_id and paper_id.isdigit():
+            reviews = reviews.filter(paper_reviewed=int(paper_id))
+
+        if project_id and project_id.isdigit():
+            reviews = reviews.filter(project_reviewed=int(project_id))
+
+        if reviewer_id and reviewer_id.isdigit():
+            reviews = reviews.filter(reviewer=int(reviewer_id))
 
         serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data)  # Properly indented here
+        return Response(serializer.data)
     
     def post(self, request, format=None):
         serializer = ReviewSerializer(data=request.data)

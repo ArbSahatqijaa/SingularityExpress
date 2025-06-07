@@ -5,6 +5,7 @@ import API from '../../../services/api';
 const ApplyModal      = lazy(() => import('./PaperApplyModal'));
 const ApplicantsModal = lazy(() => import('./PaperApplicantsModal'));
 const MembersModal = lazy(() => import('./PaperMembersModal'));
+const PaperReviewModal      = lazy(() => import('./PaperReviewModal'));
 
 
 export default function ResearchPaperCard({
@@ -30,6 +31,7 @@ export default function ResearchPaperCard({
   const [showRole,       setShowRole]       = useState(false);
   const [showEdit,       setShowEdit]       = useState(false);
   const [showApply,      setShowApply]      = useState(false);
+  const [showReviews,       setShowReviews]       = useState(false);
   const [showApplicants, setShowApplicants] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
 
@@ -117,6 +119,10 @@ export default function ResearchPaperCard({
                className="text-indigo-600 hover:underline">
               View PDF →
             </a>
+            <button className="text-blue-600 hover:underline"
+                      onClick={()=>setShowReviews(true)}>
+                Review
+              </button>
           </div>
 
           {/* footer */}
@@ -266,6 +272,15 @@ export default function ResearchPaperCard({
           <ApplicantsModal
             paperId={paper_id}
             onClose={()=>setShowApplicants(false)}
+          />
+        </Suspense>
+      )}
+      {/* Review Modal */}
+      {showReviews && (
+        <Suspense fallback={null}>
+          <PaperReviewModal
+            paperId={paper_id}
+            onClose={()=>setShowReviews(false)}
           />
         </Suspense>
       )}

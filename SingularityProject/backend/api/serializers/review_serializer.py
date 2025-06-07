@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from api.models import Review  
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class ReviewerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_id', 'username']  # Add other fields if needed
 
 class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = ReviewerSerializer(read_only=True)  # <-- nested serializer
+
     class Meta:
         model = Review
         fields = [
@@ -18,7 +27,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             'review_id',
             'created_at',
             'updated_at',
-            'reviewer',  # ✅ Add this line
+            'reviewer',
         ]
 
     def validate_rating(self, value):
