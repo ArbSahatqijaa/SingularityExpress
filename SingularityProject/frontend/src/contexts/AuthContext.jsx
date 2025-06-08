@@ -9,6 +9,15 @@ export const AuthProvider = ({ children }) => {
   const { addNotification } = useNotifications();
 
   useEffect(() => {
+    const token = localStorage.getItem('jwt');
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    // Set the token in the API headers
+    API.defaults.headers.Authorization = `Bearer ${token}`;
+
     API.get('/whoami/')
       .then(({ data }) => {
         setUser(data);
@@ -30,10 +39,15 @@ export const AuthProvider = ({ children }) => {
                 }
               });
             })
-            .catch(console.error);
+            .catch(() => {}); // Silently handle friendship fetch errors
         }
       })
-      .catch(console.error);
+      .catch(() => {
+        // If whoami fails, clear the token and user state
+        localStorage.removeItem('jwt');
+        delete API.defaults.headers.Authorization;
+        setUser(null);
+      });
   }, [addNotification]);
 
   return (

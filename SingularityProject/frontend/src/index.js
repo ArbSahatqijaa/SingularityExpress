@@ -4,6 +4,17 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Disable React DevTools message
+if (process.env.NODE_ENV === 'development') {
+  const originalConsoleError = console.error;
+  console.error = (...args) => {
+    if (args[0]?.includes?.('Download the React DevTools')) {
+      return;
+    }
+    originalConsoleError.apply(console, args);
+  };
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
