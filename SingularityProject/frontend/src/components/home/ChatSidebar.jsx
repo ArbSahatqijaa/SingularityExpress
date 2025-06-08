@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaRegCommentDots, FaPhone, FaVideo, FaPaperclip, FaTimes } from 'react-icons/fa';
 import API from '../../services/api';
 import { useNotifications } from '../../contexts/NotificationContext';
+import soundManager from '../../utils/sounds';
+
+const WS_URL = 'ws://localhost:8000/ws/communication/';
 
 async function getDefaultStream() {
   const devices = await navigator.mediaDevices.enumerateDevices();
@@ -55,6 +58,9 @@ const ChatSidebar = () => {
   
   const { addNotification } = useNotifications();
 
+  // Add ref for current call sound
+  const currentCallSound = useRef(null);
+
   // Helper function to check if an event has been processed
   const hasProcessedEvent = (eventId, type) => {
     const ref = type === 'message' ? processedMessageIds : processedCallIds;
@@ -99,133 +105,180 @@ const ChatSidebar = () => {
 
   // WebSocket connection
   useEffect(() => {
-    const token = localStorage.getItem('jwt');
-    if (!token) return;
-
-    let ws = null;
-    let retryCount = 0;
-    const maxRetries = 3;
-    const retryDelay = 1000;
-
     const connectWebSocket = () => {
-      if (ws) {
-        ws.close();
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        console.log('No JWT token available, skipping WebSocket connection');
+        return;
       }
 
-      ws = new WebSocket(`ws://localhost:8000/ws/communication/?token=${token}`);
+      console.log('Attempting to connect WebSocket...');
+      const ws = new WebSocket(`${WS_URL}?token=${token}`);
       wsRef.current = ws;
-      
+
       ws.onopen = () => {
-        console.log('📡 WebSocket connection established');
-        retryCount = 0;
-      };
-      
-      ws.onclose = (event) => {
-        console.log('WebSocket connection closed:', event.code, event.reason);
-        if (retryCount < maxRetries) {
-          retryCount++;
-          setTimeout(connectWebSocket, retryDelay * retryCount);
-        } else {
-          console.error('Max WebSocket connection retries reached');
-          alert('Lost connection to chat server. Please refresh the page.');
-        }
+        console.log('WebSocket connected successfully');
       };
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        handleWebSocketMessage(data);
+        console.log('WebSocket message received:', data);
+
+        switch (data.action) {
+          case 'chat_message_received':
+            console.log('Processing chat message:', data.message);
+            // Handle both new messages and undelivered messages
+            const message = data.message;
+            if (message.message_id && hasProcessedEvent(message.message_id, 'message')) {
+              console.log('Skipping duplicate message:', message.message_id);
+              return;
+            }
+
+            // Play message sound
+            console.log('Triggering message sound for new message');
+            soundManager.play('newMessage');
+
+            // Add notification for the message
+            const sender = users.find(u => u.user_id === message.sender_id);
+            console.log('Found sender:', sender);
+            
+            if (sender) {
+              console.log('Adding notification for message from:', sender.username);
+              addNotification({
+                type: 'message',
+                senderId: message.sender_id,
+                messageId: message.message_id,
+                title: `New message from ${sender.username}`,
+                message: typeof message.content === 'string' 
+                  ? message.content 
+                  : `Sent you a ${message.message_type === 'image' ? 'image' : 'file'}`,
+                onClick: () => openChat(sender)
+              });
+
+              // Update unread count
+              setUnreadMessages(prev => {
+                const newCount = (prev[message.sender_id] || 0) + 1;
+                console.log(`Updated unread count for ${sender.username}: ${newCount}`);
+                return {
+                  ...prev,
+                  [message.sender_id]: newCount
+                };
+              });
+            } else {
+              console.warn('Could not find sender for message:', message);
+            }
+
+            // Update chat messages
+            setChatMessages(prevMessages => {
+              const messageExists = prevMessages.some(m => m.message_id === message.message_id);
+              if (!messageExists) {
+                console.log('Adding new message to chat messages');
+                return [...prevMessages, message];
+              }
+              console.log('Message already exists in chat messages');
+              return prevMessages;
+            });
+            break;
+          case 'user_online':
+            setOnlineUsers(prev => new Set([...prev, data.user.user_id]));
+            break;
+          case 'user_offline':
+            setOnlineUsers(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(data.user.user_id);
+              return newSet;
+            });
+            break;
+          case 'incoming_call':
+            console.log('Incoming call received, playing call sound');
+            // Stop any existing call sound
+            if (currentCallSound.current) {
+              console.log('Stopping existing call sound');
+              soundManager.stop(currentCallSound.current);
+            }
+            // Play incoming call sound
+            console.log('Starting new call sound');
+            currentCallSound.current = soundManager.play('incomingCall');
+            handleIncomingCall(data);
+            break;
+          case 'call_answered':
+            if (pcRef.current) {
+              pcRef.current.setRemoteDescription(new RTCSessionDescription(data.answer))
+                .then(() => {
+                  setInCall(true);
+                  setCallStatus('connected');
+                })
+                .catch((err) => console.error('Error setting remote description:', err));
+            }
+            // Stop the call sound
+            if (currentCallSound.current) {
+              console.log('Call ended, stopping call sound');
+              soundManager.stop(currentCallSound.current);
+              currentCallSound.current = null;
+            }
+            break;
+          case 'ice':
+            if (pcRef.current && pcRef.current.remoteDescription) {
+              pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate)).catch((err) => console.error('Error adding ICE:', err));
+            }
+            break;
+          case 'hangup':
+            cleanupCall();
+            // Stop the call sound
+            if (currentCallSound.current) {
+              console.log('Call ended, stopping call sound');
+              soundManager.stop(currentCallSound.current);
+              currentCallSound.current = null;
+            }
+            break;
+          case 'call_ended':
+            handleCallEnded(data);
+            // Stop the call sound
+            if (currentCallSound.current) {
+              console.log('Call ended, stopping call sound');
+              soundManager.stop(currentCallSound.current);
+              currentCallSound.current = null;
+            }
+            break;
+          case 'user_typing':
+            handleUserTyping(data);
+            break;
+          // Add other message handlers as needed
+        }
+      };
+
+      ws.onclose = (event) => {
+        console.log('WebSocket disconnected:', event.code);
+        // Only attempt to reconnect if we have a token
+        if (localStorage.getItem('jwt')) {
+          console.log('Attempting to reconnect WebSocket...');
+          setTimeout(connectWebSocket, 3000); // Wait 3 seconds before reconnecting
+        }
       };
     };
+
+    // Test sounds on component mount
+    console.log('Testing sound system...');
+    setTimeout(() => {
+      console.log('Playing test message sound');
+      soundManager.play('newMessage');
+    }, 1000);
 
     connectWebSocket();
 
     return () => {
-      if (ws) {
-        ws.close();
+      // Stop any playing sounds when component unmounts
+      if (currentCallSound.current) {
+        console.log('Cleaning up call sound on unmount');
+        soundManager.stop(currentCallSound.current);
+      }
+      if (wsRef.current) {
+        console.log('Cleaning up WebSocket connection');
+        wsRef.current.close();
+        wsRef.current = null;
       }
     };
-  }, [users, activeFriend]);
-
-  // Handle incoming WebSocket messages
-  const handleWebSocketMessage = (data) => {
-    switch (data.action) {
-      case 'user_online':
-        setOnlineUsers(prev => new Set([...prev, data.user.user_id]));
-        break;
-      case 'user_offline':
-        setOnlineUsers(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(data.user.user_id);
-          return newSet;
-        });
-        break;
-      case 'chat_message_received':
-        handleIncomingMessage(data);
-        break;
-      case 'incoming_call':
-        handleIncomingCall(data);
-        break;
-      case 'call_answered':
-        if (pcRef.current) {
-          pcRef.current.setRemoteDescription(new RTCSessionDescription(data.answer))
-            .then(() => {
-              setInCall(true);
-              setCallStatus('connected');
-            })
-            .catch((err) => console.error('Error setting remote description:', err));
-        }
-        break;
-      case 'ice':
-        if (pcRef.current && pcRef.current.remoteDescription) {
-          pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate)).catch((err) => console.error('Error adding ICE:', err));
-        }
-        break;
-      case 'hangup':
-        cleanupCall();
-        break;
-      case 'call_ended':
-        handleCallEnded(data);
-        break;
-      case 'user_typing':
-        handleUserTyping(data);
-        break;
-      // Add other message handlers as needed
-    }
-  };
-
-  // Handle incoming chat messages
-  const handleIncomingMessage = (data) => {
-    const message = data.message || data;
-    if (message.message_id && hasProcessedEvent(message.message_id, 'message')) {
-      return;
-    }
-
-    setChatMessages(prevMessages => {
-      const messageExists = prevMessages.some(m => m.message_id === message.message_id);
-      if (!messageExists) {
-        const sender = users.find(u => u.user_id === message.sender_id);
-        if (sender && (!activeFriend || activeFriend.user_id !== message.sender_id)) {
-          setUnreadMessages(prev => ({
-            ...prev,
-            [message.sender_id]: (prev[message.sender_id] || 0) + 1
-          }));
-          
-          addNotification({
-            type: 'message',
-            senderId: message.sender_id,
-            messageId: message.message_id,
-            title: `New message from ${sender.username}`,
-            message: typeof message.content === 'string' 
-              ? message.content 
-              : `Sent you a ${message.message_type === 'image' ? 'image' : 'file'}`,
-            onClick: () => openChat(sender)
-          });
-        }
-        return [...prevMessages, message];
-      }
-      return prevMessages;
-    });
-  };
+  }, [users, addNotification]);
 
   // Handle incoming calls
   const handleIncomingCall = (data) => {
@@ -422,6 +475,13 @@ const ChatSidebar = () => {
 
   // Cleanup call
   const cleanupCall = () => {
+    // Stop the call sound if it's playing
+    if (currentCallSound.current) {
+      console.log('Call cleanup, stopping call sound');
+      soundManager.stop(currentCallSound.current);
+      currentCallSound.current = null;
+    }
+
     if (localStream) {
       localStream.getTracks().forEach((track) => {
         track.stop();
@@ -555,6 +615,13 @@ const ChatSidebar = () => {
     if (!incomingOffer || !remoteUser) return;
 
     try {
+      // Stop the call sound immediately when accepting
+      if (currentCallSound.current) {
+        console.log('Call accepted, stopping call sound');
+        soundManager.stop(currentCallSound.current);
+        currentCallSound.current = null;
+      }
+
       console.log('Accepting call from', remoteUser);
       setInCall(true);
       setCallStatus('connected');
@@ -604,6 +671,12 @@ const ChatSidebar = () => {
   // Decline incoming call
   const declineCall = () => {
     if (remoteUser && wsRef.current) {
+      // Stop the call sound
+      if (currentCallSound.current) {
+        console.log('Call declined, stopping call sound');
+        soundManager.stop(currentCallSound.current);
+        currentCallSound.current = null;
+      }
       wsRef.current.send(
         JSON.stringify({
           action: 'hangup',
@@ -682,11 +755,18 @@ const ChatSidebar = () => {
 
   const endCall = () => {
     if (remoteUser && wsRef.current) {
+      // Stop the call sound
+      if (currentCallSound.current) {
+        console.log('Call ended, stopping call sound');
+        soundManager.stop(currentCallSound.current);
+        currentCallSound.current = null;
+      }
       wsRef.current.send(
         JSON.stringify({
           action: 'hangup',
           target: remoteUser,
           from_user: currentUser,
+          end_call_record: true,
         })
       );
     }

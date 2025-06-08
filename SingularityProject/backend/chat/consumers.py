@@ -51,11 +51,59 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
             await self.close()
             return
 
+        await self.accept()
+        
+        # Add user to their personal channel
         self.group_name = f"user_{self.user.pk}"
-        # Add user to their personal group and lobby
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.channel_layer.group_add('lobby', self.channel_name)
-        
+
+        # Get undelivered messages for this user
+        try:
+            db, _ = get_db_handle(db_name='singularityexpressCommunication')
+            messages_collection = db["messages"]
+            
+            # Find messages where this user is the recipient and status is not 'delivered'
+            undelivered_messages = await database_sync_to_async(list)(
+                messages_collection.find({
+                    "recipient_id": self.user.pk,
+                    "status": {"$ne": "delivered"}
+                }).sort("timestamp", 1)
+            )
+
+            logger.info(f"Found {len(undelivered_messages)} undelivered messages for user {self.user.pk}")
+
+            # Send notifications for undelivered messages
+            for message in undelivered_messages:
+                # Update message status to delivered
+                await database_sync_to_async(messages_collection.update_one)(
+                    {"_id": message["_id"]},
+                    {"$set": {"status": "delivered"}}
+                )
+
+                # Convert ObjectId to string for JSON serialization
+                message["_id"] = str(message["_id"])
+
+                # Send notification to user
+                await self.send_json({
+                    "action": "chat_message_received",
+                    "message": {
+                        **message,
+                        "status": "delivered",
+                        "sender_id": message["sender_id"],
+                        "recipient_id": self.user.pk,
+                        "content": message["content"],
+                        "message_type": message.get("message_type", "text"),
+                        "timestamp": message["timestamp"],
+                        "message_id": message["message_id"]
+                    }
+                })
+
+                logger.info(f"Sent notification for undelivered message {message['message_id']} to user {self.user.pk}")
+
+        except Exception as e:
+            logger.error(f"Error fetching undelivered messages: {e}", exc_info=True)
+
         # Notify others that user is online
         await self.channel_layer.group_send('lobby', {
             'type': 'broadcast.users',
@@ -65,8 +113,6 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
                 'username': self.user.username,
             }
         })
-        
-        await self.accept()
 
     async def disconnect(self, close_code):
         if hasattr(self, "group_name"):
@@ -104,7 +150,7 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
                     "sender_id": self.user.pk,
                     "recipient_id": content.get("recipient_id"),
                     "content": content.get("content"),
-                    "message_type": content.get("message_type", "text"),  # Default to text if not specified
+                    "message_type": content.get("message_type", "text"),
                     "timestamp": content.get("timestamp", datetime.utcnow().isoformat()),
                     "status": "sent",
                     "message_id": f"{content.get('conversation_id')}_{self.user.pk}_{content.get('timestamp', datetime.utcnow().isoformat())}"
@@ -137,14 +183,14 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
                             )
                             logger.info(f"Message status update result: {update_result.modified_count} documents modified")
                             
-                            # Send a single notification to recipient with the message and its status
+                            # Send message to recipient
                             await self.channel_layer.group_send(
                                 f"user_{target_id}",
                                 {
                                     "type": "signal.message",
                                     "action": "chat_message_received",
                                     "message": {**result, "status": "delivered"},
-                                },
+                                }
                             )
                         
                         # Send confirmation to sender
@@ -260,10 +306,20 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
 
     async def broadcast_users(self, event):
         """Handle broadcasts for user status changes."""
-        await self.send_json({
-            'action': event.get('event'),
-            'user': event.get('user'),
-        })
+        try:
+            await self.send_json({
+                'action': event.get('event'),
+                'user': event.get('user'),
+            })
+        except Exception as e:
+            logger.warning(f"Failed to broadcast user status to client: {e}")
+            # If the client is disconnected, remove them from the group
+            if "Disconnected" in str(e):
+                try:
+                    await self.channel_layer.group_discard('lobby', self.channel_name)
+                    logger.info(f"Removed disconnected client from lobby group: {self.channel_name}")
+                except Exception as group_error:
+                    logger.error(f"Error removing client from group: {group_error}")
 
     # ────────────────────── Mongo helpers ──────────────────────────
     @database_sync_to_async

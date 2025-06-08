@@ -12,53 +12,91 @@ export const useNotifications = () => {
 };
 
 export const NotificationProvider = ({ children }) => {
-  // Load notifications from localStorage on initial render
-  const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem('notifications');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [notifications, setNotifications] = useState([]);
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
-  // Derive unreadCount from notifications array instead of separate state
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  // Define addNotification before using it in useEffect
-  const addNotification = useCallback((notification) => {
-    setNotifications(prev => {
-      // Check for duplicate notifications based on type and senderId
-      const isDuplicate = prev.some(n => 
-        n.type === notification.type && 
-        n.senderId === notification.senderId && 
-        // For messages, also check messageId
-        (notification.type === 'message' ? n.messageId === notification.messageId : true) &&
-        // For calls, also check callId
-        (notification.type === 'call' ? n.callId === notification.callId : true) &&
-        // Only consider notifications within the last 5 seconds as duplicates
-        (new Date().getTime() - new Date(n.timestamp).getTime()) < 5000
-      );
-
-      if (isDuplicate) {
-        return prev; // Return existing notifications without adding a duplicate
+  // Load notifications from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedNotifications = localStorage.getItem('notifications');
+      if (savedNotifications) {
+        const parsedNotifications = JSON.parse(savedNotifications);
+        if (isDevelopment) {
+          console.log('Loaded notifications from storage:', parsedNotifications.length);
+        }
+        setNotifications(parsedNotifications);
       }
-
-      // Create a unique notification with guaranteed unique ID
-      const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      
-      const newNotification = {
-        ...notification,
-        timestamp: new Date().toISOString(),
-        read: false,
-        id: uniqueId
-      };
-
-      // Add new notification at the beginning of the array
-      return [newNotification, ...prev].slice(0, 100); // Keep up to 100 notifications
-    });
+    } catch (error) {
+      if (isDevelopment) {
+        console.error('Error loading notifications:', error);
+      }
+      // Clear corrupted data
+      localStorage.removeItem('notifications');
+    }
   }, []);
 
-  // Save notifications to localStorage whenever they change
+  // Save notifications to localStorage when they change
   useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
+    try {
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+      if (isDevelopment) {
+        console.log('Saved notifications to storage:', notifications.length);
+      }
+    } catch (error) {
+      if (isDevelopment) {
+        console.error('Error saving notifications:', error);
+      }
+    }
   }, [notifications]);
+
+  const addNotification = useCallback((notification) => {
+    try {
+      setNotifications(prev => {
+        const newNotifications = [...prev, { ...notification, id: Date.now() }];
+        // Keep only the last 50 notifications
+        return newNotifications.slice(-50);
+      });
+    } catch (error) {
+      if (isDevelopment) {
+        console.error('Error adding notification:', error);
+      }
+    }
+  }, []);
+
+  const removeNotification = useCallback((id) => {
+    try {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    } catch (error) {
+      if (isDevelopment) {
+        console.error('Error removing notification:', error);
+      }
+    }
+  }, []);
+
+  const clearNotifications = useCallback(() => {
+    try {
+      setNotifications([]);
+      localStorage.removeItem('notifications');
+    } catch (error) {
+      if (isDevelopment) {
+        console.error('Error clearing notifications:', error);
+      }
+    }
+  }, []);
+
+  // Track processed message IDs to prevent duplicates
+  const [processedMessageIds] = useState(() => {
+    const saved = localStorage.getItem('processedMessageIds');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  // Derive unreadCount from notifications array
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  // Save processed message IDs to localStorage
+  useEffect(() => {
+    localStorage.setItem('processedMessageIds', JSON.stringify([...processedMessageIds]));
+  }, [processedMessageIds]);
 
   // Check for pending friend requests
   useEffect(() => {
