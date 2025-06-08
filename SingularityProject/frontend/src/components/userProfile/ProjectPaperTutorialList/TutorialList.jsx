@@ -46,7 +46,7 @@ const TutorialList = ({ user }) => {
       title={tutorial.title}
       description={`Created at: ${new Date(tutorial.created_at).toLocaleDateString()}`}
       status="Uploaded"
-      image={fileUrl}  
+      fileUrl={fileUrl}  
     />
   );
 })}

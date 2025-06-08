@@ -224,6 +224,8 @@ export default function UserForm() {
                     className="form-select"
                   >
                     <option value="">Select Title</option>
+                    <option value="None">None</option>
+                    <option value="Student">Student</option>
                     <option value="Bachelor">Bachelor</option>
                     <option value="Master">Master</option>
                     <option value="PhD">PhD</option>

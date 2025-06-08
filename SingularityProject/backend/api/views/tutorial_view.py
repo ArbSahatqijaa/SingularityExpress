@@ -4,11 +4,13 @@ from rest_framework import status
 from django.http import Http404
 from api.serializers.tutorial_serializer import TutorialSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from api.models.tutorial import Tutorial
 
 class TutorialListCreateView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
     
     def get(self, request, format=None):
         tutorials = Tutorial.objects.all()

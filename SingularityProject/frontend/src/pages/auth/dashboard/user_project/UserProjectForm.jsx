@@ -132,18 +132,14 @@ export default function UserProjectForm() {
               </div>
               <div className="mb-4">
                 <label className="form-label">Role</label>
-                <select
+                <textarea
                   name="role"
-                  className="form-select"
+                  rows="3"
+                  required
+                  className="form-control"
                   value={form.role}
                   onChange={handleChange}
-                  required
-                >
-                  <option value="COLLABORATOR">Collaborator</option>
-                  <option value="REVIEWER">Reviewer</option>
-                  <option value="MENTOR">Mentor</option>
-                  <option value="OBSERVER">Observer</option>
-                </select>
+                />
               </div>
               <div className="d-flex gap-2">
                 <button type="submit" className="btn btn-primary" disabled={loading}>

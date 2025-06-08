@@ -147,18 +147,14 @@ export default function UserPaperForm() {
               {/* ─────────────── Role select ─────────────── */}
               <div className="mb-4">
                 <label className="form-label">Role</label>
-                <select
+                <textarea
                   name="role"
-                  className="form-select"
+                  rows="3"
+                  required
+                  className="form-control"
                   value={form.role}
                   onChange={handleChange}
-                  required
-                >
-                  <option value="AUTHOR">Author</option>
-                  <option value="CO_AUTHOR">Co‑Author</option>
-                  <option value="REVIEWER">Reviewer</option>
-                  <option value="VIEWER">Viewer</option>
-                </select>
+                />
               </div>
 
               <div className="d-flex gap-2">

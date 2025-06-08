@@ -1,13 +1,9 @@
 /* src/components/Home.jsx */
 import React, { useState, useEffect } from 'react';
 import ProfileCard            from './ProfileCard';
-import ChatSidebar            from './ChatSidebar';
 import TrendingFeed           from './TrendingFeed';
-import TeamCollaborationFeed  from './TeamCollaborationFeed';
-import Skills                 from './SkillHighlights';
 import CreateProjectPost      from './CreateProject';
 import FriendSuggestionCard   from './FriendList';
-import ProfileDashboard       from './ProfileDashboard';
 import ChatAssistant          from './ChatAssistant';
 import ProjectFilter          from './ProjectFilter';
 import PostsFeed              from './Posts/PostsFeed';
@@ -85,8 +81,6 @@ const Home = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-3 space-y-4">
           <ProfileCard user={me} />
-          <ProfileDashboard />
-          <TeamCollaborationFeed />
         </div>
 
         <div className="lg:col-span-6 space-y-4">
@@ -164,7 +158,7 @@ const Home = () => {
 
           {selectedCategory === 'Tutorial' && (
             <div className="flex flex-col gap-6">
-              <TutorialCard />
+              <TutorialCard meId={me?.user_id} />
             </div>
           )}
         </div>
