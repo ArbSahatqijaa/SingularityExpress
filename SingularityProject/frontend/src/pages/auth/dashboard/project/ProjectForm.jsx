@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams }     from 'react-router-dom';
-import API                             from '../../../../services/api';
+import { useNavigate, useParams } from 'react-router-dom';
+import API from '../../../../services/api';
 
 export default function ProjectForm() {
   const { projectID } = useParams();
-  const navigate      = useNavigate();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    title:       '',
+    title: '',
     description: '',
-    visibility:  'PUBLIC',
-    status:      'ACTIVE',
-    file_path:   null,   // required on create
-    image:       null,   // optional
-    leader:      '',     
+    visibility: 'PUBLIC',
+    status: 'ACTIVE',
+    file_path: null,
+    image: null,
+    leader: '',
+    role_details: '',
+    accepting_applications: false,
   });
-  const [me,      setMe]      = useState(null);
-  const [users,   setUsers]   = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
 
-  // Fetch current user + users
+  const [me, setMe] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
   useEffect(() => {
     API.get('/whoami/')
       .then(({ data }) => {
@@ -37,7 +39,6 @@ export default function ProjectForm() {
       });
   }, [projectID]);
 
-  // Load existing project on edit
   useEffect(() => {
     if (!projectID) return;
     setLoading(true);
@@ -45,25 +46,26 @@ export default function ProjectForm() {
     API.get(`/projects/${projectID}/`)
       .then(({ data }) => {
         setForm({
-          title:       data.title,
+          title: data.title,
           description: data.description,
-          visibility:  data.visibility,
-          status:      data.status,
-          file_path:   null,         // leave blank so we don’t overwrite
-          image:       null,         // same for image
-          leader:      data.leader,
+          visibility: data.visibility,
+          status: data.status,
+          file_path: null,
+          image: null,
+          leader: data.leader,
+          role_details: data.role_details || '',
+          accepting_applications: data.accepting_applications || false,
         });
       })
       .catch(() => setError('Failed to load project'))
       .finally(() => setLoading(false));
   }, [projectID]);
 
-  // Handle inputs, including both files
   const handleChange = e => {
     const { name, value, type, files } = e.target;
     setForm(f => ({
       ...f,
-      [name]: type === 'file' ? files[0] : value
+      [name]: type === 'file' ? files[0] : value,
     }));
   };
 
@@ -80,31 +82,27 @@ export default function ProjectForm() {
     setLoading(true);
 
     try {
-      // Base payload
       const payload = {
-        title:       form.title,
+        title: form.title,
         description: form.description,
-        visibility:  form.visibility,
-        status:      form.status,
-        leader:      parseInt(form.leader),
+        visibility: form.visibility,
+        status: form.status,
+        leader: parseInt(form.leader),
+        role_details: form.role_details,
+        accepting_applications: form.accepting_applications,
       };
 
-      // Always use FormData on create (file_path required),
-      // or if either file is present on edit
       const useFD = !projectID || form.file_path || form.image;
       if (useFD) {
         const fd = new FormData();
-        // append non-files
         Object.entries(payload).forEach(([k, v]) => {
           if (v != null) fd.append(k, v);
         });
-        // append files if they exist
         fd.append('file_path', form.file_path);
         if (form.image) {
           fd.append('image', form.image);
         }
 
-        // choose method
         if (projectID) {
           await API.patch(
             `/projects/${projectID}/`,
@@ -118,9 +116,7 @@ export default function ProjectForm() {
             { headers: { 'Content-Type': 'multipart/form-data' } }
           );
         }
-
       } else {
-        // simple JSON PATCH
         await API.patch(`/projects/${projectID}/`, payload);
       }
 
@@ -223,7 +219,7 @@ export default function ProjectForm() {
                 )}
               </div>
 
-              {/* Project File (required on create) */}
+              {/* Project File */}
               <div className="mb-4">
                 <label className="form-label">Project File</label>
                 <input
@@ -244,6 +240,35 @@ export default function ProjectForm() {
                   className="form-control"
                   onChange={handleChange}
                 />
+              </div>
+
+              {/* Role Details */}
+              <div className="mb-4">
+                <label className="form-label">Role Details</label>
+                <textarea
+                  name="role_details"
+                  rows="3"
+                  className="form-control"
+                  value={form.role_details}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Accepting Applications */}
+              <div className="form-check mb-4">
+                <input
+                  name="accepting_applications"
+                  type="checkbox"
+                  className="form-check-input"
+                  id="accepting_applications"
+                  checked={form.accepting_applications}
+                  onChange={e =>
+                    setForm(f => ({ ...f, accepting_applications: e.target.checked }))
+                  }
+                />
+                <label className="form-check-label" htmlFor="accepting_applications">
+                  Accepting Applications
+                </label>
               </div>
 
               {/* Actions */}

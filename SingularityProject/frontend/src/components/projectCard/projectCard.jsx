@@ -14,6 +14,7 @@ export default function ProjectCard({
   role_details: roleDetails,
   accepting_applications: accepting,
   status,
+  visibility,
   image,
   leaderName,
   project_id,
@@ -106,9 +107,17 @@ export default function ProjectCard({
               </button>
             )}
             {fileUrl && (
-              <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition font-medium">
-                <FaFileAlt className="text-base" /> Project File
-              </a>
+              (visibility?.toUpperCase() === 'PUBLIC' ||
+               (visibility?.toUpperCase() === 'PRIVATE' && (isMember || isOwner))) && (
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium"
+                >
+                  <FaFileAlt/>View PDF
+                </a>
+              )
             )}
             <button onClick={() => setShowReviews(true)} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium">
               <FaCommentAlt className="text-base" /> Reviews

@@ -59,23 +59,30 @@ export default function ReviewForm() {
   };
 
   const handleSubmit = async e => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      const payload = { ...form };
-      if (ReviewID) {
-        await API.patch(`/reviews/${ReviewID}/`, payload);
-      } else {
-        await API.post('/reviews/', payload);
-      }
-      navigate('/dashboard/reviews');
-    } catch (err) {
-      setError('Save failed: ' + JSON.stringify(err.response?.data));
-    } finally {
-      setLoading(false);
+  e.preventDefault();
+  setError('');
+
+  // Custom validation
+  if (!form.project_reviewed && !form.paper_reviewed) {
+    setError('Please select at least one: either a project or a paper to review.');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const payload = { ...form };
+    if (ReviewID) {
+      await API.patch(`/reviews/${ReviewID}/`, payload);
+    } else {
+      await API.post('/reviews/', payload);
     }
-  };
+    navigate('/dashboard/reviews');
+  } catch (err) {
+    setError('Save failed: ' + JSON.stringify(err.response?.data));
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (loading && ReviewID) return <div className="text-center py-5">Loading…</div>;
 
@@ -121,7 +128,6 @@ export default function ReviewForm() {
                     className="form-control"
                     value={form.project_reviewed}
                     onChange={handleChange}
-                    required
                   >
                     <option value="">-- Select Project --</option>
                     {projects.map(project => (
@@ -138,7 +144,6 @@ export default function ReviewForm() {
                     className="form-control"
                     value={form.paper_reviewed}
                     onChange={handleChange}
-                    required
                   >
                     <option value="">-- Select Paper --</option>
                     {papers.map(paper => (

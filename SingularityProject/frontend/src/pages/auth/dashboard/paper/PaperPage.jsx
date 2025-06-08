@@ -45,38 +45,42 @@ export default function PaperPage() {
         <div className="table-responsive">
           <table className="table table-bordered table-striped">
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Visibility</th>
-                <th>File Path</th>
-                <th>created_by</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+  <tr>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Status</th>
+    <th>Visibility</th>
+    <th>Accepting Applications</th> 
+    <th>Role Details</th>           
+    <th>File Path</th>
+    <th>Created By</th>
+    <th>Actions</th>
+  </tr>
+</thead>
             <tbody>
-              {papers.map(p => (
-                <tr key={p.paper_id}>
-                  <td>{p.paper_id}</td>
-                  <td>{p.title}</td>
-                  <td>{p.description}</td>
-                  <td>{p.status}</td>
-                  <td>{p.visibility}</td>
-                  <td>{p.file_path}</td>
-                  <td>{p.created_by}</td>
-                  <td>
-                    <button className="btn btn-warning btn-sm me-1" onClick={() => handleEdit(p.paper_id)}>
-                      Edit
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.paper_id)}>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {papers.map(p => (
+    <tr key={p.paper_id}>
+      <td>{p.paper_id}</td>
+      <td>{p.title}</td>
+      <td>{p.description}</td>
+      <td>{p.status}</td>
+      <td>{p.visibility}</td>
+      <td>{p.accepting_applications ? 'Yes' : 'No'}</td> 
+      <td>{p.role_details || '-'}</td>                    
+      <td>{p.file_path}</td>
+      <td>{p.created_by}</td>
+      <td>
+        <button className="btn btn-warning btn-sm me-1" onClick={() => handleEdit(p.paper_id)}>
+          Edit
+        </button>
+        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.paper_id)}>
+          Delete
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
       ) : (

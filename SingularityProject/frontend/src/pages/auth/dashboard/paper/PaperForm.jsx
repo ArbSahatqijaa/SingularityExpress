@@ -7,11 +7,13 @@ export default function PaperForm() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    title:       '',
+    title: '',
     description: '',
-    visibility:  'PUBLIC',
-    status:      'ACTIVE',
-    file_path:   null,
+    visibility: 'PUBLIC',
+    status: 'ACTIVE',
+    file_path: null,
+    accepting_applications: true,
+    role_details: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,11 +24,13 @@ export default function PaperForm() {
     API.get(`/papers/${paperId}/`)
       .then(({ data }) => {
         setForm({
-          title:       data.title,
+          title: data.title,
           description: data.description,
-          visibility:  data.visibility,
-          status:      data.status,
-          file_path:   null,
+          visibility: data.visibility,
+          status: data.status,
+          file_path: null,
+          accepting_applications: data.accepting_applications,
+          role_details: data.role_details,
         });
       })
       .catch(() => setError('Failed to load paper'))
@@ -37,8 +41,7 @@ export default function PaperForm() {
     const { name, value, type, files } = e.target;
     setForm(f => ({
       ...f,
-      [name]:
-        type === 'file' ? files[0] : value
+      [name]: type === 'file' ? files[0] : value,
     }));
   };
 
@@ -54,11 +57,11 @@ export default function PaperForm() {
       });
       if (paperId) {
         await API.patch(`/papers/${paperId}/`, fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
         await API.post('/papers/', fd, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
       navigate('/dashboard/papers');
@@ -131,6 +134,35 @@ export default function PaperForm() {
                     <option value="COMPLETED">Completed</option>
                   </select>
                 </div>
+              </div>
+
+              <h5 className="text-secondary mb-3 border-top pt-4">Application & Role Details</h5>
+
+              <div className="form-check form-switch mb-4">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  name="accepting_applications"
+                  checked={form.accepting_applications}
+                  onChange={e =>
+                    setForm(f => ({ ...f, accepting_applications: e.target.checked }))
+                  }
+                  id="acceptingApplicationsSwitch"
+                />
+                <label className="form-check-label" htmlFor="acceptingApplicationsSwitch">
+                  Accepting Applications
+                </label>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label">Role Details</label>
+                <textarea
+                  name="role_details"
+                  className="form-control"
+                  rows="3"
+                  value={form.role_details}
+                  onChange={handleChange}
+                />
               </div>
 
               <h5 className="text-secondary mb-3 border-top pt-4">File Upload</h5>

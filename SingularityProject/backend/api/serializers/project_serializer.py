@@ -5,11 +5,16 @@ from django.contrib.auth import get_user_model
 from api.models.user_project import UserProject
 
 User = get_user_model()
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_id', 'username']  
 
 class ProjectSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(
         default=CurrentUserDefault()
     )
+    created_by_info = UserSerializer(source='created_by', read_only=True)
 
     leader = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
@@ -45,6 +50,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'role_details',
             'worker_count',
             'created_by',
+            'created_by_info',
             'created_at',
             'updated_at'
         ]

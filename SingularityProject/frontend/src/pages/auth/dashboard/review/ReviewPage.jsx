@@ -86,7 +86,7 @@ export default function ReviewPage() {
           {Review.map(u => (
             <tr key={u.review_id}>
               <td>{u.review_id}</td>
-              <td>{u.reviewer}</td>
+              <td>{u.reviewer.username}</td>
               <td>{u.paper_reviewed}</td>
               <td>{u.project_reviewed}</td>
               <td>{u.rating}</td>

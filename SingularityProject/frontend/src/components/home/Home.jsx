@@ -144,6 +144,7 @@ const Home = () => {
                       status={pap.status}
                       authors={pap.authors || []}
                       file_path={pdfUrl}
+                      visibility={pap.visibility}
                       created_by={typeof pap.created_by === 'object' ? pap.created_by.user_id : pap.created_by}
                       my_role={pap.my_role}
                       meId={me?.user_id}

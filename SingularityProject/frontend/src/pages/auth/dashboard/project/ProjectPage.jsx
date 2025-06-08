@@ -70,19 +70,21 @@ export default function ProjectsPage() {
         <div className="table-responsive">
           <table className="table table-hover table-bordered align-middle shadow-sm">
             <thead className="table-dark">
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Visibility</th>
-                <th>Status</th>
-                <th>File</th>
-                <th>Image</th>
-                <th>Leader</th>
-                <th>Created By</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+  <tr>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Visibility</th>
+    <th>Status</th>
+    <th>Accepting Applications</th> {/* ✅ NEW */}
+    <th>Role Details</th>            {/* ✅ NEW */}
+    <th>File</th>
+    <th>Image</th>
+    <th>Leader</th>
+    <th>Created By</th>
+    <th>Actions</th>
+  </tr>
+</thead>
             <tbody>
               {projects.map(p => {
                 // build URLs if needed
@@ -100,70 +102,71 @@ export default function ProjectsPage() {
 
                 return (
                   <tr key={p.project_id}>
-                    <td>{p.project_id}</td>
-                    <td>{p.title}</td>
-                    <td>{p.description}</td>
-                    <td>{p.visibility}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          p.status === 'ACTIVE' ? 'bg-success' : 'bg-secondary'
-                        }`}
-                      >
-                        {p.status}
-                      </span>
-                    </td>
-                    <td>
-                    {fileUrl
-                    ? (
-                    <a
-                        href={fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                    Download
-                    </a>
-                    )
-                    : (
-                    <span className="text-muted">–</span>
-                     )
-                    }
-                    </td>
-                    <td>
-                      {imgUrl ? (
-                        <img
-                          src={imgUrl}
-                          alt={p.title}
-                          className="rounded"
-                          style={{ width: 60, height: 60, objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <span className="text-muted">–</span>
-                      )}
-                    </td>
-                    <td>{p.leader}</td>
-                    <td>{p.created_by}</td>
-                    <td>
-                      {canManage(p) ? (
-                        <>
-                          <button
-                            className="btn btn-sm btn-outline-warning me-1"
-                            onClick={() => handleEdit(p.project_id)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDelete(p.project_id)}
-                          >
-                            Delete
-                          </button>
-                        </>
-                      ) : (
-                        <span className="text-muted">–</span>
-                      )}
-                    </td>
-                  </tr>
+  <td>{p.project_id}</td>
+  <td>{p.title}</td>
+  <td>{p.description}</td>
+  <td>{p.visibility}</td>
+  <td>
+    <span
+      className={`badge ${p.status === 'ACTIVE' ? 'bg-success' : 'bg-secondary'}`}
+    >
+      {p.status}
+    </span>
+  </td>
+  <td>
+    {p.accepting_applications ? (
+      <span className="badge bg-success">Yes</span>
+    ) : (
+      <span className="badge bg-danger">No</span>
+    )}
+  </td>
+  <td style={{ whiteSpace: 'pre-wrap' }}>
+    {p.role_details || <span className="text-muted">–</span>}
+  </td>
+  <td>
+    {fileUrl ? (
+      <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+        Download
+      </a>
+    ) : (
+      <span className="text-muted">–</span>
+    )}
+  </td>
+  <td>
+    {imgUrl ? (
+      <img
+        src={imgUrl}
+        alt={p.title}
+        className="rounded"
+        style={{ width: 60, height: 60, objectFit: 'cover' }}
+      />
+    ) : (
+      <span className="text-muted">–</span>
+    )}
+  </td>
+  <td>{p.leader}</td>
+  <td>{p.created_by_info.username}</td>
+  <td>
+    {canManage(p) ? (
+      <>
+        <button
+          className="btn btn-sm btn-outline-warning me-1"
+          onClick={() => handleEdit(p.project_id)}
+        >
+          Edit
+        </button>
+        <button
+          className="btn btn-sm btn-outline-danger"
+          onClick={() => handleDelete(p.project_id)}
+        >
+          Delete
+        </button>
+      </>
+    ) : (
+      <span className="text-muted">–</span>
+    )}
+  </td>
+</tr>
                 );
               })}
             </tbody>
