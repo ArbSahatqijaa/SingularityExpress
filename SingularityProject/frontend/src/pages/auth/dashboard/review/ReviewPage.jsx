@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout';
 
 export default function ReviewPage() {
-  const [Review, setReview]     = useState([]);
-  const [me, setMe]           = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [me, setMe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
-  const navigate              = useNavigate();
-
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     API.get('/whoami/')
@@ -16,105 +16,105 @@ export default function ReviewPage() {
       .catch(() => setMe(null));
   }, []);
 
-  // fetch all Review
   useEffect(() => {
-    const fetchReview = async () => {
+    const fetchReviews = async () => {
       try {
         const { data } = await API.get('/reviews/');
-        setReview(data);
-        console.log(data);
+        setReviews(data);
       } catch (err) {
-        setError('Failed to load Review');
+        setError('Failed to load reviews');
       } finally {
         setLoading(false);
       }
     };
-    fetchReview();
+    fetchReviews();
   }, []);
 
+  const canManage = target => me?.is_superuser || (!target.is_staff && !target.is_superuser);
 
-  const canManage = target =>
-    me?.is_superuser || (!target.is_staff && !target.is_superuser);
-
-  const handleDelete = async ReviewID => {
-    if (!canManage(Review.find(u => u.review_id === ReviewID))) {
-      return alert("You don't have permission to delete this Review");
+  const handleDelete = async reviewId => {
+    if (!canManage(reviews.find(r => r.review_id === reviewId))) {
+      return alert("You don't have permission to delete this review");
     }
-    if (!window.confirm('Delete this Review?')) return;
-    await API.delete(`/reviews/${ReviewID}/`);
-    setReview(Review.filter(u => u.review_id !== ReviewID));
+    if (!window.confirm('Delete this review?')) return;
+    await API.delete(`/reviews/${reviewId}/`);
+    setReviews(reviews.filter(r => r.review_id !== reviewId));
   };
 
-  const handleEdit = ReviewID => {
-    if (!canManage(Review.find(u => u.review_id === ReviewID))) {
-      return alert("You don't have permission to edit this Review");
+  const handleEdit = reviewId => {
+    if (!canManage(reviews.find(r => r.review_id === reviewId))) {
+      return alert("You don't have permission to edit this review");
     }
-    navigate(`/dashboard/reviews/edit/${ReviewID}`);
+    navigate(`/dashboard/reviews/edit/${reviewId}`);
   };
 
-  if (loading) return <div>Loading Review...</div>;
-  if (error)   return <div className="text-danger">{error}</div>;
+  if (loading) return <div className="text-center py-10 text-gray-500">Loading reviews...</div>;
+  if (error) return <div className="text-center py-10 text-red-600">{error}</div>;
 
   return (
-    <div className="container py-4">
-  <h1 className="mb-4 text-primary">Manage Review</h1>
+    <DashboardLayout>
+      <div className="py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-extrabold text-gray-900">Review Management</h1>
+              <p className="text-sm text-gray-500 mt-1">Manage paper and project reviews</p>
+            </div>
+            <button
+              onClick={() => navigate('/dashboard/reviews/new')}
+              className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-md"
+            >
+              + New Review
+            </button>
+          </div>
 
-  <div className="d-flex justify-content-between align-items-center mb-3">
-    <button
-      className="btn btn-success"
-      onClick={() => navigate('/dashboard/reviews/new')}
-    >
-     Create New Review
-    </button>
-  </div>
-
-  {Review.length > 0 ? (
-    <div className="table-responsive">
-      <table className="table table-hover table-bordered align-middle shadow-sm">
-        <thead className="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Reviewer</th>
-            <th>Paper Reviewed</th>
-            <th>Project Reviewed</th>
-            <th>Rating</th>
-            <th>Comment</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Review.map(u => (
-            <tr key={u.review_id}>
-              <td>{u.review_id}</td>
-              <td>{u.reviewer.username}</td>
-              <td>{u.paper_reviewed}</td>
-              <td>{u.project_reviewed}</td>
-              <td>{u.rating}</td>
-              <td>{u.comment}</td>
-              <td>
-                  <>
-                    <button
-                      className="btn btn-sm btn-outline-warning me-1"
-                      onClick={() => handleEdit(u.review_id)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(u.review_id)}
-                    >
-                      Delete
-                    </button>
-                  </>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  ) : (
-    <p className="text-muted">No Review available</p>
-  )}
-</div>
+          <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm bg-white">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left text-gray-700">
+                <thead className="bg-gray-100 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 font-medium tracking-wide text-gray-600">ID</th>
+                    <th className="px-6 py-4 font-medium tracking-wide text-gray-600">Reviewer</th>
+                    <th className="px-6 py-4 font-medium tracking-wide text-gray-600">Paper</th>
+                    <th className="px-6 py-4 font-medium tracking-wide text-gray-600">Project</th>
+                    <th className="px-6 py-4 font-medium tracking-wide text-gray-600">Rating</th>
+                    <th className="px-6 py-4 font-medium tracking-wide text-gray-600">Comment</th>
+                    <th className="px-6 py-4 text-center font-medium tracking-wide text-gray-600">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {reviews.map(r => (
+                    <tr key={r.review_id} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 font-semibold text-gray-900">{r.review_id}</td>
+                      <td className="px-6 py-4">{r.reviewer?.username}</td>
+                      <td className="px-6 py-4">{r.paper_reviewed}</td>
+                      <td className="px-6 py-4">{r.project_reviewed}</td>
+                      <td className="px-6 py-4">{r.rating}</td>
+                      <td className="px-6 py-4">{r.comment}</td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="inline-flex gap-2">
+                          <button
+                            onClick={() => handleEdit(r.review_id)}
+                            className="px-3 py-1.5 text-xs bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-md shadow-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(r.review_id)}
+                            className="px-3 py-1.5 text-xs bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md shadow-sm"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }

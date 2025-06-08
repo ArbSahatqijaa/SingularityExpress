@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout';
 
 export default function InvitationForm() {
   const { invitationId } = useParams();
@@ -23,18 +24,12 @@ export default function InvitationForm() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Fetch user info and all required data for form
     const fetchInitialData = async () => {
       try {
-        // Fetch current user
         const { data: userData } = await API.get('/whoami/');
         setMe(userData);
-        setForm(f => ({
-          ...f,
-          sender: userData.id, // Set sender to current user by default
-        }));
+        setForm(f => ({ ...f, sender: userData.user_id }));
 
-        // Fetch all users, projects, and papers
         const [usersRes, projectsRes, papersRes] = await Promise.all([
           API.get('/users/'),
           API.get('/projects/'),
@@ -57,21 +52,14 @@ export default function InvitationForm() {
     if (!invitationId) return;
     setLoading(true);
     API.get(`/invitations/${invitationId}/`)
-      .then(({ data }) => {
-        setForm({
-          ...data,
-        });
-      })
+      .then(({ data }) => setForm(data))
       .catch(() => setError('Failed to load invitation'))
       .finally(() => setLoading(false));
   }, [invitationId]);
 
   const handleChange = e => {
     const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: value,
-    });
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async e => {
@@ -79,22 +67,20 @@ export default function InvitationForm() {
     setError('');
     setLoading(true);
 
-    try {
-      // Process form data for submission
-      const updatedForm = {
-        ...form,
-        sender: parseInt(form.sender),
-        receiver: parseInt(form.receiver),
-        project_invitation: form.project_invitation ? parseInt(form.project_invitation) : null,
-        paper_invitation: form.paper_invitation ? parseInt(form.paper_invitation) : null,
-      };
+    const updatedForm = {
+      ...form,
+      sender: parseInt(form.sender),
+      receiver: parseInt(form.receiver),
+      project_invitation: form.project_invitation ? parseInt(form.project_invitation) : null,
+      paper_invitation: form.paper_invitation ? parseInt(form.paper_invitation) : null,
+    };
 
+    try {
       if (invitationId) {
         await API.patch(`/invitations/${invitationId}/`, updatedForm);
       } else {
         await API.post('/invitations/', updatedForm);
       }
-
       navigate('/dashboard/invitations');
     } catch (err) {
       console.error('Submit error:', err.response?.data);
@@ -105,130 +91,123 @@ export default function InvitationForm() {
   };
 
   return (
-    <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
-      <div className="container">
-        <h1 className="mb-4">{invitationId ? 'Edit Invitation' : 'Create Invitation'}</h1>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <h5 className="text-secondary mb-3">Invitation Details</h5>
+    <DashboardLayout>
+      <div className="py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+        <div className="max-w-2xl mx-auto bg-white p-8 shadow-lg rounded-2xl">
+          <h1 className="text-3xl font-bold mb-6 text-gray-900">
+            {invitationId ? 'Edit Invitation' : 'Create Invitation'}
+          </h1>
 
-              <div className="mb-4">
-                <label className="form-label">Sender</label>
-                <select
-                  name="sender"
-                  className="form-select"
-                  value={form.sender}
-                  onChange={handleChange}
-                  required
-                  disabled={invitationId !== undefined}
-                >
-                  <option value="">Select a sender</option>
-                  {users.map(user => (
-                    <option key={user.user_id} value={user.user_id}>
-                      {user.username}
-                    </option>
-                  ))}
-                </select>
-                {invitationId && <p className="text-muted small mt-1">Sender cannot be changed for existing invitations</p>}
-              </div>
+          {error && <div className="mb-4 text-red-600 font-medium">{error}</div>}
 
-              <div className="mb-4">
-                <label className="form-label">Receiver</label>
-                <select
-                  name="receiver"
-                  className="form-select"
-                  value={form.receiver}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select a receiver</option>
-                  {users.filter(user => user.user_id !== parseInt(form.sender)).map(user => (
-                    <option key={user.user_id} value={user.user_id}>
-                      {user.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Sender</label>
+              <select
+                name="sender"
+                className="w-full border-gray-300 rounded-md shadow-sm"
+                value={form.sender}
+                onChange={handleChange}
+                disabled={invitationId !== undefined}
+              >
+                <option value="">Select sender</option>
+                {users.map(user => (
+                  <option key={user.user_id} value={user.user_id}>{user.username}</option>
+                ))}
+              </select>
+              {invitationId && <p className="text-xs text-gray-400 mt-1">Sender cannot be changed.</p>}
+            </div>
 
-              <div className="mb-4">
-                <label className="form-label">Project (Optional)</label>
-                <select
-                  name="project_invitation"
-                  className="form-select"
-                  value={form.project_invitation}
-                  onChange={handleChange}
-                >
-                  <option value="">No Project</option>
-                  {projects.map(project => (
-                    <option key={project.project_id} value={project.project_id}>
-                      {project.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Receiver</label>
+              <select
+                name="receiver"
+                className="w-full border-gray-300 rounded-md shadow-sm"
+                value={form.receiver}
+                onChange={handleChange}
+              >
+                <option value="">Select receiver</option>
+                {users.filter(u => u.user_id !== parseInt(form.sender)).map(user => (
+                  <option key={user.user_id} value={user.user_id}>{user.username}</option>
+                ))}
+              </select>
+            </div>
 
-              <div className="mb-4">
-                <label className="form-label">Paper (Optional)</label>
-                <select
-                  name="paper_invitation"
-                  className="form-select"
-                  value={form.paper_invitation}
-                  onChange={handleChange}
-                >
-                  <option value="">No Paper</option>
-                  {papers.map(paper => (
-                    <option key={paper.paper_id} value={paper.paper_id}>
-                      {paper.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Project (Optional)</label>
+              <select
+                name="project_invitation"
+                className="w-full border-gray-300 rounded-md shadow-sm"
+                value={form.project_invitation}
+                onChange={handleChange}
+              >
+                <option value="">No Project</option>
+                {projects.map(project => (
+                  <option key={project.project_id} value={project.project_id}>{project.title}</option>
+                ))}
+              </select>
+            </div>
 
-              <div className="mb-4">
-                <label className="form-label">Status</label>
-                <select
-                  name="status"
-                  className="form-select"
-                  value={form.status}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="PENDING">Pending</option>
-                  <option value="ACCEPTED">Accepted</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Paper (Optional)</label>
+              <select
+                name="paper_invitation"
+                className="w-full border-gray-300 rounded-md shadow-sm"
+                value={form.paper_invitation}
+                onChange={handleChange}
+              >
+                <option value="">No Paper</option>
+                {papers.map(paper => (
+                  <option key={paper.paper_id} value={paper.paper_id}>{paper.title}</option>
+                ))}
+              </select>
+            </div>
 
-              <div className="mb-4">
-                <label className="form-label">Message</label>
-                <textarea
-                  name="message"
-                  className="form-control"
-                  value={form.message}
-                  onChange={handleChange}
-                  rows="3"
-                  placeholder="Optional message for the invitation"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                name="status"
+                className="w-full border-gray-300 rounded-md shadow-sm"
+                value={form.status}
+                onChange={handleChange}
+              >
+                <option value="PENDING">Pending</option>
+                <option value="ACCEPTED">Accepted</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
 
-              <div className="d-flex gap-2">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {invitationId ? 'Save Changes' : 'Create Invitation'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => navigate('/dashboard/invitations')}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+              <textarea
+                name="message"
+                className="w-full border-gray-300 rounded-md shadow-sm"
+                rows="3"
+                value={form.message}
+                onChange={handleChange}
+                placeholder="Optional message for the invitation"
+              ></textarea>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex items-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md shadow-sm"
+              >
+                {invitationId ? 'Save Changes' : 'Create Invitation'}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/invitations')}
+                className="inline-flex items-center px-5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
-} 
+}

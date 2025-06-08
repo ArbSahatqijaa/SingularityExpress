@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../../../../services/api';
+import DashboardLayout from '../DashboardLayout';
 
 export default function ProjectForm() {
   const { projectID } = useParams();
@@ -70,11 +71,7 @@ export default function ProjectForm() {
   };
 
   const canReassignLeader = () =>
-    me && (
-      me.is_superuser ||
-      me.is_staff ||
-      (projectID && me.user_id === parseInt(form.leader))
-    );
+    me && (me.is_superuser || me.is_staff || (projectID && me.user_id === parseInt(form.leader)));
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -99,22 +96,16 @@ export default function ProjectForm() {
           if (v != null) fd.append(k, v);
         });
         fd.append('file_path', form.file_path);
-        if (form.image) {
-          fd.append('image', form.image);
-        }
+        if (form.image) fd.append('image', form.image);
 
         if (projectID) {
-          await API.patch(
-            `/projects/${projectID}/`,
-            fd,
-            { headers: { 'Content-Type': 'multipart/form-data' } }
-          );
+          await API.patch(`/projects/${projectID}/`, fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
         } else {
-          await API.post(
-            '/projects/',
-            fd,
-            { headers: { 'Content-Type': 'multipart/form-data' } }
-          );
+          await API.post('/projects/', fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
         }
       } else {
         await API.patch(`/projects/${projectID}/`, payload);
@@ -129,170 +120,164 @@ export default function ProjectForm() {
     }
   };
 
-  if (loading && projectID) {
-    return <div className="text-center py-5">Loading…</div>;
-  }
+  if (loading && projectID) return <div className="text-center py-10 text-gray-500">Loading…</div>;
 
   return (
-    <div className="py-4" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
-      <div className="container">
-        <h1 className="mb-4">{projectID ? 'Edit Project' : 'New Project'}</h1>
-        {error && <div className="alert alert-danger">{error}</div>}
-        <div className="card shadow-sm">
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
+    <DashboardLayout>
+      <div className="py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+        <div className="max-w-2xl mx-auto bg-white shadow rounded-2xl p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {projectID ? 'Edit Project' : 'New Project'}
+          </h1>
+          <p className="text-sm text-gray-500 mb-6">
+            {projectID ? 'Update project details and files.' : 'Create and configure a new project.'}
+          </p>
 
-              {/* Title & Description */}
-              <div className="mb-3">
-                <label className="form-label">Project Name</label>
-                <input
-                  name="title"
-                  type="text"
-                  required
-                  className="form-control"
-                  value={form.title}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="mb-4">
-                <label className="form-label">Description</label>
-                <textarea
-                  name="description"
-                  rows="3"
-                  required
-                  className="form-control"
-                  value={form.description}
-                  onChange={handleChange}
-                />
-              </div>
+          {error && <div className="text-red-600 text-sm mb-4">{error}</div>}
 
-              {/* Visibility & Status */}
-              <div className="row mb-4">
-                <div className="col">
-                  <label className="form-label">Visibility</label>
-                  <select
-                    name="visibility"
-                    className="form-select"
-                    value={form.visibility}
-                    onChange={handleChange}
-                  >
-                    <option value="PUBLIC">Public</option>
-                    <option value="PRIVATE">Private</option>
-                  </select>
-                </div>
-                <div className="col">
-                  <label className="form-label">Status</label>
-                  <select
-                    name="status"
-                    className="form-select"
-                    value={form.status}
-                    onChange={handleChange}
-                  >
-                    <option value="ACTIVE">Active</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
-                </div>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Project Title</label>
+              <input
+                name="title"
+                type="text"
+                required
+                className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                value={form.title}
+                onChange={handleChange}
+              />
+            </div>
 
-              {/* Leader */}
-              <div className="mb-4">
-                <label className="form-label">Leader</label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                name="description"
+                rows="3"
+                required
+                className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                value={form.description}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
                 <select
-                  name="leader"
-                  className="form-select"
-                  value={form.leader}
+                  name="visibility"
+                  className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                  value={form.visibility}
                   onChange={handleChange}
-                  disabled={!canReassignLeader()}
-                  required
                 >
-                  <option value="">Select leader</option>
-                  {users.map(u => (
-                    <option key={u.user_id} value={u.user_id}>
-                      {u.username}
-                    </option>
-                  ))}
+                  <option value="PUBLIC">Public</option>
+                  <option value="PRIVATE">Private</option>
                 </select>
-                {!canReassignLeader() && (
-                  <div className="form-text text-muted">
-                    Only the current leader, staff or superuser can reassign.
-                  </div>
-                )}
               </div>
-
-              {/* Project File */}
-              <div className="mb-4">
-                <label className="form-label">Project File</label>
-                <input
-                  name="file_path"
-                  type="file"
-                  className="form-control"
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  name="status"
+                  className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                  value={form.status}
                   onChange={handleChange}
-                  required={!projectID}
-                />
-              </div>
-
-              {/* Optional Image */}
-              <div className="mb-4">
-                <label className="form-label">Cover Image (optional)</label>
-                <input
-                  name="image"
-                  type="file"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-
-              {/* Role Details */}
-              <div className="mb-4">
-                <label className="form-label">Role Details</label>
-                <textarea
-                  name="role_details"
-                  rows="3"
-                  className="form-control"
-                  value={form.role_details}
-                  onChange={handleChange}
-                />
-              </div>
-
-              {/* Accepting Applications */}
-              <div className="form-check mb-4">
-                <input
-                  name="accepting_applications"
-                  type="checkbox"
-                  className="form-check-input"
-                  id="accepting_applications"
-                  checked={form.accepting_applications}
-                  onChange={e =>
-                    setForm(f => ({ ...f, accepting_applications: e.target.checked }))
-                  }
-                />
-                <label className="form-check-label" htmlFor="accepting_applications">
-                  Accepting Applications
-                </label>
-              </div>
-
-              {/* Actions */}
-              <div className="d-flex gap-2">
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={loading}
                 >
-                  {projectID ? 'Save Changes' : 'Create Project'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => navigate('/dashboard/projects')}
-                >
-                  Cancel
-                </button>
+                  <option value="ACTIVE">Active</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
               </div>
+            </div>
 
-            </form>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Leader</label>
+              <select
+                name="leader"
+                className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                value={form.leader}
+                onChange={handleChange}
+                disabled={!canReassignLeader()}
+                required
+              >
+                <option value="">Select leader</option>
+                {users.map(u => (
+                  <option key={u.user_id} value={u.user_id}>
+                    {u.username}
+                  </option>
+                ))}
+              </select>
+              {!canReassignLeader() && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Only the current leader, staff or superuser can reassign.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Project File</label>
+              <input
+                name="file_path"
+                type="file"
+                className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                onChange={handleChange}
+                required={!projectID}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cover Image (optional)</label>
+              <input
+                name="image"
+                type="file"
+                className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role Details</label>
+              <textarea
+                name="role_details"
+                rows="3"
+                className="w-full rounded-lg border-gray-300 shadow-sm text-sm"
+                value={form.role_details}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                name="accepting_applications"
+                type="checkbox"
+                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                id="accepting_applications"
+                checked={form.accepting_applications}
+                onChange={e =>
+                  setForm(f => ({ ...f, accepting_applications: e.target.checked }))
+                }
+              />
+              <label className="text-sm text-gray-700" htmlFor="accepting_applications">
+                Accepting Applications
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm"
+                disabled={loading}
+              >
+                {projectID ? 'Save Changes' : 'Create Project'}
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-sm font-semibold rounded-lg shadow-sm"
+                onClick={() => navigate('/dashboard/projects')}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
