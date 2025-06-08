@@ -24,7 +24,7 @@ import ProjectCard            from '../projectCard/projectCard';
 import API from '../../services/api';
 
 const Home = () => {
-  /* Default to “Project” (or change to “Posts” if you prefer) */
+  /* Default to "Project" (or change to "Posts" if you prefer) */
   const [selectedCategory, setSelectedCategory] = useState('Project');
 
   const [projects,       setProjects]       = useState([]);
@@ -67,7 +67,7 @@ const Home = () => {
   /* FETCH list whenever category changes (skip Posts & skip Tutorials here) */
   useEffect(() => {
     if (selectedCategory === 'Posts' || selectedCategory === 'Tutorial') {
-      // If “Posts” or “Tutorial” is selected, do not run this legacy fetch
+      // If "Posts" or "Tutorial" is selected, do not run this legacy fetch
       setLoading(false);
       setError('');
       return;
@@ -212,7 +212,6 @@ const Home = () => {
       </div>
 
       {/* floating chat */}
-      <div className="hidden md:block"><ChatSidebar /></div>
       <div className="fixed bottom-6 left-6 z-50"><ChatAssistant /></div>
     </div>
   );

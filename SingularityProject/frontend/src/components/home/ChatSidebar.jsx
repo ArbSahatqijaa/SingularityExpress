@@ -30,6 +30,7 @@ const ChatSidebar = () => {
   const [messageStatus, setMessageStatus] = useState({});
   const [isTyping, setIsTyping] = useState({});
   const [chatNotifications, setChatNotifications] = useState({});
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
   
   // State for calls
   const [inCall, setInCall] = useState(false);
@@ -148,6 +149,16 @@ const ChatSidebar = () => {
   // Handle incoming WebSocket messages
   const handleWebSocketMessage = (data) => {
     switch (data.action) {
+      case 'user_online':
+        setOnlineUsers(prev => new Set([...prev, data.user.user_id]));
+        break;
+      case 'user_offline':
+        setOnlineUsers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(data.user.user_id);
+          return newSet;
+        });
+        break;
       case 'chat_message_received':
         handleIncomingMessage(data);
         break;
@@ -726,7 +737,7 @@ const ChatSidebar = () => {
                 >
                   <div className="flex items-center">
                     <div className={`w-2 h-2 rounded-full mr-2 ${
-                      user.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
+                      onlineUsers.has(user.user_id) ? 'bg-green-500' : 'bg-gray-400'
                     }`} />
                     <span className="font-medium">{user.username}</span>
                   </div>
@@ -951,24 +962,24 @@ const ChatSidebar = () => {
       {/* Incoming call modal */}
       {incomingOffer && !inCall && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 text-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md text-center">
             <h3 className="text-xl font-semibold mb-4">
               Incoming call from {users.find(u => u.user_id === remoteUser)?.username || 'User'}
             </h3>
             <div className="flex justify-center gap-4">
               <button
                 onClick={acceptCall}
-                className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
+                className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 flex items-center gap-2"
               >
-                Accept
+                <FaPhone /> Accept
               </button>
               <button
                 onClick={declineCall}
-                className="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600"
+                className="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-600 flex items-center gap-2"
               >
-                Decline
+                <FaTimes /> Decline
               </button>
-                  </div>
+            </div>
           </div>
         </div>
       )}

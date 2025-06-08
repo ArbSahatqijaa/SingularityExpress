@@ -214,3 +214,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # OpenAI API Key
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'noname.stemeet@gmail.com'
+EMAIL_HOST_PASSWORD = 'xjwo wwmw rddy bfiw'  # Gmail App Password
+DEFAULT_FROM_EMAIL = 'noname.stemeet@gmail.com'
+EMAIL_TIMEOUT = 30

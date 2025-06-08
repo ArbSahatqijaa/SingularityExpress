@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .views.auth import WhoAmI
-from .views.user_view import UserDetailView, UserListCreateView
+from .views.user_view import UserDetailView, UserListCreateView, PasswordResetView
 from .views.friendship_view import FriendshipListCreateView, FriendshipDetailView, FriendshipStatusView, PendingFriendRequestsView
 from .views.user_project_view import UserProjectDetailView, UserProjectListCreateView
 from .views.user_paper_view import UserPaperListCreateView, UserPaperDetailView
@@ -30,6 +30,9 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     #fetches the logged-in user
     path('whoami/', WhoAmI.as_view(), name='whoami'),
+
+    # Password Reset URLs
+    path('password-reset/', PasswordResetView.as_view(), name='password-reset'),
 
     # User URLs
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
