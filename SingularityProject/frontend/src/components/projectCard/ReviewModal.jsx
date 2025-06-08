@@ -1,5 +1,7 @@
+// src/components/projectCard/ReviewModal.jsx
 import React, { useState, useEffect } from 'react';
 import API from '../../services/api';
+import { Star, Loader2 } from 'lucide-react';
 
 export default function ReviewModal({ projectId, onClose, onSuccess }) {
   const [rating, setRating] = useState(1.0);
@@ -9,7 +11,6 @@ export default function ReviewModal({ projectId, onClose, onSuccess }) {
   const [reviews, setReviews] = useState([]);
   const [fetchingReviews, setFetchingReviews] = useState(false);
 
-  // Fetch all reviews for the current project
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -28,7 +29,6 @@ export default function ReviewModal({ projectId, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (rating < 1 || rating > 5) {
       setError("Rating must be between 1 and 5.");
       return;
@@ -37,15 +37,13 @@ export default function ReviewModal({ projectId, onClose, onSuccess }) {
     try {
       setLoading(true);
       setError(null);
-
       const response = await API.post('/reviews/', {
         rating,
         comment,
         project_reviewed: projectId,
       });
-
       onSuccess?.(response.data);
-      setReviews(prev => [response.data, ...prev]); // Add new review to top
+      setReviews(prev => [response.data, ...prev]);
       setRating(1.0);
       setComment('');
     } catch (err) {
@@ -57,73 +55,82 @@ export default function ReviewModal({ projectId, onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 p-6 sm:p-12 overflow-auto">
-      <button onClick={onClose} className="text-gray-500 mb-4">← Back</button>
-      <div className="modal">
-        <h2 className="text-2xl font-bold mb-6">Submit a Review</h2>
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
-          <label>
-            Rating (1.0 - 5.0):
+    <div className="fixed inset-0 bg-gray-50 z-50 p-6 sm:p-12 overflow-auto flex justify-center items-start sm:items-center">
+      <div className="bg-white shadow-xl rounded-2xl max-w-2xl w-full p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-800">Submit a Review</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-sm">✕ Close</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Rating (1.0 - 5.0)</label>
             <input
-              className="w-full border p-2 rounded"
               type="number"
               step="0.1"
               min="1"
               max="5"
               value={rating}
               onChange={(e) => setRating(parseFloat(e.target.value))}
-              required
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
-          </label>
-          <label>
-            Comment (optional):
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Comment (optional)</label>
             <textarea
-              className="w-full border p-2 rounded"
+              rows={4}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Share your thoughts about the project..."
               maxLength={255}
-              placeholder="Your feedback here..."
             />
-          </label>
-          {error && <p className="text-red-600">{error}</p>}
-          <div className="space-y-4">
+          </div>
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
+          <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="bg-red-600 text-white px-4 py-2 rounded disabled:opacity-60"
+              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-60"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
             >
-              {loading ? 'Submitting...' : 'Submit'}
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loading ? 'Submitting…' : 'Submit Review'}
             </button>
           </div>
         </form>
 
-        {/* Display Reviews */}
-        <div className="mt-10">
-          <h3 className="text-xl font-semibold mb-4">All Reviews</h3>
+        {/* Reviews Section */}
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800 mt-8 mb-4">Project Reviews</h3>
           {fetchingReviews ? (
-            <p>Loading reviews...</p>
+            <p>Loading reviews…</p>
           ) : reviews.length === 0 ? (
             <p className="text-gray-600">No reviews yet for this project.</p>
           ) : (
             <div className="space-y-4">
-              {reviews.map((review) => (
+              {reviews.map(review => (
                 <div
                   key={review.review_id}
-                  className="border p-4 rounded shadow-sm bg-gray-50"
+                  className="border border-gray-200 bg-gray-50 rounded-xl p-4 shadow-sm"
                 >
-                  <p className="font-medium">Rating: {review.rating.toFixed(1)} / 5</p>
-                  {review.comment && <p className="text-gray-700 mt-1">{review.comment}</p>}
-                  <p className="text-sm text-gray-500 mt-1">
-                    by {review.reviewer?.username || 'Anonymous'} on{' '}
-                    {new Date(review.created_at).toLocaleDateString()}
+                  <div className="flex items-center gap-2 text-yellow-500 font-semibold">
+                    <Star className="w-4 h-4" />
+                    <span>{review.rating.toFixed(1)} / 5</span>
+                  </div>
+                  {review.comment && <p className="text-gray-700 mt-2">{review.comment}</p>}
+                  <p className="text-xs text-gray-500 mt-2">
+                    by {review.reviewer?.username || 'Anonymous'} on {new Date(review.created_at).toLocaleDateString()}
                   </p>
                 </div>
               ))}

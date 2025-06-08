@@ -1,6 +1,6 @@
 // src/components/home/Tutorial/Tutorials.jsx
 import React, { useEffect, useState } from 'react';
-import { BookOpen, Download } from 'lucide-react';
+import { BookOpen, Download, Heart, MessageCircle, Save } from 'lucide-react';
 import API from '../../../services/api'; // Axios instance
 
 const TutorialCard = () => {
@@ -25,43 +25,59 @@ const TutorialCard = () => {
   if (loading) return <p>Loading tutorials...</p>;
   if (!tutorials.length) return <p>No tutorials found.</p>;
 
-  // Backend base URL - adjust to your backend address
   const baseURL = 'http://localhost:8000';
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {tutorials.map(({ tutorial_id, title, filePath, created_by }) => {
-        // Fix fileUrl for relative paths
         const fileUrl = filePath && !filePath.startsWith('http') ? baseURL + filePath : filePath;
 
         return (
           <div
             key={tutorial_id}
-            className="bg-white p-4 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200"
+            className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 mb-6 max-w-5xl mx-auto"
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-purple-600" />
-              {title}
-            </h3>
-            {created_by && (
-              <p className="text-gray-600 text-xs mb-3">
-                <span className="font-medium">Created by:</span> {created_by}
-              </p>
-            )}
-            <div className="flex justify-end gap-3">
-              {fileUrl ? (
-                <a
-                  href={fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-1.5 bg-purple-500 text-white text-xs font-medium rounded-md hover:bg-purple-600 transition-colors duration-200"
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  View/Download File
-                </a>
-              ) : (
-                <span className="text-gray-400 text-xs italic">No file available</span>
-              )}
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+                    <BookOpen className="w-6 h-6 text-purple-600" />
+                    {title}
+                  </h3>
+                  {created_by && (
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium text-gray-800">Created by:</span> {created_by}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                {fileUrl ? (
+                  <a
+                    href={fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 rounded bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium"
+                  >
+                    <Download className="w-4 h-4" /> View / Download File
+                  </a>
+                ) : (
+                  <span className="text-gray-400 text-sm italic">No file available</span>
+                )}
+
+                <div className="flex gap-4 text-gray-600 text-sm">
+                  <button className="flex items-center gap-1 hover:text-gray-800">
+                    <Save className="w-4 h-4" /> Save
+                  </button>
+                  <button className="flex items-center gap-1 hover:text-red-500">
+                    <Heart className="w-4 h-4" /> Like
+                  </button>
+                  <button className="flex items-center gap-1 hover:text-gray-800">
+                    <MessageCircle className="w-4 h-4" /> Comment
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         );

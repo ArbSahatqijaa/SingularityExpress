@@ -17,7 +17,6 @@ export default function PostsFeed({ meId }) {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
 
-  /* ---------- initial fetch ---------- */
   useEffect(() => {
     (async () => {
       try {
@@ -41,18 +40,17 @@ export default function PostsFeed({ meId }) {
     })();
   }, []);
 
-  /* ---------- recompute display on query change ---------- */
   useEffect(() => {
     const q = query.trim().toLowerCase();
     if (!q) { setDisplay(posts); return; }
 
-    const words = q.split(/\s+/);              // every word must match
+    const words = q.split(/\s+/);
 
     const score = title => {
       const t = (title || "").toLowerCase();
       if (words.some(w => !t.includes(w))) return Infinity;
-      if (t.startsWith(words[0])) return -1;   // best
-      return t.indexOf(words[0]);              // earlier is better
+      if (t.startsWith(words[0])) return -1;
+      return t.indexOf(words[0]);
     };
 
     setDisplay(
@@ -74,7 +72,6 @@ export default function PostsFeed({ meId }) {
     />
   );
 
-  /* ---------- early states ---------- */
   if (loading) {
     return (
       <Fragment>
@@ -93,16 +90,17 @@ export default function PostsFeed({ meId }) {
     );
   }
 
-  /* ---------- main UI ---------- */
   return (
     <>
       {SearchBox}
       {display.length === 0 ? (
         <p>No posts found.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-6">
           {display.map(item => (
-            <RenderCard key={numId(item)} item={item} meId={meId} />
+            <div key={numId(item)} className="w-full max-w-5xl mx-auto">
+              <RenderCard item={item} meId={meId} />
+            </div>
           ))}
         </div>
       )}
@@ -110,19 +108,15 @@ export default function PostsFeed({ meId }) {
   );
 }
 
-/* ---------- card wrapper ---------- */
 const BadgeFrame = ({ label, color, children }) => (
-  <div>
-    <div className="flex justify-end mb-1">
-      <span className={`px-2 py-0.5 text-xs font-semibold rounded bg-${color}-100 text-${color}-800`}>
-        {label}
-      </span>
+  <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+    <div className="flex justify-between items-center mb-4">
+      <h4 className={`text-sm font-semibold text-${color}-700 bg-${color}-100 px-3 py-1 rounded-full`}>{label}</h4>
     </div>
     {children}
   </div>
 );
 
-/* ---------- per-item renderer ---------- */
 function RenderCard({ item, meId }) {
   const base = API.defaults.baseURL;
 
@@ -150,7 +144,7 @@ function RenderCard({ item, meId }) {
 
     case "paper":
       return (
-        <BadgeFrame label="Paper" color="green">
+        <BadgeFrame label="Research" color="green">
           <ResearchPaperCard
             {...item}
             file_path={item.file_path ? url(item.file_path, base) : null}
@@ -162,23 +156,21 @@ function RenderCard({ item, meId }) {
     case "tutorial":
       return (
         <BadgeFrame label="Tutorial" color="purple">
-          <div className="bg-white p-4 rounded-xl shadow border hover:shadow-lg">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-purple-600">📖</span> {item.title}
-            </h3>
+          <div className="text-sm text-gray-700">
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">{item.title}</h3>
             {item.file_path ? (
               <div className="flex justify-end">
                 <a
                   href={url(item.file_path, base)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-purple-500 text-white text-xs rounded hover:bg-purple-600"
+                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                 >
                   Download
                 </a>
               </div>
             ) : (
-              <p className="text-gray-400 text-xs italic">No file</p>
+              <p className="text-gray-400 italic">No file available</p>
             )}
           </div>
         </BadgeFrame>

@@ -1,14 +1,14 @@
 /* src/components/projectCard/ProjectCard.jsx */
 import React, { useState, lazy, Suspense } from 'react';
 import API from '../../services/api';
+import { FaHeart, FaCommentAlt, FaSave, FaUsers, FaEdit, FaTrashAlt, FaFileAlt, FaUserPlus, FaEye, FaClipboardList } from 'react-icons/fa';
 
-/* lazy-load the heavy modals so normal cards stay lightweight */
-const ApplyModal      = lazy(() => import('./ApplyModal'));
-const ReviewModal      = lazy(() => import('./ReviewModal'));
+const ApplyModal = lazy(() => import('./ApplyModal'));
+const ReviewModal = lazy(() => import('./ReviewModal'));
 const ApplicantsModal = lazy(() => import('./ApplicantsModal'));
-const MembersModal = lazy(() => import('./ProjectMembersModal'))
+const MembersModal = lazy(() => import('./ProjectMembersModal'));
+
 export default function ProjectCard({
-  /* -------- data props from Home.jsx -------- */
   title,
   description,
   role_details: roleDetails,
@@ -16,46 +16,37 @@ export default function ProjectCard({
   status,
   image,
   leaderName,
-
   project_id,
   leaderId,
   createdById,
   meId,
-  fileUrl,                 /* <-- correct prop name */
+  fileUrl,
   myRole = '',
-
   onUpdate,
   onDelete,
 }) {
-  /* ───────────── local state ───────────── */
-  const [showDesc,       setShowDesc]       = useState(false);
-  const [showRole,       setShowRole]       = useState(false);
-  const [showEdit,       setShowEdit]       = useState(false);
-  const [showApply,      setShowApply]      = useState(false);
-  const [showReviews,       setShowReviews]       = useState(false);
+  const [showDesc, setShowDesc] = useState(false);
+  const [showRole, setShowRole] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showApply, setShowApply] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
   const [showApplicants, setShowApplicants] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
 
-  /* editable copies (Edit modal) */
-  const [titleEd,    setTitleEd]    = useState(title);
-  const [descEd,     setDescEd]     = useState(description);
-  const [roleEd,     setRoleEd]     = useState(roleDetails);
-  const [statusEd,   setStatusEd]   = useState(status);
-  const [acceptingEd,setAcceptingEd]= useState(accepting);
+  const [titleEd, setTitleEd] = useState(title);
+  const [descEd, setDescEd] = useState(description);
+  const [roleEd, setRoleEd] = useState(roleDetails);
+  const [statusEd, setStatusEd] = useState(status);
+  const [acceptingEd, setAcceptingEd] = useState(accepting);
 
-  /* ───────────── helpers ───────────── */
-  const me        = Number(meId);
-  const isOwner   = !!me && (me === Number(leaderId) || me === Number(createdById));
-  const isActive  = status === 'ACTIVE';
+  const me = Number(meId);
+  const isOwner = !!me && (me === Number(leaderId) || me === Number(createdById));
+  const isActive = status === 'ACTIVE';
   const isMember = isOwner || !!myRole;
 
-  const badgeCls  = isActive
-      ? 'bg-blue-100 text-blue-600'
-      : 'bg-gray-100 text-gray-600';
-
+  const badgeCls = isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600';
   const overlay = 'fixed inset-0 bg-white z-[999] p-6 sm:p-12 overflow-auto';
 
-  /* ───────────── CRUD handlers ───────────── */
   const handleDelete = async () => {
     if (!window.confirm('Delete this project?')) return;
     try {
@@ -85,252 +76,107 @@ export default function ProjectCard({
     }
   };
 
-  /* ───────────── JSX ───────────── */
   return (
     <>
-      {/* CARD */}
-      <div className="bg-white min-h-80 rounded-2xl shadow hover:shadow-lg transition flex flex-col max-w-sm overflow-visible">
-        {image && (
-          <img src={image} alt={title} className="h-40 w-full object-cover" />
-        )}
-
-        <div className="p-5 flex flex-col flex-1">
-          <h3 className="text-lg font-bold text-gray-800">{title}</h3>
-          {leaderName && (
-            <p className="text-xs text-gray-500">
-              Led by <span className="font-medium">{leaderName}</span>
-            </p>
+      <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 mb-6 max-w-5xl mx-auto">
+        <div className="flex flex-col gap-4">
+          {image && (
+            <img src={image} alt={title} className="w-full h-64 object-cover rounded-md" />
           )}
 
-          <p className="text-sm text-gray-600 line-clamp-2 my-2 flex-grow">
-            {description}
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-2xl font-semibold text-gray-900">{title}</h3>
+              {leaderName && (
+                <p className="text-sm text-gray-600">Led by <span className="font-medium text-gray-800">{leaderName}</span></p>
+              )}
+            </div>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeCls}`}>{isActive ? 'Active' : 'Completed'}</span>
+          </div>
 
-          {/* quick links */}
-          <div className="flex flex-wrap gap-3 text-sm mb-3">
-            <button
-              onClick={() => setShowDesc(true)}
-              className="text-blue-600 hover:underline"
-            >
-              View Full Description →
+          <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">{description}</p>
+
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 text-sm mt-4">
+            <button onClick={() => setShowDesc(true)} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium">
+              <FaEye className="text-base" /> Full Description
             </button>
             {accepting && (
-              <button
-                onClick={() => setShowRole(true)}
-                className="text-blue-600 hover:underline"
-              >
-                View Role Details →
+              <button onClick={() => setShowRole(true)} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium">
+                <FaClipboardList className="text-base" /> Role Details
               </button>
             )}
-
             {fileUrl && (
-              <a
-                href={fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-indigo-600 hover:underline"
-              >
-                View Project File →
+              <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition font-medium">
+                <FaFileAlt className="text-base" /> Project File
               </a>
             )}
-            <button
-              onClick={() => setShowReviews(true)}
-              className="text-blue-600 hover:underline"
-            >
-              Review 
+            <button onClick={() => setShowReviews(true)} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition font-medium">
+              <FaCommentAlt className="text-base" /> Reviews
             </button>
           </div>
 
-          {/* footer */}
-          <div className="mt-auto pt-3 border-t flex items-center justify-between gap-2">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeCls}`}
-            >
-              {isActive ? 'Active' : 'Completed'}
-            </span>
-              <div className="flex items-center gap-1 text-xs font-medium">
-              
-              {isMember && (
-                <button onClick={() => setShowMembers(true)}
-                className='text-indigo-600 hover:underline'
-              >
-                Members
-              </button>)
-              }
-              
-              
-              {!isOwner && accepting && !isMember && (
-                <button
-                  onClick={() => setShowApply(true)}
-                  className="text-indigo-600 hover:underline"
-                >
-                  Apply
-                </button>
-              )}
-
-              {isOwner && accepting && (
-                <button
-                  onClick={() => setShowApplicants(true)}
-                  className="text-indigo-600 hover:underline"
-                >
-                  Applicants
-                </button>
-              )}
+          <div className="flex flex-wrap justify-between items-center mt-4 gap-4">
+            <div className="flex gap-2 text-sm">
+              {isMember && <button onClick={() => setShowMembers(true)} className="flex items-center gap-2 px-4 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-800"><FaUsers /> Team</button>}
+              {!isOwner && accepting && !isMember && <button onClick={() => setShowApply(true)} className="flex items-center gap-2 px-4 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"><FaUserPlus /> Join</button>}
+              {isOwner && accepting && <button onClick={() => setShowApplicants(true)} className="flex items-center gap-2 px-4 py-1 rounded bg-indigo-100 hover:bg-indigo-200 text-indigo-700"><FaFileAlt /> Applicants</button>}
               {isOwner && (
                 <>
-                  <button
-                    onClick={() => setShowEdit(true)}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-
+                  <button onClick={() => setShowEdit(true)} className="flex items-center gap-2 px-4 py-1 rounded bg-yellow-100 hover:bg-yellow-200 text-yellow-700"><FaEdit /> Edit</button>
+                  <button onClick={handleDelete} className="flex items-center gap-2 px-4 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700"><FaTrashAlt /> Delete</button>
                 </>
               )}
+            </div>
+            <div className="flex gap-4 text-gray-600 text-sm">
+              <button className="flex items-center gap-1 hover:text-gray-800"><FaSave /> Save</button>
+              <button className="flex items-center gap-1 hover:text-red-500"><FaHeart /> Like</button>
+              <button className="flex items-center gap-1 hover:text-gray-800"><FaCommentAlt /> Comment</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* DESCRIPTION overlay */}
       {showDesc && (
         <div className={overlay}>
-          <button
-            onClick={() => setShowDesc(false)}
-            className="text-gray-500 mb-4"
-          >
-            ← Back
-          </button>
-          <h2 className="text-2xl font-bold mb-4">Description</h2>
-          <p className="whitespace-pre-wrap">{description}</p>
+          <button onClick={() => setShowDesc(false)} className="text-gray-500 mb-4">← Back</button>
+          <h2 className="text-3xl font-bold mb-4 text-gray-800">Project Description</h2>
+          <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{description}</p>
         </div>
       )}
 
-      {/* ROLE overlay */}
       {showRole && (
         <div className={overlay}>
-          <button
-            onClick={() => setShowRole(false)}
-            className="text-gray-500 mb-4"
-          >
-            ← Back
-          </button>
-          <h2 className="text-2xl font-bold mb-4">Role Details</h2>
-          <p className="whitespace-pre-wrap">
-            {roleDetails || 'No details provided.'}
-          </p>
+          <button onClick={() => setShowRole(false)} className="text-gray-500 mb-4">← Back</button>
+          <h2 className="text-3xl font-bold mb-4 text-gray-800">Team Role Details</h2>
+          <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">{roleDetails || 'No details provided.'}</p>
         </div>
       )}
 
-      {/* EDIT overlay */}
       {showEdit && (
         <div className={overlay}>
-          <button
-            onClick={() => setShowEdit(false)}
-            className="text-gray-500 mb-4"
-          >
-            ← Back
-          </button>
+          <button onClick={() => setShowEdit(false)} className="text-gray-500 mb-4">← Back</button>
           <h2 className="text-2xl font-bold mb-4">Edit Project</h2>
-
           <div className="space-y-4">
-            <input
-              className="w-full border p-2 rounded"
-              value={titleEd}
-              onChange={(e) => setTitleEd(e.target.value)}
-            />
-
-            <textarea
-              className="w-full border p-2 rounded"
-              rows={3}
-              value={descEd}
-              onChange={(e) => setDescEd(e.target.value)}
-            />
-
-            <textarea
-              className="w-full border p-2 rounded"
-              rows={3}
-              value={roleEd}
-              onChange={(e) => setRoleEd(e.target.value)}
-              disabled={!acceptingEd}
-              placeholder="Role Details"
-            />
-
-            <select
-              className="w-full border p-2 rounded"
-              value={statusEd}
-              onChange={(e) => setStatusEd(e.target.value)}
-            >
+            <input className="w-full border p-3 rounded" value={titleEd} onChange={(e) => setTitleEd(e.target.value)} />
+            <textarea className="w-full border p-3 rounded" rows={4} value={descEd} onChange={(e) => setDescEd(e.target.value)} />
+            <textarea className="w-full border p-3 rounded" rows={4} value={roleEd} onChange={(e) => setRoleEd(e.target.value)} disabled={!acceptingEd} placeholder="Role Details" />
+            <select className="w-full border p-3 rounded" value={statusEd} onChange={(e) => setStatusEd(e.target.value)}>
               <option value="ACTIVE">Active</option>
               <option value="COMPLETED">Completed</option>
             </select>
-
-            <select
-              className="w-full border p-2 rounded"
-              value={String(acceptingEd)}
-              onChange={(e) => setAcceptingEd(e.target.value === 'true')}
-              disabled={statusEd === 'COMPLETED'}
-            >
+            <select className="w-full border p-3 rounded" value={String(acceptingEd)} onChange={(e) => setAcceptingEd(e.target.value === 'true')} disabled={statusEd === 'COMPLETED'}>
               <option value="true">Accepting applicants</option>
               <option value="false">Closed</option>
             </select>
-
-            <button
-              onClick={handleSave}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Save
-            </button>
+            <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save</button>
           </div>
         </div>
       )}
 
-      {/* APPLY modal */}
-      {showApply && (
-        <Suspense fallback={null}>
-          <ApplyModal
-            projectId={project_id}
-            onClose={() => setShowApply(false)}
-            onSuccess={() => alert('Application sent!')}
-          />
-        </Suspense>
-      )}
-
-      {/* APPLICANTS modal */}
-      {showApplicants && (
-        <Suspense fallback={null}>
-          <ApplicantsModal
-            projectId={project_id}
-            onClose={() => setShowApplicants(false)}
-          />
-        </Suspense>
-      )}
-      {/* MEMBERS modal */}
-      {showMembers && (
-        <Suspense fallback={null}>
-          <MembersModal
-            projectId={project_id}
-            isOwner={isOwner}          /* leader can edit / remove */
-            onClose={() => setShowMembers(false)}
-          />
-        </Suspense>
-      )}
-      {/* Rviews Modal */}
-      {showReviews && (
-        <Suspense fallback={null}>
-          <ReviewModal
-            projectId={project_id}         /* leader can edit / remove */
-            onClose={() => setShowReviews(false)}
-          />
-        </Suspense>
-      )}
-
+      {showApply && <Suspense fallback={null}><ApplyModal projectId={project_id} onClose={() => setShowApply(false)} onSuccess={() => alert('Application sent!')} /></Suspense>}
+      {showApplicants && <Suspense fallback={null}><ApplicantsModal projectId={project_id} onClose={() => setShowApplicants(false)} /></Suspense>}
+      {showMembers && <Suspense fallback={null}><MembersModal projectId={project_id} isOwner={isOwner} onClose={() => setShowMembers(false)} /></Suspense>}
+      {showReviews && <Suspense fallback={null}><ReviewModal projectId={project_id} onClose={() => setShowReviews(false)} /></Suspense>}
     </>
   );
 }
