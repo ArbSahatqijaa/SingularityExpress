@@ -163,7 +163,7 @@ export default function ProjectCard({
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium"
                 >
-                  <FaFileAlt/>View PDF
+                  <FaFileAlt/>Download File
                 </motion.a>
               )
             )}
