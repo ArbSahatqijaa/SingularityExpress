@@ -125,6 +125,10 @@ const ChatSidebar = () => {
         console.log('WebSocket message received:', data);
 
         switch (data.action) {
+          case 'online_users_list':
+            // Initialize online users set with the received list
+            setOnlineUsers(new Set(data.users));
+            break;
           case 'chat_message_received':
             console.log('Processing chat message:', data.message);
             // Handle both new messages and undelivered messages

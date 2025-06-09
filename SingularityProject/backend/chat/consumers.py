@@ -29,6 +29,9 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
         5. ICE exchange    {action: "ice", target: <otherId>, candidate: {...}}
     """
 
+    # Add class variable to track online users
+    online_users = set()
+
     async def connect(self):
         # Try to fetch user from standard authentication first
         self.user = self.scope.get("user", AnonymousUser())
@@ -57,6 +60,15 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
         self.group_name = f"user_{self.user.pk}"
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.channel_layer.group_add('lobby', self.channel_name)
+
+        # Add user to online users set
+        self.online_users.add(self.user.pk)
+        
+        # Send current online users list to the newly connected user
+        await self.send_json({
+            'action': 'online_users_list',
+            'users': list(self.online_users)
+        })
 
         # Get undelivered messages for this user
         try:
@@ -116,6 +128,9 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, "group_name"):
+            # Remove user from online users set
+            self.online_users.discard(self.user.pk)
+            
             # Notify others that user is offline
             await self.channel_layer.group_send('lobby', {
                 'type': 'broadcast.users',

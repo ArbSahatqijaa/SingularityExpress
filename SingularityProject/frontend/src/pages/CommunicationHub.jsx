@@ -159,9 +159,19 @@ export default function CommunicationHub() {
       
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('WS message received:', data);
+        console.log('WebSocket message received:', data);
         
         switch (data.action) {
+          case 'online_users_list':
+            // Update all users' online status based on the received list
+            setUsers(prev => prev.map(user => ({
+              ...user,
+              status: data.users.includes(user.user_id) ? 'online' : 'offline'
+            })));
+            break;
+          case 'user_online':
+            // ... existing code ...
+            break;
           case 'chat_message_received':
             console.log('Received chat message:', data);
             const message = data.message || data;
