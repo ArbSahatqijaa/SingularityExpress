@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import API from "../../services/api";
 
 export default function Signup() {
@@ -34,7 +35,7 @@ export default function Signup() {
     }
 
     if (pw !== form.confirmPassword) {
-      setError("Passwords don’t match");
+      setError("Passwords don't match");
       return;
     }
 
@@ -56,79 +57,91 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-100 py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex items-center justify-center bg-gray-100 py-12 px-4 min-h-screen"
+    >
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 space-y-6"
+      >
+        <motion.h2 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-2xl font-bold text-center text-gray-800"
+        >
           Create an Account
-        </h2>
-        {error && (
-          <div className="bg-red-100 text-red-800 p-3 rounded mb-4 text-center">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Username
-            </label>
-            <input
-              name="username"
-              type="text"
-              required
-              value={form.username}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              First Name
-            </label>
-            <input
-              name="first_name"
-              type="text"
-              required
-              value={form.first_name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Last Name
-            </label>
-            <input
-              name="last_name"
-              type="text"
-              required
-              value={form.last_name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Email
-            </label>
-            <input
-              name="email"
-              type="email"
-              required
-              value={form.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
+        </motion.h2>
+
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-red-100 text-red-800 p-3 rounded mb-4 text-center"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.form 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          onSubmit={handleSubmit} 
+          className="space-y-4"
+        >
+          {[
+            { name: 'username', label: 'Username', type: 'text' },
+            { name: 'first_name', label: 'First Name', type: 'text' },
+            { name: 'last_name', label: 'Last Name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'password', label: 'Password', type: 'password' },
+            { name: 'confirmPassword', label: 'Confirm Password', type: 'password' },
+          ].map((field, index) => (
+            <motion.div
+              key={field.name}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+            >
+              <label className="block text-sm font-medium text-gray-600">
+                {field.label}
+              </label>
+              <motion.input
+                whileFocus={{ scale: 1.02 }}
+                name={field.name}
+                type={field.type}
+                required
+                value={form[field.name]}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+              />
+            </motion.div>
+          ))}
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8 }}
+          >
             <label className="block text-sm font-medium text-gray-600">
               Academic Title
             </label>
-            <select
+            <motion.select
+              whileFocus={{ scale: 1.02 }}
               name="academic_title"
               required
               value={form.academic_title}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             >
               <option value="">Select Title</option>
               <option value="None">None</option>
@@ -136,61 +149,52 @@ export default function Signup() {
               <option value="Bachelor">Bachelor</option>
               <option value="Master">Master</option>
               <option value="PhD">PhD</option>
-            </select>
-          </div>
-          <div>
+            </motion.select>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+          >
             <label className="block text-sm font-medium text-gray-600">
               Profession
             </label>
-            <input
+            <motion.input
+              whileFocus={{ scale: 1.02 }}
               name="profession"
               type="text"
               required
               value={form.profession}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Password
-            </label>
-            <input
-              name="password"
-              type="password"
-              required
-              value={form.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Confirm Password
-            </label>
-            <input
-              name="confirmPassword"
-              type="password"
-              required
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
+          </motion.div>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-semibold transition-colors duration-200"
           >
             Sign Up
-          </button>
-        </form>
-        <p className="text-center text-sm">
+          </motion.button>
+        </motion.form>
+
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="text-center text-sm"
+        >
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Sign In
-          </Link>
-        </p>
-      </div>
-    </div>
+          <motion.span whileHover={{ x: 5 }}>
+            <Link to="/login" className="text-blue-600 hover:text-blue-700 transition-colors duration-200">
+              Sign In
+            </Link>
+          </motion.span>
+        </motion.p>
+      </motion.div>
+    </motion.div>
   );
 }

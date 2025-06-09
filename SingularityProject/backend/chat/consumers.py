@@ -339,13 +339,43 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
             })
         except Exception as e:
             logger.warning(f"Failed to broadcast user status to client: {e}")
-            # If the client is disconnected, remove them from the group
             if "Disconnected" in str(e):
                 try:
                     await self.channel_layer.group_discard('lobby', self.channel_name)
                     logger.info(f"Removed disconnected client from lobby group: {self.channel_name}")
                 except Exception as group_error:
                     logger.error(f"Error removing client from group: {group_error}")
+
+    async def broadcast_friendship(self, event):
+        """Handle broadcasts for friendship events."""
+        try:
+            # Extract the relevant data from the event
+            response = {
+                'action': event.get('action'),
+                'friendship_id': event.get('friendship_id'),
+                'from_user': event.get('from_user'),
+                'to_user': event.get('to_user'),
+                'status': event.get('status'),
+                'timestamp': event.get('timestamp')
+            }
+
+            # Get user details for the notification
+            if event.get('action') in ['friendship_request_sent', 'friendship_request_accepted', 'friendship_request_rejected']:
+                try:
+                    from_user = await database_sync_to_async(get_user_model().objects.get)(pk=event['from_user'])
+                    response['from_user_details'] = {
+                        'user_id': from_user.user_id,
+                        'first_name': from_user.first_name,
+                        'last_name': from_user.last_name,
+                        'username': from_user.username
+                    }
+                except Exception as e:
+                    logger.error(f"Error fetching user details: {e}")
+
+            await self.send_json(response)
+            logger.info(f"Sent friendship event to client: {response}")
+        except Exception as e:
+            logger.error(f"Failed to broadcast friendship event to client: {e}")
 
     async def broadcast_project(self, event):
         """Handle broadcasting project updates to the group."""

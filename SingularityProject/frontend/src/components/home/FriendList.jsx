@@ -1,71 +1,85 @@
 // src/components/friends/FriendList.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FriendSuggestionCard from './FriendSuggestionCard';
-import AddFriendModal from './AddFriendModal';
-
-const suggestedFriends = [
-  {
-    id: 1,
-    name: 'Arb Sahatqija',
-    role: 'UI/UX Designer',
-    image: '',
-    bio: 'Design lover, coffee enthusiast.',
-  },
-  {
-    id: 2,
-    name: 'Aid Aliu',
-    role: 'Frontend Developer',
-    image: '',
-    bio: 'Code, chill, repeat.',
-  },
-  {
-    id: 3,
-    name: 'Blend Kqiku',
-    role: 'Project Manager',
-    image: '',
-    bio: 'Organized chaos master.',
-  },
-  {
-    id: 4,
-    name: 'Arb Arb',
-    role: 'Backend Developer',
-    image: '',
-    bio: 'Server-side wizard.',
-  },
-];
+import API from '../../services/api';
 
 const FriendList = () => {
-  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const handleAddClick = (friend) => {
-    setSelectedFriend(friend);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        // First get current user
+        const { data: currentUserData } = await API.get('/whoami/');
+        setCurrentUser(currentUserData);
+
+        // Then get all users
+        const { data: usersData } = await API.get('/users/');
+        
+        // Filter out current user and users who are already friends
+        const filteredUsers = usersData.filter(user => 
+          user.user_id !== currentUserData.user_id
+        );
+
+        setUsers(filteredUsers);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        setError('Failed to load suggested friends');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleAddClick = (user) => {
+    // Remove the user from the suggestions list after sending request
+    setUsers(prevUsers => prevUsers.filter(u => u.user_id !== user.user_id));
   };
 
-  const handleCloseModal = () => {
-    setSelectedFriend(null);
-  };
+  if (loading) {
+    return (
+      <div className="bg-white p-4 rounded-xl shadow space-y-4">
+        <h2 className="text-lg font-semibold text-gray-800">People You May Know</h2>
+        <div className="text-center py-4 text-gray-500">Loading suggestions...</div>
+      </div>
+    );
+  }
 
-  const handleConfirmAdd = () => {
-    alert(`You added ${selectedFriend.name} as a friend!`);
-    setSelectedFriend(null);
-  };
+  if (error) {
+    return (
+      <div className="bg-white p-4 rounded-xl shadow space-y-4">
+        <h2 className="text-lg font-semibold text-gray-800">People You May Know</h2>
+        <div className="text-center py-4 text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  if (users.length === 0) {
+    return (
+      <div className="bg-white p-4 rounded-xl shadow space-y-4">
+        <h2 className="text-lg font-semibold text-gray-800">People You May Know</h2>
+        <div className="text-center py-4 text-gray-500">No suggestions available at the moment</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-4 rounded-xl shadow space-y-4">
       <h2 className="text-lg font-semibold text-gray-800">People You May Know</h2>
       <div className="space-y-3">
-        {suggestedFriends.map((friend) => (
-          <FriendSuggestionCard key={friend.id} friend={friend} onAddClick={handleAddClick} />
+        {users.map((user) => (
+          <FriendSuggestionCard 
+            key={user.user_id} 
+            user={user} 
+            onAddClick={handleAddClick}
+          />
         ))}
       </div>
-
-      {selectedFriend && (
-        <AddFriendModal
-          friend={selectedFriend}
-          onClose={handleCloseModal}
-          onConfirm={handleConfirmAdd}
-        />
-      )}
     </div>
   );
 };

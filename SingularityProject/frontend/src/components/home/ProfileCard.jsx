@@ -5,6 +5,29 @@ import API from '../../services/api';
 
 const ProfileCard = ({ user }) => {
   const navigate = useNavigate();
+  const defaultAvatar = "/default_images/default-avatar.svg";
+  const baseURL = API.defaults.baseURL;
+
+  // Handle avatar URL construction
+  const getAvatarUrl = (avatar) => {
+    if (!avatar) return defaultAvatar;
+    
+    // If it's already a full URL (starts with http), use it as is
+    if (avatar.startsWith('http')) return avatar;
+    
+    // If it's a relative path starting with /media/, remove the /media/ prefix
+    if (avatar.startsWith('/media/')) {
+      return `${baseURL}${avatar}`;
+    }
+    
+    // If it's a relative path without /media/, add it
+    if (avatar.startsWith('/')) {
+      return `${baseURL}/media${avatar}`;
+    }
+    
+    // If it's just a filename, add /media/avatars/
+    return `${baseURL}/media/avatars/${avatar}`;
+  };
 
   if (!user) {
     return <div className="p-4 text-center">Loading profile…</div>;
@@ -16,15 +39,13 @@ const ProfileCard = ({ user }) => {
       <div className="flex items-center space-x-4 mb-4">
         {/* Profile Image */}
         <img
-          src={
-            user.avatar ?
-            user.avatar.startsWith('http') ?
-            user.avatar
-            : API.defaults.baseURL + user.avatar
-            : '/default_images/default-avatar.svg'
-          }
+          src={getAvatarUrl(user.avatar)}
           alt="User Avatar"
           className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"
+          onError={(e) => {
+            e.target.onerror = null; // Prevent infinite loop
+            e.target.src = defaultAvatar;
+          }}
         />
         {/* User Info */}
         <div>

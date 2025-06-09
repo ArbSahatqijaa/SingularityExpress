@@ -10,6 +10,8 @@ const toMs  = o => Date.parse(o.created_at || o.updated_at || 0) || 0;
 const numId = o => o.project_id ?? o.paper_id ?? o.tutorial_id ?? 0;
 const url   = (p, base) => (p?.startsWith("http") ? p : base + p);
 
+const defaultProjectImage = "/default_images/default-project.svg";
+
 export default function PostsFeed({ meId }) {
   const [posts,   setPosts]   = useState([]);
   const [display, setDisplay] = useState([]);
@@ -131,7 +133,7 @@ function RenderCard({ item, meId }) {
         <BadgeFrame label="Project" color="blue">
           <ProjectCard
             {...item}
-            image={item.image      ? url(item.image, base)      : null}
+            image={item.image ? url(item.image, base) : defaultProjectImage}
             fileUrl={item.file_path? url(item.file_path, base)  : null}
             leaderName={leader}
             leaderId={Number(item.leader)}

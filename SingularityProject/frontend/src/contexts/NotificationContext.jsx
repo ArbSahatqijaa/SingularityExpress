@@ -1,176 +1,239 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import API from '../services/api';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 const NotificationContext = createContext();
 
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
-  }
-  return context;
-};
+export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const [processedFriendshipIds] = useState(() => {
+    const saved = localStorage.getItem('processedFriendshipIds');
+    return new Set(saved ? JSON.parse(saved) : []);
+  });
+  const wsRef = useRef(null);
+  const lastNotificationRef = useRef(null);
 
   // Load notifications from localStorage on mount
   useEffect(() => {
-    try {
-      const savedNotifications = localStorage.getItem('notifications');
-      if (savedNotifications) {
-        const parsedNotifications = JSON.parse(savedNotifications);
-        if (isDevelopment) {
-          console.log('Loaded notifications from storage:', parsedNotifications.length);
-        }
-        setNotifications(parsedNotifications);
-      }
-    } catch (error) {
-      if (isDevelopment) {
-        console.error('Error loading notifications:', error);
-      }
-      // Clear corrupted data
-      localStorage.removeItem('notifications');
+    const savedNotifications = localStorage.getItem('notifications');
+    if (savedNotifications) {
+      setNotifications(JSON.parse(savedNotifications));
     }
   }, []);
 
-  // Save notifications to localStorage when they change
+  // Save notifications and processed IDs to localStorage when they change
   useEffect(() => {
-    try {
-      localStorage.setItem('notifications', JSON.stringify(notifications));
-      if (isDevelopment) {
-        console.log('Saved notifications to storage:', notifications.length);
-      }
-    } catch (error) {
-      if (isDevelopment) {
-        console.error('Error saving notifications:', error);
-      }
-    }
-  }, [notifications]);
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+    localStorage.setItem('processedFriendshipIds', JSON.stringify([...processedFriendshipIds]));
+  }, [notifications, processedFriendshipIds]);
 
-  const addNotification = useCallback((notification) => {
-    try {
-      setNotifications(prev => {
-        const newNotifications = [...prev, { ...notification, id: Date.now() }];
-        // Keep only the last 50 notifications
-        return newNotifications.slice(-50);
-      });
-    } catch (error) {
-      if (isDevelopment) {
-        console.error('Error adding notification:', error);
-      }
-    }
-  }, []);
-
-  const removeNotification = useCallback((id) => {
-    try {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    } catch (error) {
-      if (isDevelopment) {
-        console.error('Error removing notification:', error);
-      }
-    }
-  }, []);
-
-  const clearNotifications = useCallback(() => {
-    try {
-      setNotifications([]);
-      localStorage.removeItem('notifications');
-    } catch (error) {
-      if (isDevelopment) {
-        console.error('Error clearing notifications:', error);
-      }
-    }
-  }, []);
-
-  // Track processed message IDs to prevent duplicates
-  const [processedMessageIds] = useState(() => {
-    const saved = localStorage.getItem('processedMessageIds');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
-
-  // Derive unreadCount from notifications array
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  // Save processed message IDs to localStorage
+  // Set up WebSocket connection
   useEffect(() => {
-    localStorage.setItem('processedMessageIds', JSON.stringify([...processedMessageIds]));
-  }, [processedMessageIds]);
+    const token = localStorage.getItem('jwt');
+    if (!token) return;
 
-  // Check for pending friend requests
-  useEffect(() => {
-    const fetchPendingFriendRequests = async () => {
-      try {
-        // Only run if we're authenticated
-        if (!API.defaults.headers.Authorization) return;
+    const ws = new WebSocket(`ws://localhost:8000/ws/communication/?token=${token}`);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log('WebSocket connected for notifications');
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('WebSocket message received:', data);
+
+      // Handle friendship events
+      if (data.action?.startsWith('friendship_request_')) {
+        const friendshipId = data.friendship_id;
+        const currentUserId = JSON.parse(atob(token.split('.')[1])).user_id;
         
-        const response = await API.get('/friendships/pending/');
-        const { count, requests } = response.data;
-        
-        if (count > 0) {
-          // Add notifications for pending requests
-          requests.forEach(request => {
-            const fromUser = request.from_user;
-            addNotification({
-              type: 'friendship',
-              senderId: fromUser.user_id,
-              title: 'New Friend Request',
-              message: `${fromUser.first_name} ${fromUser.last_name} wants to connect with you`,
-              timestamp: request.created_at,
-              // When clicked, navigate to the friends page
-              onClick: () => {
-                window.location.href = '/profile';
-              }
-            });
-          });
+        // Skip if we've already processed this friendship event
+        if (processedFriendshipIds.has(friendshipId)) {
+          console.log('Skipping duplicate friendship event:', friendshipId);
+          return;
         }
-      } catch (error) {
-        console.error('Error fetching pending friend requests:', error);
+        processedFriendshipIds.add(friendshipId);
+
+        // Clean up old IDs periodically
+        if (processedFriendshipIds.size > 1000) {
+          const idsToKeep = Array.from(processedFriendshipIds).slice(-1000);
+          processedFriendshipIds.clear();
+          idsToKeep.forEach(id => processedFriendshipIds.add(id));
+        }
+
+        // Create notification based on the action and user role
+        let notification = null;
+        const fromUser = data.from_user_details || data.from_user || { first_name: 'Someone', last_name: '' };
+        const toUser = data.to_user_details || data.to_user || { first_name: 'Someone', last_name: '' };
+
+        switch (data.action) {
+          case 'friendship_request_sent':
+            // For the receiver
+            if (data.to_user === currentUserId) {
+              notification = {
+                type: 'friendship',
+                title: 'New Friend Request',
+                message: `${fromUser.first_name} ${fromUser.last_name} wants to connect with you`,
+                timestamp: data.timestamp || new Date().toISOString(),
+                friendshipId: friendshipId,
+                fromUser: data.from_user,
+                status: 'PENDING'
+              };
+            }
+            // For the sender
+            else if (data.from_user === currentUserId) {
+              notification = {
+                type: 'friendship',
+                title: 'Friend Request Sent',
+                message: `You sent a friend request to ${toUser.first_name} ${toUser.last_name}`,
+                timestamp: data.timestamp || new Date().toISOString(),
+                friendshipId: friendshipId,
+                toUser: data.to_user,
+                status: 'PENDING'
+              };
+            }
+            break;
+
+          case 'friendship_request_accepted':
+            // For the sender
+            if (data.to_user === currentUserId) {
+              notification = {
+                type: 'friendship',
+                title: 'Friend Request Accepted',
+                message: `${fromUser.first_name} ${fromUser.last_name} accepted your friend request`,
+                timestamp: data.timestamp || new Date().toISOString(),
+                friendshipId: friendshipId,
+                fromUser: data.from_user,
+                status: 'ACCEPTED'
+              };
+            }
+            // For the receiver
+            else if (data.from_user === currentUserId) {
+              notification = {
+                type: 'friendship',
+                title: 'Friend Request Accepted',
+                message: `You accepted ${toUser.first_name} ${toUser.last_name}'s friend request`,
+                timestamp: data.timestamp || new Date().toISOString(),
+                friendshipId: friendshipId,
+                toUser: data.to_user,
+                status: 'ACCEPTED'
+              };
+            }
+            break;
+
+          case 'friendship_request_rejected':
+            // For the sender
+            if (data.to_user === currentUserId) {
+              notification = {
+                type: 'friendship',
+                title: 'Friend Request Rejected',
+                message: `${fromUser.first_name} ${fromUser.last_name} rejected your friend request`,
+                timestamp: data.timestamp || new Date().toISOString(),
+                friendshipId: friendshipId,
+                fromUser: data.from_user,
+                status: 'REJECTED'
+              };
+            }
+            // For the receiver
+            else if (data.from_user === currentUserId) {
+              notification = {
+                type: 'friendship',
+                title: 'Friend Request Rejected',
+                message: `You rejected ${toUser.first_name} ${toUser.last_name}'s friend request`,
+                timestamp: data.timestamp || new Date().toISOString(),
+                friendshipId: friendshipId,
+                toUser: data.to_user,
+                status: 'REJECTED'
+              };
+            }
+            break;
+        }
+
+        if (notification) {
+          // Check for duplicate notification (same type, title, and within 5 seconds)
+          const isDuplicate = notifications.some(n => 
+            n.type === notification.type &&
+            n.title === notification.title &&
+            n.friendshipId === notification.friendshipId &&
+            Math.abs(new Date(n.timestamp) - new Date(notification.timestamp)) < 5000
+          );
+
+          if (!isDuplicate) {
+            setNotifications(prev => [notification, ...prev].slice(0, 50));
+          }
+        }
       }
     };
 
-    fetchPendingFriendRequests();
-    
-    // Set up interval to check regularly
-    const interval = setInterval(fetchPendingFriendRequests, 60000); // Check every minute
-    
-    return () => clearInterval(interval);
-  }, [addNotification]);
+    ws.onclose = () => {
+      console.log('WebSocket disconnected, attempting to reconnect...');
+      setTimeout(() => {
+        if (wsRef.current) {
+          wsRef.current = new WebSocket(`ws://localhost:8000/ws/communication/?token=${token}`);
+        }
+      }, 3000);
+    };
 
-  const markAsRead = useCallback((notificationId) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [processedFriendshipIds]);
+
+  const addNotification = (notification) => {
+    // For friendship notifications, check if we've already processed this ID
+    if (notification.type === 'friendship' && notification.friendshipId) {
+      if (processedFriendshipIds.has(notification.friendshipId)) {
+        console.log('Skipping duplicate friendship notification:', notification.friendshipId);
+        return;
+      }
+      processedFriendshipIds.add(notification.friendshipId);
+    }
+
+    // Check for duplicate notification (same type, title, and within 5 seconds)
+    const isDuplicate = notifications.some(n => 
+      n.type === notification.type &&
+      n.title === notification.title &&
+      n.fromUser === notification.fromUser &&
+      Math.abs(new Date(n.timestamp) - new Date(notification.timestamp)) < 5000
     );
-  }, []);
 
-  const markAllAsRead = useCallback(() => {
-    setNotifications(prev => 
-      prev.map(n => ({ ...n, read: true }))
-    );
-  }, []);
+    if (!isDuplicate) {
+      setNotifications(prev => [notification, ...prev].slice(0, 50));
+    }
+  };
 
-  const clearNotification = useCallback((notificationId) => {
-    setNotifications(prev => 
-      prev.filter(n => n.id !== notificationId)
-    );
-  }, []);
+  const removeNotification = (index) => {
+    setNotifications(prev => prev.filter((_, i) => i !== index));
+  };
 
-  const clearAllNotifications = useCallback(() => {
+  const clearNotifications = () => {
     setNotifications([]);
-  }, []);
+  };
+
+  const markAsRead = (index) => {
+    setNotifications(prev => 
+      prev.map((notification, i) => 
+        i === index ? { ...notification, read: true } : notification
+      )
+    );
+  };
+
+  const value = {
+    notifications,
+    addNotification,
+    removeNotification,
+    clearNotifications,
+    markAsRead
+  };
 
   return (
-    <NotificationContext.Provider value={{
-      notifications,
-      unreadCount,
-      addNotification,
-      markAsRead,
-      markAllAsRead,
-      clearNotification,
-      clearAllNotifications
-    }}>
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );
-}; 
+};
+
+export default NotificationContext; 

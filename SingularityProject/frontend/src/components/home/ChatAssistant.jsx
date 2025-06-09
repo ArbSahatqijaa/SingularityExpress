@@ -38,6 +38,7 @@ const ChatAssistant = () => {
 
   const getAIResponse = async (userMessage) => {
     setIsTyping(true);
+    setError(null);
     try {
       const newMessages = [...messages, { id: Date.now(), user: 'You', text: userMessage }];
       setMessages(newMessages);
@@ -56,11 +57,31 @@ const ChatAssistant = () => {
         ]
       });
 
-      const aiReply = res.data.result || "Sorry, I didn't get a response.";
+      if (res.data.error) {
+        console.error('AI service error:', res.data.error);
+        setError(res.data.details || res.data.error);
+        setMessages(prev => [...prev, { 
+          id: Date.now(), 
+          user: 'AI', 
+          text: 'Sorry, I encountered an error. Please try again later.' 
+        }]);
+        return;
+      }
+
+      const aiReply = res.data.result;
+      if (!aiReply) {
+        throw new Error('No response from AI service');
+      }
+
       setMessages(prev => [...prev, { id: Date.now(), user: 'AI', text: aiReply }]);
     } catch (err) {
       console.error('Error fetching AI response:', err);
-      setMessages(prev => [...prev, { id: Date.now(), user: 'AI', text: 'Oops! Something went wrong. Try again later.' }]);
+      setError(err.response?.data?.details || err.message || 'An unexpected error occurred');
+      setMessages(prev => [...prev, { 
+        id: Date.now(), 
+        user: 'AI', 
+        text: 'Sorry, I encountered an error. Please try again later.' 
+      }]);
     } finally {
       setIsTyping(false);
     }

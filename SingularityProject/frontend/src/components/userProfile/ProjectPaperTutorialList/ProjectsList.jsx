@@ -9,6 +9,7 @@ const ProjectsList = ({ user }) => {
   const navigate = useNavigate();
 
   const backendUrl = 'http://localhost:8000';
+  const defaultProjectImage = "/default_images/default-project.svg";
 
   useEffect(() => {
     if (!user) return;
@@ -39,20 +40,18 @@ const ProjectsList = ({ user }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {userProjects.map(({ id, project }) => {
           const cleanImagePath = project.image?.startsWith('/') ? project.image.slice(1) : project.image;
-          const imageUrl = project.image ? `${backendUrl}/${cleanImagePath}` : null;
+          const imageUrl = project.image ? `${backendUrl}/${cleanImagePath}` : defaultProjectImage;
 
           return (
             <div
               key={id}
               className="bg-white rounded-2xl shadow-md p-4 flex flex-col justify-between hover:shadow-lg transition-shadow duration-200"
             >
-              {imageUrl && (
-                <img
-                  src={imageUrl}
-                  alt={project.title}
-                  className="w-full h-40 object-cover rounded-xl mb-3"
-                />
-              )}
+              <img
+                src={imageUrl}
+                alt={project.title}
+                className="w-full h-40 object-cover rounded-xl mb-3"
+              />
               <h3 className="text-lg font-semibold text-gray-800">{project.title}</h3>
               <p className="text-sm text-gray-600 mb-2 line-clamp-3"> Description: {project.description}</p>
               <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full w-fit">

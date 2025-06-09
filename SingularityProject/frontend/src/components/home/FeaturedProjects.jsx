@@ -49,6 +49,30 @@ const FeaturedProjects = () => {
     },
   ];
 
+  const defaultAvatar = "/default_images/default-avatar.svg";
+  const baseURL = API.defaults.baseURL;
+
+  // Handle avatar URL construction
+  const getAvatarUrl = (avatar) => {
+    if (!avatar) return defaultAvatar;
+    
+    // If it's already a full URL (starts with http), use it as is
+    if (avatar.startsWith('http')) return avatar;
+    
+    // If it's a relative path starting with /media/, remove the /media/ prefix
+    if (avatar.startsWith('/media/')) {
+      return `${baseURL}${avatar}`;
+    }
+    
+    // If it's a relative path without /media/, add it
+    if (avatar.startsWith('/')) {
+      return `${baseURL}/media${avatar}`;
+    }
+    
+    // If it's just a filename, add /media/avatars/
+    return `${baseURL}/media/avatars/${avatar}`;
+  };
+
   // Toggle dropdown for upload forms in project card
   const toggleUploadDropdown = (projectId, type) => {
     setUploadDropdown((prev) => ({
@@ -156,13 +180,13 @@ const FeaturedProjects = () => {
               {/* Header */}
               <div className="flex items-center mb-2 space-x-4">
                 <img
-                  src={project.leader.avatar ? 
-                    project.leader.avatar.startsWith('http') ? 
-                      project.leader.avatar 
-                      : API.defaults.baseURL + project.leader.avatar 
-                    : '/default_images/default-avatar.svg'}
+                  src={getAvatarUrl(project.leader.avatar)}
                   alt="User Avatar"
                   className="w-10 h-10 rounded-full"
+                  onError={(e) => {
+                    e.target.onerror = null; // Prevent infinite loop
+                    e.target.src = defaultAvatar;
+                  }}
                 />
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-gray-900">

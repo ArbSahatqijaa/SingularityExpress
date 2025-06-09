@@ -21,8 +21,7 @@ def chat_with_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-
-            messages = data.get("messages", [{"role": "user", "content": "hi"}])
+            messages = data.get("messages", [])
             model = data.get("model", "gpt-4o")
 
             # Get last user message content for easy reference
@@ -32,22 +31,54 @@ def chat_with_api(request):
                     user_message = m.get("content")
                     break
 
+            # Get RapidAPI key from environment
+            rapidapi_key = os.getenv('RAPIDAPI_KEY')
+            if not rapidapi_key:
+                logger.error("RAPIDAPI_KEY not found in environment variables")
+                return JsonResponse({"error": "API key not configured"}, status=500)
+
+            # Clean up the API key (remove any whitespace)
+            rapidapi_key = rapidapi_key.strip()
+
             url = "https://chatgpt-42.p.rapidapi.com/gpt4o"
             headers = {
                 "Content-Type": "application/json",
                 "x-rapidapi-host": "chatgpt-42.p.rapidapi.com",
-                "x-rapidapi-key": os.getenv('RAPIDAPI_KEY')
+                "x-rapidapi-key": rapidapi_key
             }
             payload = {
                 "messages": messages,
                 "model": model
             }
 
+            logger.info(f"Sending request to RapidAPI with model: {model}")
             response = requests.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            response_data = response.json()
+            
+            # Log the response status and headers for debugging
+            logger.info(f"RapidAPI response status: {response.status_code}")
+            logger.info(f"RapidAPI response headers: {dict(response.headers)}")
+            
+            try:
+                response.raise_for_status()
+                response_data = response.json()
+                logger.info(f"RapidAPI response data: {response_data}")
+            except requests.exceptions.HTTPError as e:
+                logger.error(f"HTTP error from RapidAPI: {e}")
+                logger.error(f"Response content: {response.text}")
+                return JsonResponse({
+                    "error": "AI service error",
+                    "details": str(e),
+                    "response": response.text
+                }, status=response.status_code)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse RapidAPI response: {e}")
+                logger.error(f"Raw response: {response.text}")
+                return JsonResponse({
+                    "error": "Invalid response from AI service",
+                    "details": str(e)
+                }, status=500)
 
-            # Extract AI response text depending on your API response format
+            # Extract AI response text
             ai_response = None
             if "choices" in response_data and response_data["choices"]:
                 ai_response = response_data["choices"][0].get("message", {}).get("content")
@@ -56,42 +87,55 @@ def chat_with_api(request):
             else:
                 ai_response = str(response_data)
 
-            # Save to MongoDB only if user is authenticated
-            logger.info(f"User authentication status - is_authenticated: {hasattr(request, 'user') and request.user.is_authenticated}")
-            if hasattr(request, 'user') and request.user.is_authenticated:
-                try:
-                    logger.info("Attempting to connect to MongoDB...")
-                    db_handle, mongo_client = get_db_handle()
-                    mongo_client.admin.command('ping')  # verify connection
-                    logger.info("MongoDB connection successful")
-                    ai_qa_collection = db_handle["ai_questions_and_answers"]
+            if not ai_response:
+                logger.error("No AI response found in the response data")
+                return JsonResponse({
+                    "error": "No response from AI service",
+                    "details": "The AI service returned an empty response"
+                }, status=500)
 
-                    qa_document = {
-                        "question": user_message,
-                        "answer": ai_response,
-                        "user_id": str(request.user.user_id),  # Using user_id instead of id
-                        "timestamp": datetime.utcnow(),
-                        "model_used": model,
-                        "conversation_history": messages
-                    }
+            # Save to MongoDB
+            try:
+                db_handle, mongo_client = get_db_handle()
+                mongo_client.admin.command('ping')
+                ai_qa_collection = db_handle["ai_questions_and_answers"]
 
-                    logger.info(f"Attempting to store document: {qa_document}")
-                    insert_result = ai_qa_collection.insert_one(qa_document)
-                    logger.info(f"Successfully stored conversation with ID {insert_result.inserted_id}")
+                qa_document = {
+                    "question": user_message,
+                    "answer": ai_response,
+                    "user_id": str(request.user.user_id),
+                    "timestamp": datetime.utcnow(),
+                    "model_used": model,
+                    "conversation_history": messages
+                }
 
-                except Exception as mongo_err:
-                    logger.error(f"Error storing to MongoDB: {mongo_err}")
-                    logger.error(f"Full traceback: {traceback.format_exc()}")
+                insert_result = ai_qa_collection.insert_one(qa_document)
+                logger.info(f"Stored conversation with ID {insert_result.inserted_id}")
 
-            return JsonResponse(response_data, status=response.status_code)
+            except Exception as mongo_err:
+                logger.error(f"Error storing to MongoDB: {mongo_err}")
+                logger.error(f"Full traceback: {traceback.format_exc()}")
+                # Continue even if MongoDB storage fails
+
+            return JsonResponse({
+                "result": ai_response,
+                "model": model,
+                "timestamp": datetime.utcnow().isoformat()
+            })
 
         except requests.exceptions.RequestException as e:
             logger.error(f"Request to external API failed: {e}")
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse({
+                "error": "Failed to connect to AI service",
+                "details": str(e)
+            }, status=500)
         except Exception as e:
             logger.error(f"Unexpected error in chat_with_api: {e}")
             logger.error(traceback.format_exc())
-            return JsonResponse({"error": "Internal Server Error"}, status=500)
+            return JsonResponse({
+                "error": "Internal server error",
+                "details": str(e)
+            }, status=500)
 
     return JsonResponse({"error": "Only POST allowed"}, status=405)
 
