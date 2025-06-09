@@ -64,11 +64,13 @@ export default function NavigationBar() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
-              Dashboard
-            </Link>
+            {user?.is_staff && (
+              <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">
+                Dashboard
+              </Link>
+            )}
           </motion.div>
-          
+        
         </div>
       )}
 
