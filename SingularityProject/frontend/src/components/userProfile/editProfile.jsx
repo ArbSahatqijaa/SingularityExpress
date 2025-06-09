@@ -12,7 +12,8 @@ const EditProfile = () => {
     last_name: "",
     email: "",
     username: "",
-    avatar: null, // Initially set to null to indicate no avatar uploaded
+    avatar: null,
+    cover: null,
   });
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -25,7 +26,8 @@ const EditProfile = () => {
           last_name: data.last_name,
           email: data.email,
           username: data.username,
-          avatar: null, // Reset avatar
+          avatar: null,
+          kopertina: null,
         });
       })
       .catch((error) => {
@@ -36,10 +38,10 @@ const EditProfile = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "avatar") {
+    if (name === "avatar" || name === "kopertina") {
       setFormData({
         ...formData,
-        avatar: files[0], // Store the selected file
+        [name]: files[0], // Store the selected file
       });
     } else {
       setFormData({
@@ -49,36 +51,41 @@ const EditProfile = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("first_name", formData.first_name);
-    formDataToSubmit.append("last_name", formData.last_name);
-    formDataToSubmit.append("email", formData.email);
-    formDataToSubmit.append("username", formData.username);
-    // Only append avatar if it's not null (not the default image)
-    if (formData.avatar) {
-      formDataToSubmit.append("avatar", formData.avatar);
-    }
+ const handleSubmit = (e) => {
+  e.preventDefault();
+  const formDataToSubmit = new FormData();
+  formDataToSubmit.append("first_name", formData.first_name);
+  formDataToSubmit.append("last_name", formData.last_name);
+  formDataToSubmit.append("email", formData.email);
+  formDataToSubmit.append("username", formData.username);
 
-    API.patch(`/users/${user.user_id}/`, formDataToSubmit, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+  if (formData.avatar) {
+    formDataToSubmit.append("avatar", formData.avatar);
+  }
+
+  if (formData.kopertina) {
+    formDataToSubmit.append("kopertina", formData.kopertina);
+    // Store preview in localStorage for Profile.jsx
+    localStorage.setItem("kopertina", URL.createObjectURL(formData.kopertina));
+  }
+
+  API.patch(`/users/${user.user_id}/`, formDataToSubmit, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  })
+    .then(({ data }) => {
+      setSuccessMsg("✅ Profile updated successfully!");
+      setTimeout(() => setSuccessMsg(""), 3000);
+      setUser(data);
+      navigate("/profile");
     })
-      .then(({ data }) => {
-        setSuccessMsg("✅ Profile updated successfully!");
-        setTimeout(() => setSuccessMsg(""), 3000);
-        setUser(data);
-        navigate("/profile");
-      })
-      .catch((error) => {
-        console.error(error);
-        setSuccessMsg("❌ Something went wrong. Please try again.");
-        setTimeout(() => setSuccessMsg(""), 3000);
-      });
-  };
-
+    .catch((error) => {
+      console.error(error);
+      setSuccessMsg("❌ Something went wrong. Please try again.");
+      setTimeout(() => setSuccessMsg(""), 3000);
+    });
+};
   if (user === null) return <div>Loading...</div>;
 
   // Show preview of uploaded avatar or default image if no avatar uploaded
@@ -121,6 +128,25 @@ const EditProfile = () => {
                 className="mt-1 text-sm"
               />
             </div>
+          </div>
+          <div className="space-y-2">
+  <label className="block text-sm font-medium text-gray-700">Change Cover Banner</label>
+    <input
+            type="file"
+            accept="image/*"
+            name="kopertina"
+            onChange={handleChange}
+            className="mt-1 text-sm"
+          />
+          {formData.kopertina && (
+          <div className="mt-2">
+          <img
+            src={URL.createObjectURL(formData.kopertina)}
+            alt="Preview"
+            className="w-full h-40 object-cover rounded-lg"
+          />
+          </div>
+             )}
           </div>
 
           <ProfileForm formData={formData} handleChange={handleChange} />

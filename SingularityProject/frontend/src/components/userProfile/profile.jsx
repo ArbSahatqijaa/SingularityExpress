@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import ProfileAvatar from "./profileAvatar";
 import API from "../../services/api";
-import ProjectCard from "../projectCard/projectCard";
 import FriendsList from './friendsList/FriendsList';
 import ProjectsList from './ProjectPaperTutorialList/ProjectsList';
 import PaperList from './ProjectPaperTutorialList/PaperList';
@@ -12,11 +11,11 @@ import Overview from './ProjectPaperTutorialList/Overview';
 const Profile = () => {
   const [user, setUser] = useState(undefined);
   const [selectedTab, setSelectedTab] = useState('Overview');
+  const storedKopertina = localStorage.getItem("kopertina");
 
   useEffect(() => {
     API.get('/whoami/')
       .then(({ data }) => {
-        console.log(data);
         setUser(data);
       })
       .catch((error) => {
@@ -28,7 +27,6 @@ const Profile = () => {
   const handleTabClick = (tab) => {
     setSelectedTab(tab);
   };
-
 
   if (user === undefined) {
     return <div className="p-8 text-gray-700">Loading...</div>;
@@ -43,7 +41,12 @@ const Profile = () => {
       {/* Profile Card */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         {/* Cover Banner */}
-        <div className="h-40 bg-gradient-to-r from-purple-600 to-blue-500 relative">
+        <div className="h-40 relative">
+          <img
+            src={storedKopertina || "/default_images/default-banner.jpg"}
+            alt="Cover"
+            className="w-full h-full object-cover"
+          />
           {/* Avatar */}
           <div className="absolute -bottom-12 left-6">
             <ProfileAvatar avatar={user.avatar} />
@@ -95,13 +98,11 @@ const Profile = () => {
         </div>
 
         <div className="lg:col-span-2 space-y-4">
-          
           {selectedTab === 'Overview' && <Overview user={user} />}
           {selectedTab === 'Friends' && <FriendsList />}
           {selectedTab === 'Project' && <ProjectsList user={user} />}
           {selectedTab === 'Papers' && <PaperList user={user} />}
           {selectedTab === 'Tutorials' && <TutorialList user={user} />}
-
         </div>
       </div>
     </div>
