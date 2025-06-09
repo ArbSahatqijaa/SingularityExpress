@@ -59,6 +59,11 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=5),  # expires after 5 hours
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # expires after 1 day
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'user_id',
     'USER_ID_CLAIM': 'user_id'
 }
@@ -171,14 +176,6 @@ MONGO_CONFIG = {
     'PORT': 27017,
     'USERNAME': 'mongouser',
     'PASSWORD': os.getenv('MONGO_PASSWORD', ''),
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=5),  # expires after 5 hours
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # expires after 1 day
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 # Password validation
