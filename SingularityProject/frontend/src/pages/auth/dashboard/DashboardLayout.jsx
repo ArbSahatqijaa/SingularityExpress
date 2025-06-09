@@ -12,8 +12,9 @@ export default function DashboardLayout({ children }) {
     { name: 'Papers', path: '/dashboard/papers' },
     { name: 'Tutorials', path: '/dashboard/tutorials' },
     { name: 'Reviews', path: '/dashboard/reviews' },
-    { name: 'Invitations', path: '/dashboard/invitations' },
-    { name: 'Roles', path: '/dashboard/required_roles' },
+    { name: 'User-Paper', path: '/dashboard/user_papers' },
+    { name: 'User-Project', path: '/dashboard/user_projects' },
+    { name: 'Paper-Project', path: '/dashboard/paper_projects' },
   ];
 
   return (
