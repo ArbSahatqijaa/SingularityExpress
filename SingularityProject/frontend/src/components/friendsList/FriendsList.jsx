@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import API from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { useWebSocket } from '../../contexts/WebSocketContext';
 
 const WS_URL = 'ws://localhost:8000/ws/communication/';
 
@@ -12,6 +13,7 @@ const FriendsList = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
   const { addNotification } = useNotifications();
+  const { sendMessage } = useWebSocket();
   const wsRef = useRef(null);
   const processedEvents = useRef(new Set());
 

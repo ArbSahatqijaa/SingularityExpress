@@ -77,33 +77,54 @@ def friendship_created_updated(sender, instance, created, **kwargs):
     try:
         channel_layer = get_channel_layer()
         
-        # Prepare the notification data
+        # Get user details with all necessary fields
+        from_user_details = {
+            'user_id': instance.from_user.user_id,
+            'first_name': instance.from_user.first_name,
+            'last_name': instance.from_user.last_name,
+            'username': instance.from_user.username,
+            'avatar': instance.from_user.avatar.url if instance.from_user.avatar else None,
+            'profession': instance.from_user.profession,
+            'academic_title': instance.from_user.academic_title
+        }
+        
+        to_user_details = {
+            'user_id': instance.to_user.user_id,
+            'first_name': instance.to_user.first_name,
+            'last_name': instance.to_user.last_name,
+            'username': instance.to_user.username,
+            'avatar': instance.to_user.avatar.url if instance.to_user.avatar else None,
+            'profession': instance.to_user.profession,
+            'academic_title': instance.to_user.academic_title
+        }
+        
+        # Prepare the notification data with consistent structure
         notification_data = {
             'type': 'broadcast.friendship',
             'action': 'friendship_request_sent' if created else f'friendship_request_{instance.status.lower()}',
             'friendship_id': instance.id,
             'from_user': instance.from_user.user_id,
             'to_user': instance.to_user.user_id,
+            'from_user_details': from_user_details,
+            'to_user_details': to_user_details,
             'status': instance.status,
-            'timestamp': instance.created_at.isoformat() if created else instance.updated_at.isoformat()
+            'timestamp': instance.created_at.isoformat() if created else instance.updated_at.isoformat(),
+            'responded_at': instance.responded_at.isoformat() if instance.responded_at else None
         }
 
-        # Send to the recipient's channel
-        async_to_sync(channel_layer.group_send)(
-            f"user_{instance.to_user.user_id}",
-            notification_data
-        )
+        # Send to both users with proper error handling
+        for user_id in [instance.to_user.user_id, instance.from_user.user_id]:
+            try:
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{user_id}",
+                    notification_data
+                )
+                logger.info(f"Successfully sent friendship event to user {user_id}: {notification_data['action']}")
+            except Exception as e:
+                logger.error(f"Failed to send friendship event to user {user_id}: {str(e)}", exc_info=True)
 
-        # If it's an update (accept/reject), also notify the sender
-        if not created:
-            async_to_sync(channel_layer.group_send)(
-                f"user_{instance.from_user.user_id}",
-                notification_data
-            )
-
-        logger.info(f"Broadcast friendship event: {notification_data}")
     except Exception as e:
-        logger.error(f"Error broadcasting friendship event: {str(e)}", exc_info=True)
+        logger.error(f"Error in friendship signal handler: {str(e)}", exc_info=True)
 
 @receiver(post_delete, sender=Friendship)
 def friendship_deleted(sender, instance, **kwargs):
@@ -111,23 +132,44 @@ def friendship_deleted(sender, instance, **kwargs):
     try:
         channel_layer = get_channel_layer()
         
+        # Get user details before deletion
+        from_user_details = {
+            'user_id': instance.from_user.user_id,
+            'first_name': instance.from_user.first_name,
+            'last_name': instance.from_user.last_name,
+            'username': instance.from_user.username
+        }
+        
+        to_user_details = {
+            'user_id': instance.to_user.user_id,
+            'first_name': instance.to_user.first_name,
+            'last_name': instance.to_user.last_name,
+            'username': instance.to_user.username
+        }
+        
         notification_data = {
             'type': 'broadcast.friendship',
             'action': 'friendship_deleted',
             'friendship_id': instance.id,
             'from_user': instance.from_user.user_id,
             'to_user': instance.to_user.user_id,
+            'from_user_details': from_user_details,
+            'to_user_details': to_user_details,
+            'status': 'DELETED',
             'timestamp': instance.updated_at.isoformat()
         }
 
-        # Notify both users
+        # Notify both users with proper error handling
         for user_id in [instance.from_user.user_id, instance.to_user.user_id]:
-            async_to_sync(channel_layer.group_send)(
-                f"user_{user_id}",
-                notification_data
-            )
+            try:
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{user_id}",
+                    notification_data
+                )
+                logger.info(f"Successfully sent friendship deletion to user {user_id}")
+            except Exception as e:
+                logger.error(f"Failed to send friendship deletion to user {user_id}: {str(e)}", exc_info=True)
 
-        logger.info(f"Broadcast friendship deletion: {notification_data}")
     except Exception as e:
-        logger.error(f"Error broadcasting friendship deletion: {str(e)}", exc_info=True)
+        logger.error(f"Error in friendship deletion signal handler: {str(e)}", exc_info=True)
 

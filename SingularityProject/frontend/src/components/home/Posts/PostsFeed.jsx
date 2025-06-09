@@ -125,8 +125,7 @@ function RenderCard({ item, meId }) {
   switch (item.__type) {
     case "project": {
       const leader =
-        item.leader_full_name || item.leader_username ||
-        item.leader?.full_name || item.leader?.username ||
+        item.leader_name ||
         `User #${item.leader}`;
 
       return (

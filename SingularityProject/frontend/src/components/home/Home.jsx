@@ -214,8 +214,7 @@ const Home = () => {
                       const fileUrl = p.file_path?.startsWith('http') 
                         ? p.file_path 
                         : API.defaults.baseURL + p.file_path;
-                      const leaderName = p.leader_full_name || p.leader_username || 
-                        p.leader?.full_name || p.leader?.username || `User #${p.leader}`;
+                      const leaderName = p.leader_name || `User #${p.leader}`;
 
                       return (
                         <motion.div

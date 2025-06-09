@@ -351,31 +351,66 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
         try:
             # Extract the relevant data from the event
             response = {
+                'type': 'broadcast.friendship',
                 'action': event.get('action'),
                 'friendship_id': event.get('friendship_id'),
                 'from_user': event.get('from_user'),
                 'to_user': event.get('to_user'),
+                'from_user_details': event.get('from_user_details'),
+                'to_user_details': event.get('to_user_details'),
                 'status': event.get('status'),
-                'timestamp': event.get('timestamp')
+                'timestamp': event.get('timestamp'),
+                'responded_at': event.get('responded_at')
             }
 
-            # Get user details for the notification
-            if event.get('action') in ['friendship_request_sent', 'friendship_request_accepted', 'friendship_request_rejected']:
+            # Validate required fields
+            required_fields = ['action', 'friendship_id', 'from_user', 'to_user', 'status', 'timestamp']
+            missing_fields = [field for field in required_fields if field not in response or response[field] is None]
+            
+            if missing_fields:
+                logger.error(f"Missing required fields in friendship event: {missing_fields}")
+                return
+
+            # Validate user details
+            if not response.get('from_user_details') or not response.get('to_user_details'):
+                logger.warning("Missing user details in friendship event, attempting to fetch...")
                 try:
+                    # Get both users' details
                     from_user = await database_sync_to_async(get_user_model().objects.get)(pk=event['from_user'])
+                    to_user = await database_sync_to_async(get_user_model().objects.get)(pk=event['to_user'])
+                    
                     response['from_user_details'] = {
                         'user_id': from_user.user_id,
                         'first_name': from_user.first_name,
                         'last_name': from_user.last_name,
-                        'username': from_user.username
+                        'username': from_user.username,
+                        'avatar': from_user.avatar.url if from_user.avatar else None,
+                        'profession': from_user.profession,
+                        'academic_title': from_user.academic_title
+                    }
+                    
+                    response['to_user_details'] = {
+                        'user_id': to_user.user_id,
+                        'first_name': to_user.first_name,
+                        'last_name': to_user.last_name,
+                        'username': to_user.username,
+                        'avatar': to_user.avatar.url if to_user.avatar else None,
+                        'profession': to_user.profession,
+                        'academic_title': to_user.academic_title
                     }
                 except Exception as e:
                     logger.error(f"Error fetching user details: {e}")
+                    # Send minimal user details if fetch fails
+                    response['from_user_details'] = {'user_id': event['from_user']}
+                    response['to_user_details'] = {'user_id': event['to_user']}
+
+            # Add event ID for duplicate prevention
+            response['event_id'] = f"{event['action']}_{event['friendship_id']}_{event['timestamp']}"
 
             await self.send_json(response)
-            logger.info(f"Sent friendship event to client: {response}")
+            logger.info(f"Sent friendship event to client: {response['action']} (ID: {response['event_id']})")
         except Exception as e:
-            logger.error(f"Failed to broadcast friendship event to client: {e}")
+            logger.error(f"Failed to broadcast friendship event to client: {e}", exc_info=True)
 
     async def broadcast_project(self, event):
         """Handle broadcasting project updates to the group."""

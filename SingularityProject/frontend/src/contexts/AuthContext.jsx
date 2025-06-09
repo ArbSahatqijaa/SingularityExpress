@@ -1,8 +1,17 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import API from '../services/api';
 import { useNotifications } from './NotificationContext';
 
 export const AuthContext = createContext();
+
+// Add the useAuth hook
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

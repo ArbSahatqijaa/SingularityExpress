@@ -1,5 +1,5 @@
 // src/components/friends/FriendSuggestionCard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus, Check, X } from 'lucide-react';
 import API from '../../services/api';
@@ -12,6 +12,7 @@ const FriendSuggestionCard = ({ user }) => {
   const { sendMessage } = useWebSocket();
   const [loading, setLoading] = useState(false);
   const [requestStatus, setRequestStatus] = useState(null);
+  const processedEvents = useRef(new Set());
   const defaultAvatar = "/default_images/default-avatar.svg";
   const baseURL = API.defaults.baseURL;
   const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -28,6 +29,63 @@ const FriendSuggestionCard = ({ user }) => {
     };
     checkFriendshipStatus();
   }, [user.user_id]);
+
+  // WebSocket message handler
+  useEffect(() => {
+    const handleWebSocketMessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type !== 'broadcast.friendship') return;
+
+        const eventId = `${data.action}_${data.friendship_id}_${data.timestamp}`;
+        if (processedEvents.current.has(eventId)) {
+          console.log('Skipping duplicate event:', eventId);
+          return;
+        }
+        processedEvents.current.add(eventId);
+
+        // Clean up old event IDs
+        if (processedEvents.current.size > 1000) {
+          const idsToKeep = Array.from(processedEvents.current).slice(-1000);
+          processedEvents.current.clear();
+          idsToKeep.forEach(id => processedEvents.current.add(id));
+        }
+
+        // Handle friendship events for this user
+        if ((data.from_user === currentUser?.user_id && data.to_user === user.user_id) ||
+            (data.to_user === currentUser?.user_id && data.from_user === user.user_id)) {
+          
+          switch (data.action) {
+            case 'friendship_request_sent':
+              setRequestStatus('PENDING');
+              break;
+
+            case 'friendship_request_accepted':
+              setRequestStatus('ACCEPTED');
+              break;
+
+            case 'friendship_request_rejected':
+              setRequestStatus('REJECTED');
+              break;
+
+            case 'friendship_deleted':
+              setRequestStatus('NONE');
+              break;
+          }
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    };
+
+    // Add WebSocket message listener
+    const ws = new WebSocket(`ws://localhost:8000/ws/communication/?token=${localStorage.getItem('token')}`);
+    ws.onmessage = handleWebSocketMessage;
+
+    return () => {
+      ws.close();
+    };
+  }, [user.user_id, currentUser?.user_id]);
 
   // Handle avatar URL construction
   const getAvatarUrl = (avatar) => {
@@ -60,8 +118,9 @@ const FriendSuggestionCard = ({ user }) => {
       // Send WebSocket notification
       sendMessage({
         action: 'friendship_request_sent',
-        to_user: user.user_id,
+        friendship_id: response.data.id,
         from_user: currentUser?.user_id,
+        to_user: user.user_id,
         from_user_details: {
           user_id: currentUser?.user_id,
           first_name: currentUser?.first_name,
@@ -78,7 +137,6 @@ const FriendSuggestionCard = ({ user }) => {
           profession: user.profession,
           academic_title: user.academic_title
         },
-        friendship_id: response.data.id,
         timestamp: new Date().toISOString()
       });
 

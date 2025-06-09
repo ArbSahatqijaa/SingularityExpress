@@ -94,6 +94,45 @@ def chat_with_api(request):
                     "details": "The AI service returned an empty response"
                 }, status=500)
 
+            # Clean up the response - filter out JSON and escape sequences
+            if isinstance(ai_response, str):
+                # First, try to extract just the content if it's in a JSON-like structure
+                if "'result':" in ai_response or '"result":' in ai_response:
+                    # Find the content between the first quote after 'result' and the last quote before 'status'
+                    start_idx = ai_response.find("'result':") or ai_response.find('"result":')
+                    if start_idx != -1:
+                        start_idx = ai_response.find("'", start_idx + 8) or ai_response.find('"', start_idx + 8)
+                        if start_idx != -1:
+                            start_idx += 1  # Move past the quote
+                            end_idx = ai_response.rfind("'status':") or ai_response.rfind('"status":')
+                            if end_idx != -1:
+                                ai_response = ai_response[start_idx:end_idx].strip()
+
+                # Remove any remaining JSON-like characters
+                ai_response = ai_response.replace("'", "").replace('"', '')
+                ai_response = ai_response.replace('{', '').replace('}', '')
+                ai_response = ai_response.replace('result:', '').replace('status:', '')
+                ai_response = ai_response.replace('server_code:', '')
+                ai_response = ai_response.replace('True', '').replace('False', '')
+                ai_response = ai_response.replace('dg', '')
+                
+                # Clean up escape sequences
+                ai_response = ai_response.replace('\\n', '\n')
+                ai_response = ai_response.replace('\\t', ' ')
+                ai_response = ai_response.replace('\\"', '"')
+                ai_response = ai_response.replace("\\'", "'")
+                
+                # Remove markdown formatting
+                ai_response = ai_response.replace('**', '')
+                ai_response = ai_response.replace('*', '')
+                
+                # Clean up whitespace and newlines
+                lines = [line.strip() for line in ai_response.split('\n') if line.strip()]
+                ai_response = '\n'.join(lines)
+                
+                # Remove any double spaces
+                ai_response = ' '.join(ai_response.split())
+
             # Save to MongoDB
             try:
                 db_handle, mongo_client = get_db_handle()
