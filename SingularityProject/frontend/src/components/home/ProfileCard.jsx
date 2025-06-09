@@ -21,7 +21,7 @@ const ProfileCard = ({ user }) => {
             user.avatar.startsWith('http') ?
             user.avatar
             : API.defaults.baseURL + user.avatar
-            : 'https://via.placeholder.com/150'
+            : '/default_images/default-avatar.svg'
           }
           alt="User Avatar"
           className="w-16 h-16 rounded-full object-cover border-2 border-blue-500"

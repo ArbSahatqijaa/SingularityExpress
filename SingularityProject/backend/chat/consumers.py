@@ -54,12 +54,17 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
             await self.close()
             return
 
+        # Add user to the lobby group for project updates
+        await self.channel_layer.group_add('lobby', self.channel_name)
+        logger.info(f"User {self.user.username} added to lobby group")
+
+        # Accept the connection
         await self.accept()
+        logger.info(f"WebSocket connection accepted for user {self.user.username}")
         
         # Add user to their personal channel
         self.group_name = f"user_{self.user.pk}"
         await self.channel_layer.group_add(self.group_name, self.channel_name)
-        await self.channel_layer.group_add('lobby', self.channel_name)
 
         # Add user to online users set
         self.online_users.add(self.user.pk)
@@ -127,21 +132,27 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
         })
 
     async def disconnect(self, close_code):
-        if hasattr(self, "group_name"):
-            # Remove user from online users set
-            self.online_users.discard(self.user.pk)
+        try:
+            # Remove user from the lobby group
+            await self.channel_layer.group_discard('lobby', self.channel_name)
+            logger.info(f"User removed from lobby group")
             
-            # Notify others that user is offline
-            await self.channel_layer.group_send('lobby', {
-                'type': 'broadcast.users',
-                'event': 'user_offline',
-                'user': {
-                    'user_id': self.user.pk,
-                    'username': self.user.username,
-                }
-            })
-            await self.channel_layer.group_discard(self.group_name, self.channel_name)
-        await self.channel_layer.group_discard('lobby', self.channel_name)
+            if hasattr(self, "group_name"):
+                # Remove user from online users set
+                self.online_users.discard(self.user.pk)
+                
+                # Notify others that user is offline
+                await self.channel_layer.group_send('lobby', {
+                    'type': 'broadcast.users',
+                    'event': 'user_offline',
+                    'user': {
+                        'user_id': self.user.pk,
+                        'username': self.user.username,
+                    }
+                })
+                await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        except Exception as e:
+            logger.error(f"Error in WebSocket disconnect: {str(e)}")
 
     async def receive_json(self, content, **kwargs):
         action = content.get("action")
@@ -335,6 +346,18 @@ class CallConsumer(AsyncJsonWebsocketConsumer):
                     logger.info(f"Removed disconnected client from lobby group: {self.channel_name}")
                 except Exception as group_error:
                     logger.error(f"Error removing client from group: {group_error}")
+
+    async def broadcast_project(self, event):
+        """Handle broadcasting project updates to the group."""
+        logger.info(f"Broadcasting project update: {event['action']}")
+        try:
+            await self.send_json({
+                'action': event['action'],
+                'project': event['project']
+            })
+            logger.info("Successfully sent project update to client")
+        except Exception as e:
+            logger.error(f"Error sending project update to client: {str(e)}")
 
     # ────────────────────── Mongo helpers ──────────────────────────
     @database_sync_to_async

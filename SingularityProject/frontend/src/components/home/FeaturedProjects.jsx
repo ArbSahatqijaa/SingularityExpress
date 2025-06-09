@@ -10,6 +10,7 @@ import {
   FaUpload,
 } from "react-icons/fa";
 import JoinTeamModal from "./JoinTeamModal";
+import API from "../../services/api";
 
 const FeaturedProjects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
@@ -155,7 +156,11 @@ const FeaturedProjects = () => {
               {/* Header */}
               <div className="flex items-center mb-2 space-x-4">
                 <img
-                  src="https://via.placeholder.com/40"
+                  src={project.leader.avatar ? 
+                    project.leader.avatar.startsWith('http') ? 
+                      project.leader.avatar 
+                      : API.defaults.baseURL + project.leader.avatar 
+                    : '/default_images/default-avatar.svg'}
                   alt="User Avatar"
                   className="w-10 h-10 rounded-full"
                 />

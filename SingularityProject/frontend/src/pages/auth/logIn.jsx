@@ -27,7 +27,7 @@ const Login = () => {
       console.log("🎫 New JWT:", access);
       localStorage.setItem("jwt", access);
       const { data: user } = await API.get("/whoami/");
-      navigate(user.is_staff ? "/dashboard" : "/profile");
+      navigate(user.is_staff ? "/dashboard" : "/home");
     } catch {
       setError("Login failed. Please check your credentials.");
     }

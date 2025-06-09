@@ -3,7 +3,7 @@ import API from '../../services/api';
 
 
 const ProfileAvatar = ({ avatar, className = '' }) => {
-  const defaultAvatar = "/default-avatar.png";
+  const defaultAvatar = "/default_images/default-avatar.svg";
   const baseURL       = API.defaults.baseURL;
   const avatarUrl     = avatar
   ? avatar.startsWith('http')

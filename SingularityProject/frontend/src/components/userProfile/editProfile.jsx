@@ -87,7 +87,7 @@ const EditProfile = () => {
     ? URL.createObjectURL(formData.avatar)
     : user.avatar
     ? `${process.env.REACT_APP_API_URL}/media/${user.avatar}`
-    : '/default-avatar.jpg';
+    : '/default_images/default-avatar.svg';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
