@@ -80,6 +80,31 @@ export default function ProjectCard({
     }
   };
 
+  // Add image URL handling
+  const getImageUrl = (img) => {
+    if (!img) return defaultProjectImage;
+    
+    // If it's already a full URL (starts with http), use it as is
+    if (img.startsWith('http')) return img;
+    
+    // If it's a relative path starting with /media/, use it as is
+    if (img.startsWith('/media/')) return img;
+    
+    // If it's a relative path without /media/, add it
+    if (img.startsWith('/')) {
+      return `/media${img}`;
+    }
+    
+    // If it's just a filename, add /media/project-images/
+    return `/media/project-images/${img}`;
+  };
+
+  // Add error handling for image loading
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    e.target.src = defaultProjectImage;
+  };
+
   return (
     <>
       <motion.div 
@@ -93,7 +118,8 @@ export default function ProjectCard({
           <motion.img 
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
-            src={image || defaultProjectImage} 
+            src={getImageUrl(image)}
+            onError={handleImageError}
             alt={title} 
             className="w-full h-64 object-cover rounded-md shadow-md" 
           />

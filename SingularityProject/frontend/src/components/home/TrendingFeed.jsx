@@ -19,10 +19,8 @@ export default function TrendingFeed({ kind = 'projects' }) {
   const fetchTrendingItems = useCallback(async () => {
     try {
       const response = await API.get('/projects/trending/');
-      // Sort by creation date and take only the 3 most recent
-      const sortedItems = response.data
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 3);
+      // Use the backend's sorting (by member count) and take only the 3 most trending
+      const sortedItems = response.data.slice(0, 3);
       setTrendingItems(sortedItems);
     } catch (error) {
       console.error('Error fetching trending items:', error);
@@ -106,8 +104,9 @@ export default function TrendingFeed({ kind = 'projects' }) {
                   return prev;
                 }
                 
+                // Add new project and sort by member count
                 const newItems = [...prev, data.project]
-                  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                  .sort((a, b) => (b.worker_count || 0) - (a.worker_count || 0))
                   .slice(0, 3);
                 console.log('Updated trending items:', newItems);
                 return newItems;

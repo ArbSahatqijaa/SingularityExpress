@@ -61,6 +61,12 @@ const ChatSidebar = () => {
   // Add ref for current call sound
   const currentCallSound = useRef(null);
 
+  // Add file download handler
+  const [downloadStatus, setDownloadStatus] = useState({});
+
+  // Add state for image preview
+  const [previewImage, setPreviewImage] = useState(null);
+
   // Helper function to check if an event has been processed
   const hasProcessedEvent = (eventId, type) => {
     const ref = type === 'message' ? processedMessageIds : processedCallIds;
@@ -777,6 +783,98 @@ const ChatSidebar = () => {
     cleanupCall();
   };
 
+  // Add image preview handler
+  const handleImagePreview = (imageContent) => {
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    const imageUrl = `${baseUrl}/api/chat/download/${imageContent.stored_filename}`;
+    setPreviewImage({
+      url: imageUrl,
+      filename: imageContent.filename
+    });
+  };
+
+  // Add image download handler
+  const handleImageDownload = async (imageContent) => {
+    const messageId = imageContent.message_id;
+    try {
+      setDownloadStatus(prev => ({
+        ...prev,
+        [messageId]: 'downloading'
+      }));
+
+      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const downloadUrl = `${baseUrl}/api/chat/download/${imageContent.stored_filename}`;
+      window.open(downloadUrl, '_blank');
+
+      setDownloadStatus(prev => ({
+        ...prev,
+        [messageId]: 'downloaded'
+      }));
+
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      setDownloadStatus(prev => ({
+        ...prev,
+        [messageId]: 'error'
+      }));
+      alert('Failed to download image. Please try again.');
+    }
+  };
+
+  // Add file download handler
+  const handleFileDownload = async (fileContent) => {
+    const messageId = fileContent.message_id;
+    try {
+      setDownloadStatus(prev => ({
+        ...prev,
+        [messageId]: 'downloading'
+      }));
+
+      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      const downloadUrl = `${baseUrl}/api/chat/download/${fileContent.stored_filename}`;
+      window.open(downloadUrl, '_blank');
+
+      setDownloadStatus(prev => ({
+        ...prev,
+        [messageId]: 'downloaded'
+      }));
+
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      setDownloadStatus(prev => ({
+        ...prev,
+        [messageId]: 'error'
+      }));
+      alert('Failed to download file. Please try again.');
+    }
+  };
+
+  // Add ImagePreviewModal component
+  const ImagePreviewModal = ({ image, onClose }) => {
+    if (!image) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={onClose}>
+        <div className="relative max-w-4xl max-h-[90vh] p-4" onClick={e => e.stopPropagation()}>
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+          >
+            <FaTimes size={20} />
+          </button>
+          <img
+            src={image.url}
+            alt={image.filename}
+            className="max-w-full max-h-[80vh] object-contain rounded-lg"
+          />
+          <div className="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-lg">
+            <p className="text-sm truncate">{image.filename}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       {/* Chat toggle button */}
@@ -884,22 +982,104 @@ const ChatSidebar = () => {
                     >
                       {typeof msg.content === 'string' ? (
                         msg.content
-                      ) : msg.message_type === 'image' && msg.content.url ? (
-                        <img
-                          src={msg.content.url}
-                          alt="Shared image"
-                          className="max-w-full rounded"
-                          onClick={() => window.open(msg.content.url, '_blank')}
-                        />
+                      ) : msg.message_type === 'image' ? (
+                        <div className="flex flex-col space-y-2">
+                          <div className="relative group">
+                            <img
+                              src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/chat/download/${msg.content.stored_filename}`}
+                              alt={msg.content.filename}
+                              className="max-w-[200px] max-h-[200px] rounded-lg cursor-pointer object-cover"
+                              onClick={() => handleImagePreview(msg.content)}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleImagePreview(msg.content);
+                                }}
+                                className="bg-white bg-opacity-80 p-2 rounded-full hover:bg-opacity-100 transition-all duration-200"
+                                title="Preview"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">
+                              {(msg.content.size / 1024).toFixed(1)} KB
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleImageDownload({...msg.content, message_id: msg.message_id});
+                              }}
+                              disabled={downloadStatus[msg.message_id] === 'downloading'}
+                              className={`px-3 py-1 rounded text-sm ${
+                                downloadStatus[msg.message_id] === 'downloading' 
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : downloadStatus[msg.message_id] === 'downloaded'
+                                    ? 'bg-green-500 text-white hover:bg-green-600'
+                                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                              }`}
+                            >
+                              {downloadStatus[msg.message_id] === 'downloading' 
+                                ? 'Downloading...' 
+                                : downloadStatus[msg.message_id] === 'downloaded'
+                                  ? '✓ Downloaded'
+                                  : downloadStatus[msg.message_id] === 'error'
+                                    ? 'Retry'
+                                    : 'Download'}
+                            </button>
+                          </div>
+                        </div>
                       ) : (
-                        <a
-                          href={msg.content.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
-                        >
-                          📎 {msg.content.filename}
-                        </a>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg">📎</span>
+                          <div className="flex-grow">
+                            <p className="font-medium">{msg.content.filename}</p>
+                            <p className="text-xs text-gray-500">
+                              {(msg.content.size / 1024).toFixed(1)} KB
+                            </p>
+                            {messageStatus[msg.message_id]?.startsWith('uploading_') && (
+                              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div 
+                                  className="bg-blue-500 h-1.5 rounded-full" 
+                                  style={{ width: `${messageStatus[msg.message_id].split('_')[1]}%` }}
+                                ></div>
+                              </div>
+                            )}
+                            {downloadStatus[msg.message_id] === 'downloading' && (
+                              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div className="bg-blue-500 h-1.5 rounded-full animate-pulse"></div>
+                              </div>
+                            )}
+                          </div>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleFileDownload({...msg.content, message_id: msg.message_id});
+                            }}
+                            disabled={downloadStatus[msg.message_id] === 'downloading'}
+                            className={`px-3 py-1 rounded text-sm ${
+                              downloadStatus[msg.message_id] === 'downloading' 
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : downloadStatus[msg.message_id] === 'downloaded'
+                                  ? 'bg-green-500 text-white hover:bg-green-600'
+                                  : 'bg-blue-500 text-white hover:bg-blue-600'
+                            }`}
+                          >
+                            {downloadStatus[msg.message_id] === 'downloading' 
+                              ? 'Downloading...' 
+                              : downloadStatus[msg.message_id] === 'downloaded'
+                                ? '✓ Downloaded'
+                                : downloadStatus[msg.message_id] === 'error'
+                                  ? 'Retry'
+                                  : 'Download'}
+                          </button>
+                        </div>
                       )}
                       {msg.sender_id === currentUser && (
                         <span className="text-xs opacity-75 ml-2">
@@ -1066,6 +1246,14 @@ const ChatSidebar = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Add ImagePreviewModal to the component's return statement */}
+      {previewImage && (
+        <ImagePreviewModal
+          image={previewImage}
+          onClose={() => setPreviewImage(null)}
+        />
       )}
     </div>
   );

@@ -16,7 +16,7 @@ const UserProfile = () => {
   const [friendshipId, setFriendshipId] = useState(null);
   const [requestDirection, setRequestDirection] = useState(null); // 'sent' or 'received'
   const { addNotification } = useNotifications();
-  const { sendMessage } = useWebSocket();
+  const { sendMessage, isConnected } = useWebSocket();
   const processedEvents = useRef(new Set());
   const currentUser = JSON.parse(localStorage.getItem('user'));
 
@@ -56,8 +56,13 @@ const UserProfile = () => {
     checkFriendshipStatus();
   }, [id]);
 
-  // WebSocket message handler
+  // Subscribe to WebSocket messages through the context
   useEffect(() => {
+    if (!isConnected) {
+      console.log('WebSocket not connected, waiting for connection...');
+      return;
+    }
+
     const handleWebSocketMessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -82,25 +87,88 @@ const UserProfile = () => {
             (data.from_user === currentUser?.user_id && data.to_user === parseInt(id)) ||
             (data.to_user === currentUser?.user_id && data.from_user === parseInt(id))) {
           
+          console.log('Processing friendship event:', data);
+          
           switch (data.action) {
             case 'friendship_request_sent':
               setFriendshipStatus('PENDING');
               setFriendshipId(data.friendship_id);
               setRequestDirection(data.from_user === currentUser?.user_id ? 'sent' : 'received');
+              
+              // Add notification for the receiver
+              if (data.to_user === currentUser?.user_id) {
+                addNotification({
+                  type: 'friendship',
+                  title: 'New Friend Request',
+                  message: `${data.from_user_details?.first_name || 'Someone'} ${data.from_user_details?.last_name || ''} wants to connect with you`,
+                  timestamp: data.timestamp,
+                  friendshipId: data.friendship_id,
+                  fromUser: data.from_user,
+                  toUser: data.to_user,
+                  fromUserDetails: data.from_user_details,
+                  toUserDetails: data.to_user_details,
+                  status: 'PENDING'
+                });
+              }
               break;
 
             case 'friendship_request_accepted':
               setFriendshipStatus('ACCEPTED');
+              // Add notification for both users
+              addNotification({
+                type: 'friendship',
+                title: 'Friend Request Accepted',
+                message: data.from_user === currentUser?.user_id 
+                  ? `You accepted ${data.to_user_details?.first_name || 'Someone'}'s friend request`
+                  : `${data.from_user_details?.first_name || 'Someone'} accepted your friend request`,
+                timestamp: data.timestamp,
+                friendshipId: data.friendship_id,
+                fromUser: data.from_user,
+                toUser: data.to_user,
+                fromUserDetails: data.from_user_details,
+                toUserDetails: data.to_user_details,
+                status: 'ACCEPTED'
+              });
               break;
 
             case 'friendship_request_rejected':
               setFriendshipStatus('REJECTED');
+              // Add notification for both users
+              addNotification({
+                type: 'friendship',
+                title: 'Friend Request Rejected',
+                message: data.from_user === currentUser?.user_id 
+                  ? `You rejected ${data.to_user_details?.first_name || 'Someone'}'s friend request`
+                  : `${data.from_user_details?.first_name || 'Someone'} rejected your friend request`,
+                timestamp: data.timestamp,
+                friendshipId: data.friendship_id,
+                fromUser: data.from_user,
+                toUser: data.to_user,
+                fromUserDetails: data.from_user_details,
+                toUserDetails: data.to_user_details,
+                status: 'REJECTED'
+              });
               break;
 
             case 'friendship_deleted':
               setFriendshipStatus('NONE');
               setFriendshipId(null);
               setRequestDirection(null);
+              // Add notification for both users
+              addNotification({
+                type: 'friendship',
+                title: 'Friendship Ended',
+                message: data.from_user === currentUser?.user_id 
+                  ? `You ended your friendship with ${data.to_user_details?.first_name || 'Someone'}`
+                  : `${data.from_user_details?.first_name || 'Someone'} ended your friendship`,
+                timestamp: data.timestamp,
+                friendshipId: data.friendship_id,
+                fromUser: data.from_user,
+                toUser: data.to_user,
+                fromUserDetails: data.from_user_details,
+                toUserDetails: data.to_user_details,
+                status: 'DELETED'
+              });
               break;
           }
         }
@@ -109,14 +177,14 @@ const UserProfile = () => {
       }
     };
 
-    // Add WebSocket message listener
+    // Subscribe to WebSocket messages through the context
     const ws = new WebSocket(`ws://localhost:8000/ws/communication/?token=${localStorage.getItem('token')}`);
     ws.onmessage = handleWebSocketMessage;
 
     return () => {
       ws.close();
     };
-  }, [id, friendshipId, currentUser?.user_id]);
+  }, [id, friendshipId, currentUser?.user_id, isConnected, addNotification]);
 
   const handleRequestAdd = () => {
     API.post(`/friendships/`, { to_user: id })  

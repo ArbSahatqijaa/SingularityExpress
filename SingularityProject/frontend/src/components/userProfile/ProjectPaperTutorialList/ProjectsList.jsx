@@ -30,6 +30,33 @@ const ProjectsList = ({ user }) => {
     console.log('User object:', user);
   }, [user]);
 
+  // Add image URL handling
+  const getImageUrl = (img) => {
+    if (!img) return defaultProjectImage;
+    
+    // If it's already a full URL (starts with http), use it as is
+    if (img.startsWith('http')) return img;
+    
+    // If it's a relative path starting with /media/, use it as is
+    if (img.startsWith('/media/')) {
+      return `${backendUrl}${img}`;
+    }
+    
+    // If it's a relative path without /media/, add it
+    if (img.startsWith('/')) {
+      return `${backendUrl}/media${img}`;
+    }
+    
+    // If it's just a filename, add /media/project-images/
+    return `${backendUrl}/media/project-images/${img}`;
+  };
+
+  // Add error handling for image loading
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    e.target.src = defaultProjectImage;
+  };
+
   if (loading) return <div className="text-gray-600">Loading projects...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
   if (userProjects.length === 0) return <div className="text-gray-600">You have no projects yet.</div>;
@@ -39,16 +66,14 @@ const ProjectsList = ({ user }) => {
       <h2 className="text-xl font-bold text-gray-800 mb-4">Projects I'm Working On</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {userProjects.map(({ id, project }) => {
-          const cleanImagePath = project.image?.startsWith('/') ? project.image.slice(1) : project.image;
-          const imageUrl = project.image ? `${backendUrl}/${cleanImagePath}` : defaultProjectImage;
-
           return (
             <div
               key={id}
               className="bg-white rounded-2xl shadow-md p-4 flex flex-col justify-between hover:shadow-lg transition-shadow duration-200"
             >
               <img
-                src={imageUrl}
+                src={getImageUrl(project.image)}
+                onError={handleImageError}
                 alt={project.title}
                 className="w-full h-40 object-cover rounded-xl mb-3"
               />
